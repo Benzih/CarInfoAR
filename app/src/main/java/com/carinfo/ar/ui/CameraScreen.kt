@@ -2,7 +2,6 @@ package com.carinfo.ar.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import android.util.Size
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,8 +24,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.carinfo.ar.camera.FrameMotionTracker
 import com.carinfo.ar.camera.PlateAnalyzer
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
@@ -70,8 +72,8 @@ import kotlinx.coroutines.launch
 
 data class PlateOverlayState(
     val plateNumber: String,
-    val screenX: Float,
-    val screenY: Float,
+    val screenX: Float = 0f,
+    val screenY: Float = 0f,
     val vehicleInfo: VehicleInfo? = null,
     val isLoading: Boolean = true,
     val lastSeenTime: Long = System.currentTimeMillis()
@@ -92,27 +94,16 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "CarInfo AR",
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = Color.White
-                )
+                Text("CarInfo AR", style = MaterialTheme.typography.headlineLarge, color = Color.White)
                 Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Your country is not supported yet",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color(0xFFFF6B6B)
-                )
+                Text("Your country is not supported yet", style = MaterialTheme.typography.bodyLarge, color = Color(0xFFFF6B6B))
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "Supported: Israel, Netherlands, UK",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+                Text("Supported: Israel, Netherlands, UK", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
             }
         }
         return
     }
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
 
@@ -125,11 +116,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        hasCameraPermission = granted
-    }
+    ) { granted -> hasCameraPermission = granted }
 
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
+    val motionTracker = remember { FrameMotionTracker() }
 
     var viewWidth by remember { mutableIntStateOf(1) }
     var viewHeight by remember { mutableIntStateOf(1) }
@@ -177,57 +167,66 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                             .build().also {
                                 it.setAnalyzer(
                                     ContextCompat.getMainExecutor(ctx),
-                                    PlateAnalyzer(country) { plates, imgW, imgH ->
-                                        val now = System.currentTimeMillis()
-                                        val visiblePlates = mutableSetOf<String>()
+                                    PlateAnalyzer(
+                                        country = country,
+                                        motionTracker = motionTracker,
+                                        screenWidth = { viewWidth },
+                                        screenHeight = { viewHeight },
+                                        onMotionEstimated = { dx, dy ->
+                                            if (overlayStates.isNotEmpty()) {
+                                                for ((plate, state) in overlayStates.entries.toList()) {
+                                                    overlayStates[plate] = state.copy(
+                                                        screenX = state.screenX + dx,
+                                                        screenY = state.screenY + dy
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        onPlatesDetected = { plates, imgW, imgH ->
+                                            val now = System.currentTimeMillis()
 
-                                        for (plate in plates) {
-                                            visiblePlates.add(plate.plateNumber)
+                                            for (plate in plates) {
+                                                val scaleX = viewWidth.toFloat() / imgW.toFloat()
+                                                val scaleY = viewHeight.toFloat() / imgH.toFloat()
 
-                                            val scaleX = viewWidth.toFloat() / imgW.toFloat()
-                                            val scaleY = viewHeight.toFloat() / imgH.toFloat()
+                                                val box = plate.boundingBox
+                                                val screenCenterX = box.centerX() * scaleX
+                                                val screenTopY = box.top * scaleY
 
-                                            val box = plate.boundingBox
-                                            val screenCenterX = box.centerX() * scaleX
-                                            val screenTopY = box.top * scaleY
+                                                val existing = overlayStates[plate.plateNumber]
+                                                val cachedInfo = VehicleCache.getCached(plate.plateNumber)
 
-                                            val existing = overlayStates[plate.plateNumber]
-                                            val cachedInfo = VehicleCache.getCached(plate.plateNumber)
+                                                overlayStates[plate.plateNumber] = PlateOverlayState(
+                                                    plateNumber = plate.plateNumber,
+                                                    screenX = screenCenterX,
+                                                    screenY = screenTopY,
+                                                    vehicleInfo = cachedInfo ?: existing?.vehicleInfo,
+                                                    isLoading = cachedInfo == null && existing?.vehicleInfo == null && !VehicleCache.isKnown(plate.plateNumber),
+                                                    lastSeenTime = now
+                                                )
 
-                                            val smoothX = if (existing != null) {
-                                                existing.screenX * 0.4f + screenCenterX * 0.6f
-                                            } else screenCenterX
-                                            val smoothY = if (existing != null) {
-                                                existing.screenY * 0.4f + screenTopY * 0.6f
-                                            } else screenTopY
-
-                                            overlayStates[plate.plateNumber] = PlateOverlayState(
-                                                plateNumber = plate.plateNumber,
-                                                screenX = smoothX,
-                                                screenY = smoothY,
-                                                vehicleInfo = cachedInfo ?: existing?.vehicleInfo,
-                                                isLoading = cachedInfo == null && !VehicleCache.isKnown(plate.plateNumber),
-                                                lastSeenTime = now
-                                            )
-
-                                            if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
-                                                scope.launch {
-                                                    val info = VehicleCache.fetchIfNeeded(plate.plateNumber, country)
-                                                    overlayStates[plate.plateNumber]?.let { current ->
-                                                        overlayStates[plate.plateNumber] = current.copy(
-                                                            vehicleInfo = info,
-                                                            isLoading = false
-                                                        )
+                                                if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
+                                                    scope.launch {
+                                                        val info = VehicleCache.fetchIfNeeded(plate.plateNumber, country)
+                                                        overlayStates[plate.plateNumber]?.let { current ->
+                                                            overlayStates[plate.plateNumber] = current.copy(
+                                                                vehicleInfo = info,
+                                                                isLoading = false
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
-                                        }
 
-                                        val toRemove = overlayStates.keys.filter { key ->
-                                            key !in visiblePlates && (now - (overlayStates[key]?.lastSeenTime ?: 0)) > 1500
+                                            // Remove plates not seen recently
+                                            val toRemove = overlayStates.keys.filter { key ->
+                                                val state = overlayStates[key] ?: return@filter true
+                                                if (state.vehicleInfo != null) false
+                                                else (now - state.lastSeenTime) > 1500
+                                            }
+                                            toRemove.forEach { overlayStates.remove(it) }
                                         }
-                                        toRemove.forEach { overlayStates.remove(it) }
-                                    }
+                                    )
                                 )
                             }
 
@@ -240,7 +239,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                                 imageAnalysis
                             )
                         } catch (e: Exception) {
-                            Log.e("CarInfoAR", "Camera bind failed", e)
+                            e.printStackTrace()
                         }
                     }, ContextCompat.getMainExecutor(ctx))
 
@@ -249,10 +248,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                 modifier = Modifier.fillMaxSize()
             )
 
-            // Scan effect overlay
             ScanEffect()
-
-            // Viewfinder brackets
             ViewfinderOverlay()
 
             // Top HUD bar
@@ -272,39 +268,47 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                         .clickable { onOpenSettings() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = Color.White,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(20.dp))
                 }
             }
 
-            // Hint text at bottom
+            // Bottom hint/reset
             if (overlayStates.isEmpty()) {
                 Text(
-                    text = "Point at a license plate",
+                    "Point at a license plate",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0x88FFFFFF),
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+                )
+            } else {
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 48.dp)
-                )
+                        .padding(bottom = 40.dp)
+                        .clip(CircleShape)
+                        .background(GlassOverlay)
+                        .clickable { overlayStates.clear() }
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Refresh, "Reset", tint = Color.White, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("Reset", color = Color.White, fontSize = 14.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
+                    }
+                }
             }
 
             // AR Overlays
             overlayStates.values.forEach { state ->
                 if (state.vehicleInfo == null && !state.isLoading) return@forEach
 
-                val offsetX = state.screenX.toInt()
-                val overlayHeight = with(density) { 80.dp.toPx() }
-                val offsetY = (state.screenY - overlayHeight).toInt().coerceAtLeast(0)
+                val overlayHeightPx = with(density) { 80.dp.toPx() }
+                val offsetXPx = state.screenX.toInt()
+                val offsetYPx = (state.screenY - overlayHeightPx).coerceAtLeast(0f).toInt()
 
-                Box(
-                    modifier = Modifier
-                        .offset { IntOffset(offsetX, offsetY) }
-                ) {
+                Box(modifier = Modifier.offset { IntOffset(offsetXPx, offsetYPx) }) {
                     var overlaySize by remember { mutableStateOf(IntSize.Zero) }
                     Box(
                         modifier = Modifier
@@ -322,31 +326,16 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
         }
     } else {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF0A0A0A)),
+            modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A)),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = null,
-                    tint = BrandPrimary,
-                    modifier = Modifier.size(48.dp)
-                )
+                Icon(Icons.Default.Settings, null, tint = BrandPrimary, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(16.dp))
-                Text(
-                    text = "Camera Access\nRequired",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
+                Text("Camera Access\nRequired", style = MaterialTheme.typography.headlineMedium, color = Color.White,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "Please grant camera access in settings",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
+                Text("Please grant camera access in settings", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
             }
         }
     }
