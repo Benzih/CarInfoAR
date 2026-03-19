@@ -1,5 +1,6 @@
 package com.carinfo.ar.ui
 
+import android.app.Activity
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Size
@@ -14,12 +15,14 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -56,7 +59,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.carinfo.ar.ads.AdManager
 import com.carinfo.ar.camera.FrameMotionTracker
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.carinfo.ar.camera.PlateAnalyzer
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
@@ -120,6 +127,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
 
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
     val motionTracker = remember { FrameMotionTracker() }
+    val knownPlates = remember { mutableSetOf<String>() }
+    val activity = context as? Activity
 
     var viewWidth by remember { mutableIntStateOf(1) }
     var viewHeight by remember { mutableIntStateOf(1) }
@@ -205,6 +214,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                                                     lastSeenTime = now
                                                 )
 
+                                                if (knownPlates.add(plate.plateNumber) && activity != null) {
+                                                    AdManager.onNewPlateDetected(activity)
+                                                }
+
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(plate.plateNumber, country)
@@ -278,13 +291,13 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                     "Point at a license plate",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0x88FFFFFF),
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
                 )
             } else {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 40.dp)
+                        .padding(bottom = 80.dp)
                         .clip(CircleShape)
                         .background(GlassOverlay)
                         .clickable { overlayStates.clear() }
@@ -298,6 +311,25 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     }
                 }
+            }
+
+            // Banner Ad
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = 0.dp)
+            ) {
+                AndroidView(
+                    factory = { ctx ->
+                        AdView(ctx).apply {
+                            setAdSize(AdSize.BANNER)
+                            adUnitId = AdManager.BANNER_AD_UNIT_ID
+                            loadAd(AdRequest.Builder().build())
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             // AR Overlays
