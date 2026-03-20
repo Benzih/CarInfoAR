@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.carinfo.ar.data.UserPreferences
+import com.carinfo.ar.ui.screens.HistoryScreen
 import com.carinfo.ar.ui.screens.OnboardingScreen
 import com.carinfo.ar.ui.screens.SettingsScreen
 import com.carinfo.ar.ui.screens.SplashScreen
@@ -23,6 +24,7 @@ object Routes {
     const val ONBOARDING = "onboarding"
     const val CAMERA = "camera"
     const val SETTINGS = "settings"
+    const val HISTORY = "history"
 }
 
 @Composable
@@ -68,12 +70,21 @@ fun AppNavigation() {
             CameraScreen(
                 onOpenSettings = {
                     navController.navigate(Routes.SETTINGS)
+                },
+                onOpenHistory = {
+                    navController.navigate(Routes.HISTORY)
                 }
             )
         }
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.HISTORY) {
+            HistoryScreen(
                 onBack = { navController.popBackStack() }
             )
         }

@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.OpenInNew
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +45,9 @@ import com.carinfo.ar.ui.theme.GlassOverlay
 @Composable
 fun FloatingCarInfo(
     vehicleInfo: VehicleInfo,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSaveToHistory: (() -> Unit)? = null,
+    onOpenModelInfo: (() -> Unit)? = null
 ) {
     val countryFlag = when (vehicleInfo.country) {
         "IL" -> "\uD83C\uDDEE\uD83C\uDDF1"
@@ -124,6 +131,44 @@ fun FloatingCarInfo(
                         )
                     )
             )
+
+            // Action buttons
+            if (onSaveToHistory != null || onOpenModelInfo != null) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onSaveToHistory != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onSaveToHistory() }
+                                .background(BrandPrimary.copy(alpha = 0.15f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(Icons.Default.History, "Save", tint = BrandPrimary, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Save", color = BrandPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                    if (onSaveToHistory != null && onOpenModelInfo != null) {
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    if (onOpenModelInfo != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .clickable { onOpenModelInfo() }
+                                .background(Color.White.copy(alpha = 0.1f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(Icons.Default.OpenInNew, "Info", tint = Color.White, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Info", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
         }
 
         // Arrow pointing down

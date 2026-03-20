@@ -4,8 +4,12 @@ import android.app.Activity
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Size
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -30,6 +34,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -60,7 +65,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.carinfo.ar.ads.AdManager
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import com.carinfo.ar.camera.FrameMotionTracker
+import com.carinfo.ar.data.ScanHistory
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
@@ -87,7 +96,7 @@ data class PlateOverlayState(
 )
 
 @Composable
-fun CameraScreen(onOpenSettings: () -> Unit = {}) {
+fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}) {
     val context = LocalContext.current
     val selectedCountryCode by UserPreferences.getSelectedCountry(context).collectAsState(initial = null)
     val country = selectedCountryCode?.let { SupportedCountry.fromCode(it) }
@@ -145,11 +154,45 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
 
             AndroidView(
                 factory = { ctx ->
+                    var camera: Camera? = null
+
                     val previewView = PreviewView(ctx).apply {
                         implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                         addOnLayoutChangeListener { _, left, top, right, bottom, _, _, _, _ ->
                             viewWidth = right - left
                             viewHeight = bottom - top
+                        }
+
+                        // Pinch to zoom
+                        val scaleDetector = ScaleGestureDetector(ctx,
+                            object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                                    val cam = camera ?: return true
+                                    val currentZoom = cam.cameraInfo.zoomState.value?.zoomRatio ?: 1f
+                                    cam.cameraControl.setZoomRatio(currentZoom * detector.scaleFactor)
+                                    return true
+                                }
+                            })
+
+                        // Double tap to toggle zoom
+                        val gestureDetector = GestureDetector(ctx,
+                            object : GestureDetector.SimpleOnGestureListener() {
+                                override fun onDoubleTap(e: MotionEvent): Boolean {
+                                    val cam = camera ?: return true
+                                    val state = cam.cameraInfo.zoomState.value ?: return true
+                                    val current = state.zoomRatio
+                                    val min = state.minZoomRatio
+                                    val max = state.maxZoomRatio
+                                    val target = if (current > min + 0.1f) min else (max * 0.5f).coerceAtMost(max)
+                                    cam.cameraControl.setZoomRatio(target)
+                                    return true
+                                }
+                            })
+
+                        setOnTouchListener { _, event ->
+                            scaleDetector.onTouchEvent(event)
+                            gestureDetector.onTouchEvent(event)
+                            true
                         }
                     }
 
@@ -214,9 +257,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                                                     lastSeenTime = now
                                                 )
 
-                                                if (knownPlates.add(plate.plateNumber) && activity != null) {
-                                                    AdManager.onNewPlateDetected(activity)
-                                                }
+                                                // Ads disabled for now
+                                                // if (knownPlates.add(plate.plateNumber) && activity != null) {
+                                                //     AdManager.onNewPlateDetected(activity)
+                                                // }
 
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     scope.launch {
@@ -226,6 +270,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                                                                 vehicleInfo = info,
                                                                 isLoading = false
                                                             )
+                                                        }
+                                                        // Auto-save to history
+                                                        if (info != null) {
+                                                            ScanHistory.save(context, plate.plateNumber, info)
                                                         }
                                                     }
                                                 }
@@ -245,7 +293,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
 
                         try {
                             cameraProvider.unbindAll()
-                            cameraProvider.bindToLifecycle(
+                            camera = cameraProvider.bindToLifecycle(
                                 lifecycleOwner,
                                 CameraSelector.DEFAULT_BACK_CAMERA,
                                 preview,
@@ -278,6 +326,17 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(GlassOverlay)
+                        .clickable { onOpenHistory() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.History, "History", tint = Color.White, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(GlassOverlay)
                         .clickable { onOpenSettings() },
                     contentAlignment = Alignment.Center
                 ) {
@@ -291,13 +350,13 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                     "Point at a license plate",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0x88FFFFFF),
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 80.dp)
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
                 )
             } else {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 80.dp)
+                        .padding(bottom = 40.dp)
                         .clip(CircleShape)
                         .background(GlassOverlay)
                         .clickable { overlayStates.clear() }
@@ -313,24 +372,23 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                 }
             }
 
-            // Banner Ad
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(bottom = 0.dp)
-            ) {
-                AndroidView(
-                    factory = { ctx ->
-                        AdView(ctx).apply {
-                            setAdSize(AdSize.BANNER)
-                            adUnitId = AdManager.BANNER_AD_UNIT_ID
-                            loadAd(AdRequest.Builder().build())
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            // Banner Ad (disabled for now)
+            // Box(
+            //     modifier = Modifier
+            //         .align(Alignment.BottomCenter)
+            //         .fillMaxWidth()
+            // ) {
+            //     AndroidView(
+            //         factory = { ctx ->
+            //             AdView(ctx).apply {
+            //                 setAdSize(AdSize.BANNER)
+            //                 adUnitId = AdManager.BANNER_AD_UNIT_ID
+            //                 loadAd(AdRequest.Builder().build())
+            //             }
+            //         },
+            //         modifier = Modifier.fillMaxWidth()
+            //     )
+            // }
 
             // AR Overlays
             overlayStates.values.forEach { state ->
@@ -348,7 +406,17 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}) {
                             .onSizeChanged { overlaySize = it }
                     ) {
                         if (state.vehicleInfo != null) {
-                            FloatingCarInfo(vehicleInfo = state.vehicleInfo)
+                            FloatingCarInfo(
+                                vehicleInfo = state.vehicleInfo,
+                                onSaveToHistory = {
+                                    ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
+                                    Toast.makeText(context, "Saved to history", Toast.LENGTH_SHORT).show()
+                                },
+                                onOpenModelInfo = {
+                                    val url = ScanHistory.buildSearchUrl(state.vehicleInfo)
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                }
+                            )
                         } else if (state.isLoading) {
                             LoadingPlateIndicator(plateNumber = state.plateNumber)
                         }

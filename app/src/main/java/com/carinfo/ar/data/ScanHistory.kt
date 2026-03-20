@@ -1,0 +1,74 @@
+package com.carinfo.ar.data
+
+import android.content.Context
+import com.carinfo.ar.data.model.VehicleInfo
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
+
+data class ScanRecord(
+    val plateNumber: String,
+    val manufacturer: String?,
+    val model: String?,
+    val year: Int?,
+    val color: String?,
+    val fuelType: String?,
+    val country: String,
+    val timestamp: Long = System.currentTimeMillis()
+)
+
+object ScanHistory {
+    private const val FILE_NAME = "scan_history.json"
+    private val gson = Gson()
+
+    private fun getFile(context: Context): File =
+        File(context.filesDir, FILE_NAME)
+
+    fun load(context: Context): List<ScanRecord> {
+        val file = getFile(context)
+        if (!file.exists()) return emptyList()
+        return try {
+            val type = object : TypeToken<List<ScanRecord>>() {}.type
+            gson.fromJson(file.readText(), type) ?: emptyList()
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    fun save(context: Context, plateNumber: String, info: VehicleInfo) {
+        val records = load(context).toMutableList()
+        // Don't duplicate — update if exists
+        records.removeAll { it.plateNumber == plateNumber }
+        records.add(0, ScanRecord(
+            plateNumber = plateNumber,
+            manufacturer = info.manufacturer,
+            model = info.model,
+            year = info.year,
+            color = info.color,
+            fuelType = info.fuelType,
+            country = info.country
+        ))
+        // Keep max 100
+        val trimmed = records.take(100)
+        getFile(context).writeText(gson.toJson(trimmed))
+    }
+
+    fun clear(context: Context) {
+        getFile(context).delete()
+    }
+
+    fun buildSearchUrl(info: VehicleInfo): String {
+        val query = buildString {
+            info.manufacturer?.let { append(it) }
+            info.model?.let {
+                if (isNotEmpty()) append(" ")
+                append(it)
+            }
+            info.year?.let {
+                if (isNotEmpty()) append(" ")
+                append(it)
+            }
+        }
+        return "https://www.google.com/search?q=${java.net.URLEncoder.encode(query, "UTF-8")}"
+    }
+}
