@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "640581146754",
+    "project_id": "carinfo-ar",
+    "storage_bucket": "carinfo-ar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640581146754:android:e50f473cdd170ca6dc3c9b",
+        "android_client_info": {
+          "package_name": "com.carinfo.ar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-CWCDQ2SrBOucNoqMQ60zCbLzWu80K7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
