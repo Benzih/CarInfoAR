@@ -48,6 +48,7 @@ import com.carinfo.ar.R
 fun FloatingCarInfo(
     vehicleInfo: VehicleInfo,
     modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
     onSaveToHistory: (() -> Unit)? = null,
     onOpenModelInfo: (() -> Unit)? = null
 ) {
@@ -68,6 +69,7 @@ fun FloatingCarInfo(
                 .clip(RoundedCornerShape(16.dp))
                 .background(GlassOverlay)
                 .border(1.dp, GlassBorder, RoundedCornerShape(16.dp))
+                .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             // Flag + plate number row

@@ -50,20 +50,18 @@ fun AppNavigation() {
         ) {
             SplashScreen(
                 onFinished = {
-                    val dest = if (onboardingComplete == true) {
+                    // Always sync country with device locale
+                    val autoCountry = SupportedCountry.fromLocale()
+                    if (autoCountry != null) {
+                        runBlocking {
+                            UserPreferences.setSelectedCountry(context, autoCountry.code)
+                            UserPreferences.setOnboardingComplete(context, true)
+                        }
+                    }
+                    val dest = if (onboardingComplete == true || autoCountry != null) {
                         Routes.CAMERA
                     } else {
-                        // Auto-detect country from locale — skip onboarding if detected
-                        val autoCountry = SupportedCountry.fromLocale()
-                        if (autoCountry != null) {
-                            runBlocking {
-                                UserPreferences.setSelectedCountry(context, autoCountry.code)
-                                UserPreferences.setOnboardingComplete(context, true)
-                            }
-                            Routes.CAMERA
-                        } else {
-                            Routes.ONBOARDING
-                        }
+                        Routes.ONBOARDING
                     }
                     navController.navigate(dest) {
                         popUpTo(Routes.SPLASH) { inclusive = true }

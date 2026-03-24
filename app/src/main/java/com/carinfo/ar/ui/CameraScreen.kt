@@ -3,6 +3,7 @@ package com.carinfo.ar.ui
 import android.app.Activity
 import android.Manifest
 import android.util.Log
+import com.carinfo.ar.BuildConfig
 import android.content.pm.PackageManager
 import android.util.Size
 import android.view.GestureDetector
@@ -348,7 +349,9 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         val currentIndex = countries.indexOf(country)
                         val nextIndex = (currentIndex + 1) % countries.size
                         val nextCountry = countries[nextIndex]
-                        Log.d("CameraScreen", "Switching country: ${country?.code} -> ${nextCountry.code}")
+                        if (BuildConfig.DEBUG) Log.d("CameraScreen", "Switching country: ${country?.code} -> ${nextCountry.code}")
+                        overlayStates.clear()
+                        plateSeenCount.clear()
                         scope.launch {
                             UserPreferences.setSelectedCountry(context, nextCountry.code)
                         }
@@ -437,9 +440,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
             // AR Overlays
             overlayStates.values.forEach { state ->
-                if (state.vehicleInfo == null && !state.isLoading) {
-                    // Show "not found" briefly — will be auto-removed
-                }
+                // Only show overlays that have data or are loading
+                if (state.vehicleInfo == null && !state.isLoading) return@forEach
 
                 val overlayHeightPx = with(density) { 80.dp.toPx() }
                 val offsetXPx = state.screenX.toInt()
@@ -455,6 +457,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         if (state.vehicleInfo != null) {
                             FloatingCarInfo(
                                 vehicleInfo = state.vehicleInfo,
+                                onClick = {
+                                    ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
+                                    Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
+                                },
                                 onSaveToHistory = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
                                     Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
