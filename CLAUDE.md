@@ -16,10 +16,10 @@
 5. [Navigation Flow](#5-navigation-flow)
 6. [Vehicle APIs](#6-vehicle-apis)
 7. [OCR & Plate Detection](#7-ocr--plate-detection)
-8. [Motion Tracking (Optical Flow)](#8-motion-tracking-optical-flow)
+8. [Motion Tracking (Optical Flow) — DEPRECATED](#8-motion-tracking-optical-flow--deprecated)
 9. [Camera Configuration](#9-camera-configuration)
 10. [UI Screens](#10-ui-screens)
-11. [AR Overlay System](#11-ar-overlay-system)
+11. [Vehicle Info Display System](#11-vehicle-info-display-system)
 12. [Country Detection](#12-country-detection)
 13. [Language System](#13-language-system)
 14. [Sound System](#14-sound-system)
@@ -397,7 +397,12 @@ Before regex matching, all recognized text blocks undergo the following cleaning
 3. Remove all spaces.
 4. Remove all dots (`.`).
 5. Remove all commas (`,`).
-6. Trim whitespace.
+6. Remove all colons (`:`).
+7. Remove all semicolons (`;`).
+8. Remove all quotes (`'`, `"`).
+9. Remove all pipes (`|`).
+10. Remove middle dots (`·`).
+11. Trim whitespace.
 
 ### OCR Correction Algorithms
 
@@ -445,15 +450,24 @@ UK plates have a known structure (two letters, two digits, three letters in the 
 | Digit position | `S`     | `5`         |
 | Digit position | `B`     | `8`         |
 
-### Debounce Logic
+### Debounce & Majority Vote
 
-A plate number must be detected in **3 separate frames** before an API call is triggered. This prevents:
+Plate detection uses a **majority vote** system instead of a simple counter:
+
+1. **Fuzzy grouping:** All OCR readings that differ by at most **2 characters** (same length) are grouped together into one vote group.
+2. **Vote counting:** Each OCR frame adds a vote for the specific reading it produced.
+3. **Threshold:** A minimum of **3 total votes** across all variants in a group is required before triggering an API call.
+4. **Winner selection:** The variant with the **most votes** in the group is selected as the canonical plate number.
+5. **Duplicate prevention:** Before adding a new overlay, the system checks if a similar plate (within 2-char tolerance) already exists in the overlay list.
+
+This prevents:
 
 - False positives from partial reads.
 - Redundant API calls from flickering detections.
+- **Duplicate cards** from OCR reading slightly different variants of the same plate (e.g., `7276537` vs `7276532`).
 - Processing of non-plate text that momentarily matches the regex.
 
-The sighting counter resets if the plate is not seen for a configurable timeout period.
+The vote groups are cleared when the user presses the Reset button.
 
 ### Dynamic Country Provider
 
@@ -461,23 +475,21 @@ The `PlateAnalyzer` receives a `countryProvider: () -> Country` lambda that is e
 
 ---
 
-## 8. Motion Tracking (Optical Flow)
+## 8. Motion Tracking (Optical Flow) — DEPRECATED
 
-### FrameMotionTracker
+> **Status:** The optical flow motion tracking system has been **replaced** with a fixed-position card layout. The `FrameMotionTracker` class still exists in the codebase but is no longer used by `CameraScreen`.
 
-The `FrameMotionTracker` class implements a lightweight block-matching optical flow algorithm to keep AR overlays anchored to the correct screen positions as the camera moves between OCR detections.
+### Why Deprecated
 
-### Algorithm Details
+After extensive testing on a Redmi 15C (budget device), the AR overlay approach was abandoned because:
 
-1. **Downsample:** The camera frame's Y (luminance) plane is downsampled to **80x60 pixels** for performance.
-2. **Block Matching:** For each tracked overlay position, a small block of pixels around the previous position is compared against candidate positions in the new frame using **Sum of Absolute Differences (SAD)**.
-3. **Search Window:** The search is performed within a **plus or minus 10 pixel** radius from the previous position (in the downsampled coordinate space).
-4. **Motion Vector:** The candidate with the lowest SAD score yields the motion vector, which is scaled back up to full-resolution coordinates and applied to the overlay position.
-5. **Per-Frame Update:** Motion tracking runs on every analysis frame and updates all active overlay positions.
+1. **Gyro-based stabilization** failed — the device lacks a raw gyroscope (only GAME_ROTATION_VECTOR available).
+2. **Optical flow** was too aggressive — overlays moved too fast with camera movement.
+3. **OCR-only positioning** made overlays appear stuck to the screen.
 
-### OCR Position Snap
+### Current Approach
 
-When OCR detects a plate in a new frame, the overlay position is snapped to the ground-truth bounding box from ML Kit, correcting any drift that may have accumulated from the block-matching tracker.
+Vehicle info cards are now displayed in a **scrollable list** at the bottom of the screen (bottom third), not anchored to plate positions. This provides a stable, readable display regardless of camera movement. See [Section 11](#11-ar-overlay-system) for details.
 
 ---
 
@@ -581,30 +593,36 @@ History is capped at 100 records. Newest records appear first.
 
 ---
 
-## 11. AR Overlay System
+## 11. Vehicle Info Display System
+
+### Layout
+
+Vehicle info cards are displayed in a **scrollable `LazyColumn`** anchored to the **bottom third** of the camera screen. This replaces the earlier AR-anchored overlay approach, which was unstable on budget devices.
+
+Cards are sorted by **most recently detected** (newest first). The list scrolls vertically if there are more cards than fit on screen.
 
 ### PlateOverlayState
 
 ```
 data class PlateOverlayState(
     val plateNumber: String,
-    val screenX: Float,
-    val screenY: Float,
+    val screenX: Float = 0f,     // Legacy, not used for positioning
+    val screenY: Float = 0f,     // Legacy, not used for positioning
     val vehicleInfo: VehicleInfo?,
     val isLoading: Boolean,
     val lastSeenTime: Long
 )
 ```
 
-Each detected plate gets its own `PlateOverlayState` instance. The state tracks screen position (updated by motion tracking), loading status, and the fetched vehicle info.
+Each detected plate gets its own `PlateOverlayState` instance. The state tracks loading status and the fetched vehicle info.
 
-### Overlay Components
+### Card Components
 
 | Component                 | Shown When                        | Description                              |
 |---------------------------|-----------------------------------|------------------------------------------|
 | `FloatingCarInfo`         | Vehicle info loaded successfully  | Glass-morphism card showing manufacturer, model, year, color, fuel type, country flag. Includes Save and Info buttons. |
-| `LoadingPlateIndicator`   | API call in progress              | Pulsing plate number text indicating a lookup is underway. |
-| `PlateNotFoundIndicator`  | API returned no results           | Red-colored "not found" text overlay.    |
+| `LoadingPlateIndicator`   | API call in progress              | Spinning progress indicator + pulsing plate number text. |
+| `PlateNotFoundIndicator`  | API returned no results           | Red-colored "not found" text. Auto-removed after 3 seconds. |
 
 ### FloatingCarInfo Card
 
@@ -616,17 +634,25 @@ The glass-morphism card displays:
 - **Year** of manufacture.
 - **Color** of the vehicle.
 - **Fuel type**.
-- **Save button:** Tapping saves the scan to history.
-- **Info button:** Opens additional details if available.
+- **Save button:** Tapping saves the scan to history (with sound feedback).
+- **Info button:** Opens a web search for the specific vehicle model.
+
+### Auto-Save
+
+Every successful vehicle detection is **automatically saved** to scan history when the API returns data. The Save button provides manual re-save with sound confirmation.
 
 ### Stale Overlay Removal
 
-Overlays are automatically removed if the corresponding plate has not been seen by OCR for **3 seconds**. The `lastSeenTime` field is updated on every OCR detection. A periodic check compares the current time against `lastSeenTime` and removes expired overlays.
+- Cards with **vehicle info loaded** persist until the user presses Reset.
+- Cards that are **loading or not found** are removed after **5 seconds** if the plate is not re-detected.
 
-### Interaction
+### Reset
 
-- Tapping the **Save** button on a `FloatingCarInfo` card writes the scan record to the history JSON file.
-- A sound and vibration confirm the save action.
+The Reset button (top-left, red) clears all cards and vote groups. It is only visible when there are active cards on screen.
+
+### Scan Hint
+
+When no cards are visible, a **blinking** "Scan a license plate" text appears in the center of the screen (localized to the app's language). The text pulses between full and 30% opacity.
 
 ---
 
