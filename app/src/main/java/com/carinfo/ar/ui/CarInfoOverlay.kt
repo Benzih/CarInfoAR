@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
@@ -204,17 +205,27 @@ fun LoadingPlateIndicator(
         label = "pulseAlpha"
     )
 
-    Text(
-        text = "$plateNumber",
-        color = BrandPrimary.copy(alpha = alpha),
-        fontSize = 13.sp,
-        fontWeight = FontWeight.Bold,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(GlassOverlay)
             .border(1.dp, BrandPrimary.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp)
-    )
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(14.dp),
+            color = BrandPrimary.copy(alpha = alpha),
+            strokeWidth = 2.dp
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = plateNumber,
+            color = BrandPrimary.copy(alpha = alpha),
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
 
 @Composable

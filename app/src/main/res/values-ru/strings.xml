@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Наведите на номерной знак</string>
+    <string name="camera_scan_plate_title">Сканировать Номер</string>
     <string name="camera_reset">Сбросить</string>
     <string name="camera_enter_plate">Введите номер</string>
     <string name="camera_search">Поиск</string>

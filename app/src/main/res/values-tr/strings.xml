@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Bir plakaya doğrultun</string>
+    <string name="camera_scan_plate_title">Plaka Tara</string>
     <string name="camera_reset">Sıfırla</string>
     <string name="camera_enter_plate">Plaka numarasını girin</string>
     <string name="camera_search">Ara</string>

@@ -11,7 +11,6 @@ import com.carinfo.ar.data.SupportedCountry
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import java.nio.ByteBuffer
 
 data class DetectedPlate(
     val plateNumber: String,
@@ -20,10 +19,6 @@ data class DetectedPlate(
 
 class PlateAnalyzer(
     private val countryProvider: () -> SupportedCountry,
-    private val motionTracker: FrameMotionTracker,
-    private val onMotionEstimated: (dx: Float, dy: Float) -> Unit,
-    private val screenWidth: () -> Int,
-    private val screenHeight: () -> Int,
     private val onPlatesDetected: (plates: List<DetectedPlate>, imageWidth: Int, imageHeight: Int) -> Unit
 ) : ImageAnalysis.Analyzer {
 
@@ -46,7 +41,10 @@ class PlateAnalyzer(
         return text
             .replace("-", "").replace(" ", "")
             .replace(".", "").replace(",", "")
-            .replace("·", "").trim()
+            .replace("·", "").replace(":", "")
+            .replace(";", "").replace("'", "")
+            .replace("\"", "").replace("|", "")
+            .trim()
     }
 
     // UK: fix OCR mistakes in plate format XX99XXX
@@ -132,24 +130,6 @@ class PlateAnalyzer(
         if (mediaImage == null) {
             imageProxy.close()
             return
-        }
-
-        // === MOTION TRACKING ===
-        try {
-            val yPlane = mediaImage.planes[0]
-            val motion = motionTracker.processFrame(
-                yPlane = yPlane.buffer,
-                yRowStride = yPlane.rowStride,
-                imgWidth = mediaImage.width,
-                imgHeight = mediaImage.height,
-                screenWidth = screenWidth(),
-                screenHeight = screenHeight()
-            )
-            if (motion != null) {
-                onMotionEstimated(motion.first, motion.second)
-            }
-        } catch (e: Exception) {
-            Log.e("PlateAnalyzer", "Motion tracking failed: ${e.message}")
         }
 
         // === OCR ===

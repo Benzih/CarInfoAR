@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Auf ein Kennzeichen richten</string>
+    <string name="camera_scan_plate_title">Kennzeichen Scannen</string>
     <string name="camera_reset">Zurücksetzen</string>
     <string name="camera_enter_plate">Kennzeichen eingeben</string>
     <string name="camera_search">Suchen</string>

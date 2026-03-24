@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -55,6 +56,11 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -152,11 +158,12 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     ) { granted -> hasCameraPermission = granted }
 
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
-    val motionTracker = remember { FrameMotionTracker() }
     val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
     countryRef.value = country ?: SupportedCountry.ISRAEL
     val knownPlates = remember { mutableSetOf<String>() }
-    val plateSeenCount = remember { mutableMapOf<String, Int>() }
+    // Track OCR readings per plate group for majority vote
+    // Key: "canonical" plate (first seen), Value: map of variant→count
+    val plateVoteGroups = remember { mutableMapOf<String, MutableMap<String, Int>>() }
     val activity = context as? Activity
 
     var viewWidth by remember { mutableIntStateOf(1) }
@@ -249,61 +256,59 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                     ContextCompat.getMainExecutor(ctx),
                                     PlateAnalyzer(
                                         countryProvider = { countryRef.value },
-                                        motionTracker = motionTracker,
-                                        screenWidth = { viewWidth },
-                                        screenHeight = { viewHeight },
-                                        onMotionEstimated = { dx, dy ->
-                                            if (overlayStates.isNotEmpty()) {
-                                                for ((plate, state) in overlayStates.entries.toList()) {
-                                                    overlayStates[plate] = state.copy(
-                                                        screenX = state.screenX + dx,
-                                                        screenY = state.screenY + dy
-                                                    )
-                                                }
-                                            }
-                                        },
                                         onPlatesDetected = { plates, imgW, imgH ->
                                             val now = System.currentTimeMillis()
 
                                             for (plate in plates) {
-                                                // Debounce: require 3 sightings before processing
-                                                val count = (plateSeenCount[plate.plateNumber] ?: 0) + 1
-                                                plateSeenCount[plate.plateNumber] = count
-                                                if (count < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
+                                                // Find or create vote group for this plate (fuzzy match)
+                                                // Fuzzy match: allow up to 2 char difference for grouping
+                                                val groupKey = plateVoteGroups.keys.find { existing ->
+                                                    existing.length == plate.plateNumber.length &&
+                                                    existing.zip(plate.plateNumber).count { (a, b) -> a == b } >= (plate.plateNumber.length - 2)
+                                                } ?: plate.plateNumber
 
-                                                val scaleX = viewWidth.toFloat() / imgW.toFloat()
-                                                val scaleY = viewHeight.toFloat() / imgH.toFloat()
+                                                val votes = plateVoteGroups.getOrPut(groupKey) { mutableMapOf() }
+                                                votes[plate.plateNumber] = (votes[plate.plateNumber] ?: 0) + 1
+                                                val totalVotes = votes.values.sum()
 
-                                                val box = plate.boundingBox
-                                                val screenCenterX = box.centerX() * scaleX
-                                                val screenTopY = box.top * scaleY
+                                                // Need at least 3 total sightings
+                                                if (totalVotes < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
 
-                                                val existing = overlayStates[plate.plateNumber]
-                                                val cachedInfo = VehicleCache.getCached(plate.plateNumber)
+                                                // Pick the most common reading (majority vote)
+                                                val bestPlate = votes.maxByOrNull { it.value }?.key ?: plate.plateNumber
 
-                                                overlayStates[plate.plateNumber] = PlateOverlayState(
-                                                    plateNumber = plate.plateNumber,
-                                                    screenX = screenCenterX,
-                                                    screenY = screenTopY,
+                                                // Skip if already showing this plate or a similar one
+                                                if (overlayStates.containsKey(bestPlate)) continue
+                                                val similarKey = overlayStates.keys.find { existingPlate ->
+                                                    existingPlate.length == bestPlate.length &&
+                                                    existingPlate.zip(bestPlate).count { (a, b) -> a == b } >= (bestPlate.length - 2)
+                                                }
+                                                if (similarKey != null) continue
+
+                                                val existing = overlayStates[bestPlate]
+                                                val cachedInfo = VehicleCache.getCached(bestPlate)
+
+                                                overlayStates[bestPlate] = PlateOverlayState(
+                                                    plateNumber = bestPlate,
                                                     vehicleInfo = cachedInfo ?: existing?.vehicleInfo,
-                                                    isLoading = cachedInfo == null && existing?.vehicleInfo == null && !VehicleCache.isKnown(plate.plateNumber),
+                                                    isLoading = cachedInfo == null && existing?.vehicleInfo == null && !VehicleCache.isKnown(bestPlate),
                                                     lastSeenTime = now
                                                 )
 
-                                                if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
+                                                if (!VehicleCache.isKnown(bestPlate) && !VehicleCache.isLoading(bestPlate)) {
                                                     SoundManager.playScanDetected()
                                                     SoundManager.vibrate(context)
                                                     scope.launch {
-                                                        val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
-                                                        overlayStates[plate.plateNumber]?.let { current ->
-                                                            overlayStates[plate.plateNumber] = current.copy(
+                                                        val info = VehicleCache.fetchIfNeeded(bestPlate, countryRef.value)
+                                                        overlayStates[bestPlate]?.let { current ->
+                                                            overlayStates[bestPlate] = current.copy(
                                                                 vehicleInfo = info,
                                                                 isLoading = false
                                                             )
                                                         }
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
-                                                            ScanHistory.save(context, plate.plateNumber, info)
+                                                            ScanHistory.save(context, bestPlate, info)
                                                             // Ad trigger: only on successful match of unique vehicle
                                                             if (activity != null) AdManager.onNewPlateDetected(activity)
                                                         }
@@ -311,11 +316,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 }
                                             }
 
-                                            // Remove plates not seen recently
+                                            // Only remove loading overlays that timed out (no data after 10s)
                                             val toRemove = overlayStates.keys.filter { key ->
                                                 val state = overlayStates[key] ?: return@filter true
-                                                if (state.vehicleInfo != null) false
-                                                else (now - state.lastSeenTime) > 3000
+                                                state.vehicleInfo == null && !state.isLoading && (now - state.lastSeenTime) > 5000
                                             }
                                             toRemove.forEach { overlayStates.remove(it) }
                                         }
@@ -351,6 +355,23 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     .padding(top = 52.dp, start = 16.dp, end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (overlayStates.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background(Color(0x99FF4444))
+                            .clickable { overlayStates.clear(); plateVoteGroups.clear() }
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Refresh, "Reset", tint = Color.White, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text(stringResource(R.string.camera_reset), color = Color.White, fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
                 Spacer(Modifier.weight(1f))
                 Box(
                     modifier = Modifier
@@ -388,29 +409,27 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
             // Bottom hint/reset
             if (overlayStates.isEmpty()) {
-                Text(
-                    stringResource(R.string.camera_point_at_plate),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0x88FFFFFF),
-                    modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
+                val infiniteTransition = rememberInfiniteTransition(label = "blink")
+                val alpha by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 0.3f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(800, easing = androidx.compose.animation.core.EaseInOut),
+                        repeatMode = RepeatMode.Reverse
+                    ),
+                    label = "blinkAlpha"
                 )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 40.dp)
-                        .clip(CircleShape)
-                        .background(GlassOverlay)
-                        .clickable { overlayStates.clear(); plateSeenCount.clear() }
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Refresh, "Reset", tint = Color.White, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.camera_reset), color = Color.White, fontSize = 14.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                    }
+                    Text(
+                        stringResource(R.string.camera_scan_plate_title),
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = BrandPrimary.copy(alpha = alpha),
+                        letterSpacing = 2.sp
+                    )
                 }
             }
 
@@ -432,22 +451,23 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 )
             }
 
-            // AR Overlays
-            overlayStates.values.forEach { state ->
-                // Only show overlays that have data or are loading
-                if (state.vehicleInfo == null && !state.isLoading) return@forEach
+            // Vehicle info cards — scrollable list in top third of screen
+            val visibleStates = overlayStates.values
+                .filter { it.vehicleInfo != null || it.isLoading }
+                .sortedByDescending { it.lastSeenTime }
+                .toList()
 
-                val overlayHeightPx = with(density) { 80.dp.toPx() }
-                val offsetXPx = state.screenX.toInt()
-                val offsetYPx = (state.screenY - overlayHeightPx).coerceAtLeast(0f).toInt()
-
-                Box(modifier = Modifier.offset { IntOffset(offsetXPx, offsetYPx) }) {
-                    var overlaySize by remember { mutableStateOf(IntSize.Zero) }
-                    Box(
-                        modifier = Modifier
-                            .offset { IntOffset(-overlaySize.width / 2, 0) }
-                            .onSizeChanged { overlaySize = it }
-                    ) {
+            if (visibleStates.isNotEmpty()) {
+                androidx.compose.foundation.lazy.LazyColumn(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.33f)
+                        .padding(bottom = 56.dp, start = 8.dp, end = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(visibleStates.size) { index ->
+                        val state = visibleStates[index]
                         if (state.vehicleInfo != null) {
                             FloatingCarInfo(
                                 vehicleInfo = state.vehicleInfo,
@@ -468,8 +488,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                             )
                         } else if (state.isLoading) {
                             LoadingPlateIndicator(plateNumber = state.plateNumber)
-                        } else if (!state.isLoading && state.vehicleInfo == null) {
-                            PlateNotFoundIndicator(plateNumber = state.plateNumber)
                         }
                     }
                 }

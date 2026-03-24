@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Aponte para uma matrícula</string>
+    <string name="camera_scan_plate_title">Escanear Matrícula</string>
     <string name="camera_reset">Redefinir</string>
     <string name="camera_enter_plate">Insira o número da matrícula</string>
     <string name="camera_search">Pesquisar</string>

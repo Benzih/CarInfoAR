@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">وجّه نحو لوحة الترخيص</string>
+    <string name="camera_scan_plate_title">امسح لوحة الترخيص</string>
     <string name="camera_reset">إعادة ضبط</string>
     <string name="camera_enter_plate">أدخل رقم اللوحة</string>
     <string name="camera_search">بحث</string>

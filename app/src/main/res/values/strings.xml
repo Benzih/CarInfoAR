@@ -23,6 +23,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Point at a license plate</string>
+    <string name="camera_scan_plate_title">Scan License Plate</string>
     <string name="camera_reset">Reset</string>
     <string name="camera_enter_plate">Enter Plate Number</string>
     <string name="camera_search">Search</string>

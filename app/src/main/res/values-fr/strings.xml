@@ -20,6 +20,7 @@
 
     <!-- Camera Screen -->
     <string name="camera_point_at_plate">Visez une plaque d\'immatriculation</string>
+    <string name="camera_scan_plate_title">Scanner la Plaque</string>
     <string name="camera_reset">Réinitialiser</string>
     <string name="camera_enter_plate">Entrez le numéro de plaque</string>
     <string name="camera_search">Rechercher</string>
