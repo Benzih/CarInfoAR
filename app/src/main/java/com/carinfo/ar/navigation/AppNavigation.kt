@@ -93,7 +93,8 @@ fun AppNavigation() {
 
         composable(Routes.SETTINGS) {
             SettingsScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onOpenHistory = { navController.navigate(Routes.HISTORY) }
             )
         }
 

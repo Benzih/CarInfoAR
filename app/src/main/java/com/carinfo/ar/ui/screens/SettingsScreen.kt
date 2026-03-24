@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -51,7 +52,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onBack: () -> Unit) {
+fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
@@ -219,6 +220,30 @@ fun SettingsScreen(onBack: () -> Unit) {
                             checkedTrackColor = BrandPrimary.copy(alpha = 0.3f)
                         )
                     )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // History section
+            SectionTitle(stringResource(R.string.history_title))
+            SettingsCard {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onOpenHistory() }
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.History, contentDescription = null, tint = BrandPrimary)
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        stringResource(R.string.history_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text("›", color = Color(0xFF555555), fontSize = 20.sp)
                 }
             }
 
