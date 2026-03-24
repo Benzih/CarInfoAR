@@ -1101,13 +1101,93 @@ curl -X POST \
 | High     | Secure API key storage         | Move the DVLA API key to a backend proxy or encrypted build config. |
 | ~~Done~~ | ~~Real AdMob IDs~~             | ~~Production ad unit IDs are now active.~~                         |
 | ~~Done~~ | ~~Privacy policy~~             | ~~Hosted at https://benzih.github.io/CarInfoAR/~~                 |
-| Medium   | Play Store listing             | Prepare store listing assets (screenshots, descriptions, feature graphic). |
+| ~~Done~~ | ~~Play Store listing~~         | ~~Screenshots, descriptions, and icon ready. See Section 22.~~     |
 | Medium   | Unit tests                     | Add unit tests for OCR correction, API parsing, and cache logic.   |
 | Medium   | Instrumentation tests          | Add UI tests for navigation flow and screen rendering.             |
 | Low      | Premium features               | Offer ad-free experience, extended history, or additional country support as in-app purchases. |
 | Low      | Offline vehicle database       | Cache a subset of vehicle data for offline lookups.                |
 | Low      | Dark/light theme toggle        | Add a light theme option for outdoor use.                          |
 | Low      | Export history                 | Allow users to export scan history as CSV or PDF.                  |
+
+---
+
+## 22. Play Store Listing
+
+### App Name
+**CarInfo AR**
+
+### Short Description (80 chars max)
+Scan any license plate with your camera and instantly see vehicle details in AR.
+
+### Full Description
+
+CarInfo AR turns your phone camera into a powerful vehicle identification tool. Simply point your camera at any license plate and instantly see detailed vehicle information floating right above the car in augmented reality.
+
+🔍 HOW IT WORKS
+Just open the app and point your camera at a license plate. CarInfo AR uses advanced on-device OCR to read the plate number, then queries official government databases to retrieve vehicle details — all in real time.
+
+🚗 VEHICLE INFORMATION
+• Manufacturer & Model
+• Year of manufacture
+• Color
+• Fuel type
+• And more depending on the country
+
+🌍 SUPPORTED COUNTRIES
+• Israel — Government vehicle registry (data.gov.il)
+• Netherlands — RDW Open Data
+• United Kingdom — DVLA Vehicle Enquiry Service
+
+📱 KEY FEATURES
+• Real-time AR overlay with vehicle info
+• Automatic country detection via SIM/network
+• Manual plate number input
+• Scan history with search and management
+• Pinch-to-zoom and double-tap zoom
+• Sound and haptic feedback
+• 14 languages supported
+• Dark theme optimized for OLED displays
+
+🔒 PRIVACY FIRST
+• Camera images are processed on-device only — never uploaded
+• Plate numbers are sent only to official government APIs
+• No user accounts required
+• No personal data collected
+• Scan history stored locally on your device
+• Full privacy policy: https://benzih.github.io/CarInfoAR/
+
+🌐 LANGUAGES
+Hebrew, English, Dutch, French, German, Spanish, Italian, Portuguese, Arabic, Turkish, Russian, Chinese, Japanese, Korean
+
+The app automatically detects your location and language. You can also manually change the country and language in settings.
+
+### Store Metadata
+
+| Field              | Value                                              |
+|--------------------|----------------------------------------------------|
+| Category           | Auto & Vehicles                                    |
+| Content Rating     | Everyone                                           |
+| Contact Email      | contact@carinfo-ar.app                             |
+| Privacy Policy URL | https://benzih.github.io/CarInfoAR/                |
+| Tags               | license plate, vehicle info, car scanner, AR, augmented reality, plate reader, vehicle lookup, car details, DVLA, RDW |
+
+### Screenshots
+
+| #  | File                          | Content                          |
+|----|-------------------------------|----------------------------------|
+| 1  | `screenshots/01_splash.jpg`   | Splash screen — CarInfo AR logo  |
+| 2  | `screenshots/02_scan_mini.jpg`| Mini Cooper detected             |
+| 3  | `screenshots/03_scan_multi.jpg`| Two vehicles detected           |
+| 4  | `screenshots/02_settings.png` | Settings screen                  |
+
+### Release Files
+
+| File                  | Path                                                    |
+|-----------------------|---------------------------------------------------------|
+| Release AAB           | `app/build/outputs/bundle/release/app-release.aab`      |
+| Release APK           | `app/build/outputs/apk/release/app-release.apk`         |
+| Keystore              | `carinfo-release.keystore`                              |
+| Play Store Icon       | `ic_launcher_playstore.png` (512x512)                   |
 
 ---
 
