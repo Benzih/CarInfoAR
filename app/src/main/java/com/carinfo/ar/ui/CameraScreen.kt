@@ -293,7 +293,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     SoundManager.playScanDetected()
                                                     SoundManager.vibrate(context)
-                                                    if (activity != null) AdManager.onNewPlateDetected(activity)
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
                                                         overlayStates[plate.plateNumber]?.let { current ->
@@ -305,6 +304,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
                                                             ScanHistory.save(context, plate.plateNumber, info)
+                                                            // Ad trigger: only on successful match of unique vehicle
+                                                            if (activity != null) AdManager.onNewPlateDetected(activity)
                                                         }
                                                     }
                                                 }
