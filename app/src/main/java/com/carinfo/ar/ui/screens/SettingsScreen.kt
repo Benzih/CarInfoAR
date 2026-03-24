@@ -28,7 +28,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +56,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     val scope = rememberCoroutineScope()
     val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
     val selectedCountryCode by UserPreferences.getSelectedCountry(context).collectAsState(initial = null)
+    val appLanguage by UserPreferences.getAppLanguage(context).collectAsState(initial = "")
 
     val country = selectedCountryCode?.let { SupportedCountry.fromCode(it) } ?: SupportedCountry.fromLocale()
     val countryFlag = when (country) {
@@ -95,36 +100,93 @@ fun SettingsScreen(onBack: () -> Unit) {
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp)
         ) {
-            // Country section
-            SectionTitle(stringResource(R.string.settings_region))
+            // Language section
+            SectionTitle(stringResource(R.string.settings_language))
+            val languages = listOf(
+                "" to stringResource(R.string.settings_language_auto),
+                "iw" to stringResource(R.string.settings_language_hebrew),
+                "en" to stringResource(R.string.settings_language_english),
+                "nl" to stringResource(R.string.settings_language_dutch),
+                "fr" to stringResource(R.string.settings_language_french),
+                "de" to stringResource(R.string.settings_language_german),
+                "es" to stringResource(R.string.settings_language_spanish),
+                "it" to stringResource(R.string.settings_language_italian),
+                "pt" to stringResource(R.string.settings_language_portuguese),
+                "ar" to stringResource(R.string.settings_language_arabic),
+                "tr" to stringResource(R.string.settings_language_turkish),
+                "ru" to stringResource(R.string.settings_language_russian),
+                "zh" to stringResource(R.string.settings_language_chinese),
+                "ja" to stringResource(R.string.settings_language_japanese),
+                "ko" to stringResource(R.string.settings_language_korean)
+            )
+            var langExpanded by remember { mutableStateOf(false) }
+            val currentLangName = languages.firstOrNull { it.first == appLanguage }?.second
+                ?: stringResource(R.string.settings_language_auto)
             SettingsCard {
-                val countries = SupportedCountry.entries
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            val currentIndex = countries.indexOf(country)
-                            val nextIndex = (currentIndex + 1) % countries.size
-                            scope.launch {
-                                UserPreferences.setSelectedCountry(context, countries[nextIndex].code)
-                            }
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { langExpanded = !langExpanded }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_language),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White
+                            )
+                            Text(
+                                currentLangName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF888888)
+                            )
                         }
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            stringResource(R.string.settings_country),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            countryFlag,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF888888)
+                            if (langExpanded) "▲" else "▼",
+                            color = Color(0xFF555555),
+                            fontSize = 14.sp
                         )
                     }
-                    Text(stringResource(R.string.settings_tap_to_change), color = Color(0xFF555555), style = MaterialTheme.typography.bodySmall)
+                    if (langExpanded) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            languages.forEach { (code, name) ->
+                                val isSelected = code == appLanguage
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(if (isSelected) BrandPrimary.copy(alpha = 0.15f) else Color.Transparent)
+                                        .clickable {
+                                            langExpanded = false
+                                            scope.launch {
+                                                UserPreferences.setAppLanguage(context, code)
+                                                (context as? android.app.Activity)?.recreate()
+                                            }
+                                        }
+                                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        name,
+                                        color = if (isSelected) BrandPrimary else Color.White,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 15.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    if (isSelected) {
+                                        Text("✓", color = BrandPrimary, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
                 }
             }
 
@@ -182,6 +244,48 @@ fun SettingsScreen(onBack: () -> Unit) {
                         stringResource(R.string.settings_about_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF666666)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            // Country/Region section (last — most users won't need this)
+            SectionTitle(stringResource(R.string.settings_region))
+            SettingsCard {
+                val countries = SupportedCountry.entries
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val currentIndex = countries.indexOf(country)
+                                val nextIndex = (currentIndex + 1) % countries.size
+                                scope.launch {
+                                    UserPreferences.setSelectedCountry(context, countries[nextIndex].code)
+                                }
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_country),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White
+                            )
+                            Text(
+                                countryFlag,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF888888)
+                            )
+                        }
+                        Text(stringResource(R.string.settings_tap_to_change), color = Color(0xFF555555), style = MaterialTheme.typography.bodySmall)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        stringResource(R.string.settings_country_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFFFF6B6B).copy(alpha = 0.7f)
                     )
                 }
             }

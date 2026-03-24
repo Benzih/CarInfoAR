@@ -50,15 +50,15 @@ fun AppNavigation() {
         ) {
             SplashScreen(
                 onFinished = {
-                    // Always sync country with device locale
-                    val autoCountry = SupportedCountry.fromLocale()
-                    if (autoCountry != null) {
+                    // Auto-detect country only on first launch (SIM/network → locale fallback)
+                    val autoCountry = SupportedCountry.detect(context)
+                    val dest = if (onboardingComplete == true) {
+                        Routes.CAMERA
+                    } else if (autoCountry != null) {
                         runBlocking {
                             UserPreferences.setSelectedCountry(context, autoCountry.code)
                             UserPreferences.setOnboardingComplete(context, true)
                         }
-                    }
-                    val dest = if (onboardingComplete == true || autoCountry != null) {
                         Routes.CAMERA
                     } else {
                         Routes.ONBOARDING

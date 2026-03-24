@@ -36,7 +36,8 @@
     <!-- Settings -->
     <string name="settings_title">Instellingen</string>
     <string name="settings_region">Regio</string>
-    <string name="settings_country">Land</string>
+    <string name="settings_country">Huidige locatie</string>
+    <string name="settings_country_hint">Selecteer het land waar je nu bent, niet je thuisland</string>
     <string name="settings_tap_to_change">Tik om te wijzigen</string>
     <string name="settings_sound_feedback">Geluid en feedback</string>
     <string name="settings_sound_effects">Geluidseffecten</string>
@@ -44,10 +45,32 @@
     <string name="settings_version">Versie 1.0</string>
     <string name="settings_about_description">Scan kentekens en ontdek voertuiginformatie in augmented reality.</string>
 
+    <!-- Language -->
+    <string name="settings_language">Taal</string>
+    <string name="settings_language_auto">Apparaatstandaard</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
     <!-- History -->
     <string name="history_title">Scangeschiedenis</string>
     <string name="history_empty">Nog geen scans</string>
     <string name="history_clear_all">Alles wissen</string>
+    <string name="history_delete">Verwijderen</string>
+    <string name="history_confirm_clear">Weet je zeker dat je alle scangeschiedenis wilt verwijderen?</string>
+    <string name="history_confirm_yes">Alles verwijderen</string>
+    <string name="history_confirm_no">Annuleren</string>
     <string name="history_back">Terug</string>
 
     <!-- Errors -->

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Scannen. Erkennen. Entdecken.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Weiter</string>
+    <string name="onboarding_get_started">Los geht\'s</string>
+    <string name="onboarding_scan_title">Beliebiges\nKennzeichen scannen</string>
+    <string name="onboarding_scan_description">Richten Sie Ihre Kamera auf ein Fahrzeug und sehen Sie sofort dessen Details in AR</string>
+    <string name="onboarding_country_title">Wählen Sie\nIhr Land</string>
+    <string name="onboarding_country_description">Wir verwenden die richtige Datenbank für Ihre Region</string>
+    <string name="onboarding_country_israel">Israel</string>
+    <string name="onboarding_country_netherlands">Niederlande</string>
+    <string name="onboarding_country_uk">Vereinigtes Königreich</string>
+    <string name="onboarding_requires_api_key">API-Schlüssel erforderlich</string>
+    <string name="onboarding_free_no_key">Kostenlos - kein Schlüssel nötig</string>
+    <string name="onboarding_ready_title">Bereit zum\nScannen</string>
+    <string name="onboarding_ready_description">Gewähren Sie Kamerazugriff und beginnen Sie, Fahrzeuge um Sie herum zu entdecken</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Auf ein Kennzeichen richten</string>
+    <string name="camera_reset">Zurücksetzen</string>
+    <string name="camera_enter_plate">Kennzeichen eingeben</string>
+    <string name="camera_search">Suchen</string>
+    <string name="camera_cancel">Abbrechen</string>
+    <string name="camera_plate_placeholder">z.B. 12345678</string>
+    <string name="camera_saved_to_history">Im Verlauf gespeichert</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Unbekannt</string>
+    <string name="overlay_save">Speichern</string>
+    <string name="overlay_info">Info</string>
+    <string name="overlay_not_found">Nicht gefunden</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_region">Region</string>
+    <string name="settings_country">Land</string>
+    <string name="settings_tap_to_change">Zum Ändern tippen</string>
+    <string name="settings_sound_feedback">Ton &amp; Feedback</string>
+    <string name="settings_sound_effects">Soundeffekte</string>
+    <string name="settings_about">Über</string>
+    <string name="settings_version">Version 1.0</string>
+    <string name="settings_about_description">Scannen Sie Kennzeichen und entdecken Sie Fahrzeuginformationen in erweiterter Realität.</string>
+
+    <!-- Language -->
+    <string name="settings_language">Sprache</string>
+    <string name="settings_language_auto">Gerätestandard</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">Scanverlauf</string>
+    <string name="history_empty">Noch keine Scans</string>
+    <string name="history_clear_all">Alle löschen</string>
+    <string name="history_delete">Löschen</string>
+    <string name="history_confirm_clear">Sind Sie sicher, dass Sie den gesamten Scanverlauf löschen möchten?</string>
+    <string name="history_confirm_yes">Alle löschen</string>
+    <string name="history_confirm_no">Abbrechen</string>
+    <string name="history_back">Zurück</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Ihr Land wird noch nicht unterstützt</string>
+    <string name="error_supported_countries">Unterstützt: Israel, Niederlande, Vereinigtes Königreich</string>
+    <string name="error_camera_required">Kamerazugriff\nerforderlich</string>
+    <string name="error_camera_grant">Bitte gewähren Sie den Kamerazugriff in den Einstellungen</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">Israel</string>
+    <string name="country_netherlands">Niederlande</string>
+    <string name="country_uk">Vereinigtes Königreich</string>
+</resources>

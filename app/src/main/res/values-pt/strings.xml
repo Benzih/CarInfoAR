@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Digitalizar. Identificar. Descobrir.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Próximo</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_scan_title">Digitalize qualquer\nmatrícula</string>
+    <string name="onboarding_scan_description">Aponte a câmera para qualquer veículo e veja instantaneamente seus detalhes em realidade aumentada</string>
+    <string name="onboarding_country_title">Selecione\nseu país</string>
+    <string name="onboarding_country_description">Usaremos a base de dados correta para a sua região</string>
+    <string name="onboarding_country_israel">Israel</string>
+    <string name="onboarding_country_netherlands">Países Baixos</string>
+    <string name="onboarding_country_uk">Reino Unido</string>
+    <string name="onboarding_requires_api_key">Chave API necessária</string>
+    <string name="onboarding_free_no_key">Gratuito - sem chave necessária</string>
+    <string name="onboarding_ready_title">Pronto para\ndigitalizar</string>
+    <string name="onboarding_ready_description">Conceda acesso à câmera e comece a descobrir veículos ao seu redor</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Aponte para uma matrícula</string>
+    <string name="camera_reset">Redefinir</string>
+    <string name="camera_enter_plate">Insira o número da matrícula</string>
+    <string name="camera_search">Pesquisar</string>
+    <string name="camera_cancel">Cancelar</string>
+    <string name="camera_plate_placeholder">ex. 12345678</string>
+    <string name="camera_saved_to_history">Guardado no histórico</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Desconhecido</string>
+    <string name="overlay_save">Guardar</string>
+    <string name="overlay_info">Info</string>
+    <string name="overlay_not_found">Não encontrado</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Definições</string>
+    <string name="settings_region">Região</string>
+    <string name="settings_country">País</string>
+    <string name="settings_tap_to_change">Toque para alterar</string>
+    <string name="settings_sound_feedback">Som &amp; feedback</string>
+    <string name="settings_sound_effects">Efeitos sonoros</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_version">Versão 1.0</string>
+    <string name="settings_about_description">Digitalize matrículas e descubra informações do veículo em realidade aumentada.</string>
+
+    <!-- Language -->
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_auto">Padrão do dispositivo</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">Histórico de digitalizações</string>
+    <string name="history_empty">Nenhuma digitalização ainda</string>
+    <string name="history_clear_all">Limpar tudo</string>
+    <string name="history_delete">Eliminar</string>
+    <string name="history_confirm_clear">Tem certeza de que deseja eliminar todo o histórico de digitalizações?</string>
+    <string name="history_confirm_yes">Eliminar tudo</string>
+    <string name="history_confirm_no">Cancelar</string>
+    <string name="history_back">Voltar</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">O seu país ainda não é suportado</string>
+    <string name="error_supported_countries">Suportados: Israel, Países Baixos, Reino Unido</string>
+    <string name="error_camera_required">Acesso à câmera\nnecessário</string>
+    <string name="error_camera_grant">Por favor conceda acesso à câmera nas definições</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">Israel</string>
+    <string name="country_netherlands">Países Baixos</string>
+    <string name="country_uk">Reino Unido</string>
+</resources>

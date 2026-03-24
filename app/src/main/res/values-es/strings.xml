@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Escanear. Identificar. Descubrir.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Siguiente</string>
+    <string name="onboarding_get_started">Comenzar</string>
+    <string name="onboarding_scan_title">Escanea cualquier\nmatrícula</string>
+    <string name="onboarding_scan_description">Apunta tu cámara a cualquier vehículo y ve sus detalles al instante en realidad aumentada</string>
+    <string name="onboarding_country_title">Selecciona\ntu país</string>
+    <string name="onboarding_country_description">Usaremos la base de datos correcta para tu región</string>
+    <string name="onboarding_country_israel">Israel</string>
+    <string name="onboarding_country_netherlands">Países Bajos</string>
+    <string name="onboarding_country_uk">Reino Unido</string>
+    <string name="onboarding_requires_api_key">Requiere clave API</string>
+    <string name="onboarding_free_no_key">Gratis - sin clave necesaria</string>
+    <string name="onboarding_ready_title">Listo para\nescanear</string>
+    <string name="onboarding_ready_description">Concede acceso a la cámara y comienza a descubrir vehículos a tu alrededor</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Apunta a una matrícula</string>
+    <string name="camera_reset">Restablecer</string>
+    <string name="camera_enter_plate">Ingresa el número de matrícula</string>
+    <string name="camera_search">Buscar</string>
+    <string name="camera_cancel">Cancelar</string>
+    <string name="camera_plate_placeholder">ej. 12345678</string>
+    <string name="camera_saved_to_history">Guardado en el historial</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Desconocido</string>
+    <string name="overlay_save">Guardar</string>
+    <string name="overlay_info">Info</string>
+    <string name="overlay_not_found">No encontrado</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_region">Región</string>
+    <string name="settings_country">País</string>
+    <string name="settings_tap_to_change">Toca para cambiar</string>
+    <string name="settings_sound_feedback">Sonido &amp; vibración</string>
+    <string name="settings_sound_effects">Efectos de sonido</string>
+    <string name="settings_about">Acerca de</string>
+    <string name="settings_version">Versión 1.0</string>
+    <string name="settings_about_description">Escanea matrículas y descubre información del vehículo en realidad aumentada.</string>
+
+    <!-- Language -->
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_auto">Predeterminado del dispositivo</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">Historial de escaneos</string>
+    <string name="history_empty">Aún no hay escaneos</string>
+    <string name="history_clear_all">Borrar todo</string>
+    <string name="history_delete">Eliminar</string>
+    <string name="history_confirm_clear">¿Estás seguro de que quieres eliminar todo el historial de escaneos?</string>
+    <string name="history_confirm_yes">Eliminar todo</string>
+    <string name="history_confirm_no">Cancelar</string>
+    <string name="history_back">Atrás</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Tu país aún no es compatible</string>
+    <string name="error_supported_countries">Compatible: Israel, Países Bajos, Reino Unido</string>
+    <string name="error_camera_required">Acceso a la cámara\nrequerido</string>
+    <string name="error_camera_grant">Por favor concede acceso a la cámara en los ajustes</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">Israel</string>
+    <string name="country_netherlands">Países Bajos</string>
+    <string name="country_uk">Reino Unido</string>
+</resources>

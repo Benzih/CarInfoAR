@@ -1,38 +1,50 @@
 package com.carinfo.ar.util
 
 import android.content.Context
-import android.media.AudioManager
-import android.media.ToneGenerator
+import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 
 object SoundManager {
-    private var toneGenerator: ToneGenerator? = null
-    private var isInitialized = false
+    private var appContext: Context? = null
     var soundEnabled = true
 
     fun init(context: Context) {
-        if (isInitialized) return
+        appContext = context.applicationContext
+    }
+
+    private fun playSystemSound(type: Int) {
+        if (!soundEnabled) return
+        val ctx = appContext ?: return
         try {
-            toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+            val uri = RingtoneManager.getDefaultUri(type)
+            val mp = MediaPlayer.create(ctx, uri)
+            mp?.setOnCompletionListener { it.release() }
+            mp?.start()
         } catch (_: Exception) {}
-        isInitialized = true
     }
 
     fun playScanDetected() {
-        if (!soundEnabled) return
-        try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
-        } catch (_: Exception) {}
+        playSystemSound(RingtoneManager.TYPE_NOTIFICATION)
     }
 
     fun playInfoLoaded() {
-        if (!soundEnabled) return
-        try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 150)
-        } catch (_: Exception) {}
+        playSystemSound(RingtoneManager.TYPE_NOTIFICATION)
+    }
+
+    fun playSaved() {
+        playSystemSound(RingtoneManager.TYPE_NOTIFICATION)
+    }
+
+    fun playDelete() {
+        playSystemSound(RingtoneManager.TYPE_NOTIFICATION)
+    }
+
+    fun playDeleteAll() {
+        playSystemSound(RingtoneManager.TYPE_NOTIFICATION)
     }
 
     fun vibrate(context: Context, durationMs: Long = 50) {
@@ -57,8 +69,6 @@ object SoundManager {
     }
 
     fun release() {
-        toneGenerator?.release()
-        toneGenerator = null
-        isInitialized = false
+        appContext = null
     }
 }

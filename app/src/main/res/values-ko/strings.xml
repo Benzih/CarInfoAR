@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">스캔. 식별. 발견.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">다음</string>
+    <string name="onboarding_get_started">시작하기</string>
+    <string name="onboarding_scan_title">모든\n번호판 스캔</string>
+    <string name="onboarding_scan_description">카메라를 차량에 향하면 AR로 세부 정보를 즉시 확인할 수 있습니다</string>
+    <string name="onboarding_country_title">국가를\n선택하세요</string>
+    <string name="onboarding_country_description">해당 지역에 맞는 데이터베이스를 사용합니다</string>
+    <string name="onboarding_country_israel">이스라엘</string>
+    <string name="onboarding_country_netherlands">네덜란드</string>
+    <string name="onboarding_country_uk">영국</string>
+    <string name="onboarding_requires_api_key">API 키 필요</string>
+    <string name="onboarding_free_no_key">무료 - 키 불필요</string>
+    <string name="onboarding_ready_title">스캔\n준비 완료</string>
+    <string name="onboarding_ready_description">카메라 접근을 허용하고 주변 차량을 발견해 보세요</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">번호판을 향해 주세요</string>
+    <string name="camera_reset">초기화</string>
+    <string name="camera_enter_plate">번호판 번호 입력</string>
+    <string name="camera_search">검색</string>
+    <string name="camera_cancel">취소</string>
+    <string name="camera_plate_placeholder">예: 12345678</string>
+    <string name="camera_saved_to_history">기록에 저장됨</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">알 수 없음</string>
+    <string name="overlay_save">저장</string>
+    <string name="overlay_info">정보</string>
+    <string name="overlay_not_found">찾을 수 없음</string>
+
+    <!-- Settings -->
+    <string name="settings_title">설정</string>
+    <string name="settings_region">지역</string>
+    <string name="settings_country">국가</string>
+    <string name="settings_tap_to_change">탭하여 변경</string>
+    <string name="settings_sound_feedback">소리 &amp; 피드백</string>
+    <string name="settings_sound_effects">효과음</string>
+    <string name="settings_about">정보</string>
+    <string name="settings_version">버전 1.0</string>
+    <string name="settings_about_description">번호판을 스캔하고 증강 현실로 차량 정보를 확인하세요.</string>
+
+    <!-- Language -->
+    <string name="settings_language">언어</string>
+    <string name="settings_language_auto">기기 기본값</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">스캔 기록</string>
+    <string name="history_empty">아직 스캔 기록이 없습니다</string>
+    <string name="history_clear_all">모두 지우기</string>
+    <string name="history_delete">삭제</string>
+    <string name="history_confirm_clear">모든 스캔 기록을 삭제하시겠습니까?</string>
+    <string name="history_confirm_yes">모두 삭제</string>
+    <string name="history_confirm_no">취소</string>
+    <string name="history_back">뒤로</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">아직 지원되지 않는 국가입니다</string>
+    <string name="error_supported_countries">지원 국가: 이스라엘, 네덜란드, 영국</string>
+    <string name="error_camera_required">카메라 접근\n권한 필요</string>
+    <string name="error_camera_grant">설정에서 카메라 접근을 허용해 주세요</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">이스라엘</string>
+    <string name="country_netherlands">네덜란드</string>
+    <string name="country_uk">영국</string>
+</resources>

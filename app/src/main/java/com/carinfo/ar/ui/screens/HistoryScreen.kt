@@ -2,6 +2,7 @@ package com.carinfo.ar.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,15 +22,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,17 +45,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.stringResource
 import com.carinfo.ar.R
 import com.carinfo.ar.data.ScanHistory
 import com.carinfo.ar.data.ScanRecord
 import com.carinfo.ar.data.model.VehicleInfo
 import com.carinfo.ar.ui.theme.BrandPrimary
-import com.carinfo.ar.ui.theme.GlassBorder
+import com.carinfo.ar.ui.theme.BrandSurface
 import com.carinfo.ar.ui.theme.GlassOverlay
+import com.carinfo.ar.util.SoundManager
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -59,6 +66,39 @@ import java.util.Locale
 fun HistoryScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     var records by remember { mutableStateOf(ScanHistory.load(context)) }
+    var showClearDialog by remember { mutableStateOf(false) }
+
+    // Confirmation dialog
+    if (showClearDialog) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showClearDialog = false },
+            title = { Text(stringResource(R.string.history_clear_all), fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.history_confirm_clear)) },
+            confirmButton = {
+                Text(
+                    stringResource(R.string.history_confirm_yes),
+                    color = Color(0xFFFF6B6B),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.clickable {
+                        ScanHistory.clear(context)
+                        SoundManager.playDeleteAll()
+                        records = emptyList()
+                        showClearDialog = false
+                    }.padding(16.dp)
+                )
+            },
+            dismissButton = {
+                Text(
+                    stringResource(R.string.history_confirm_no),
+                    color = Color.Gray,
+                    modifier = Modifier.clickable { showClearDialog = false }.padding(16.dp)
+                )
+            },
+            containerColor = BrandSurface,
+            titleContentColor = Color.White,
+            textContentColor = Color(0xFFAAAAAA)
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -74,12 +114,15 @@ fun HistoryScreen(onBack: () -> Unit) {
             },
             actions = {
                 if (records.isNotEmpty()) {
-                    IconButton(onClick = {
-                        ScanHistory.clear(context)
-                        records = emptyList()
-                    }) {
-                        Icon(Icons.Default.Delete, stringResource(R.string.history_clear_all), tint = Color(0xFFFF6B6B))
-                    }
+                    Text(
+                        stringResource(R.string.history_clear_all),
+                        color = Color(0xFFFF6B6B),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .clickable { showClearDialog = true }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF0A0A0A))
@@ -99,19 +142,58 @@ fun HistoryScreen(onBack: () -> Unit) {
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(records) { record ->
-                    HistoryItem(record = record, onClick = {
-                        val info = VehicleInfo(
-                            manufacturer = record.manufacturer,
-                            model = record.model,
-                            year = record.year,
-                            color = record.color,
-                            fuelType = record.fuelType,
-                            country = record.country
+                items(records, key = { it.plateNumber + it.timestamp }) { record ->
+                    val dismissState = rememberSwipeToDismissBoxState()
+
+                    LaunchedEffect(dismissState.currentValue) {
+                        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                            ScanHistory.delete(context, record.plateNumber)
+                            SoundManager.playDelete()
+                            records = ScanHistory.load(context)
+                        }
+                    }
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = {
+                            val color by animateColorAsState(
+                                if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart)
+                                    Color(0xFFFF3B30) else Color.Transparent,
+                                label = "bg"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(color)
+                                    .padding(end = 20.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Icon(Icons.Default.Delete, stringResource(R.string.history_delete), tint = Color.White)
+                            }
+                        }
+                    ) {
+                        HistoryItem(
+                            record = record,
+                            onClick = {
+                                val info = VehicleInfo(
+                                    manufacturer = record.manufacturer,
+                                    model = record.model,
+                                    year = record.year,
+                                    color = record.color,
+                                    fuelType = record.fuelType,
+                                    country = record.country
+                                )
+                                val url = ScanHistory.buildSearchUrl(info)
+                                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                            },
+                            onDelete = {
+                                ScanHistory.delete(context, record.plateNumber)
+                                records = ScanHistory.load(context)
+                            }
                         )
-                        val url = ScanHistory.buildSearchUrl(info)
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    })
+                    }
                 }
                 item { Spacer(Modifier.height(16.dp)) }
             }
@@ -120,7 +202,7 @@ fun HistoryScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun HistoryItem(record: ScanRecord, onClick: () -> Unit) {
+private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () -> Unit) {
     val countryFlag = when (record.country) {
         "IL" -> "\uD83C\uDDEE\uD83C\uDDF1"
         "NL" -> "\uD83C\uDDF3\uD83C\uDDF1"
@@ -183,6 +265,10 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Text(dateStr, color = Color(0xFF666666), fontSize = 11.sp)
         }
+        IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Default.Delete, stringResource(R.string.history_delete), tint = Color(0xFF666666), modifier = Modifier.size(18.dp))
+        }
+        Spacer(Modifier.width(4.dp))
         Icon(Icons.Default.OpenInNew, stringResource(R.string.overlay_info), tint = Color(0xFF666666), modifier = Modifier.size(20.dp))
     }
 }

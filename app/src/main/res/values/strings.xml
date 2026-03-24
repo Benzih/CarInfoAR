@@ -39,7 +39,8 @@
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_region">Region</string>
-    <string name="settings_country">Country</string>
+    <string name="settings_country">Current Location</string>
+    <string name="settings_country_hint">Select the country you are currently in, not your home country</string>
     <string name="settings_tap_to_change">Tap to change</string>
     <string name="settings_sound_feedback">Sound &amp; Feedback</string>
     <string name="settings_sound_effects">Sound Effects</string>
@@ -47,10 +48,32 @@
     <string name="settings_version">Version 1.0</string>
     <string name="settings_about_description">Scan license plates and discover vehicle info in augmented reality.</string>
 
+    <!-- Language -->
+    <string name="settings_language">Language</string>
+    <string name="settings_language_auto">Device default</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
     <!-- History -->
     <string name="history_title">Scan History</string>
     <string name="history_empty">No scans yet</string>
     <string name="history_clear_all">Clear all</string>
+    <string name="history_delete">Delete</string>
+    <string name="history_confirm_clear">Are you sure you want to delete all scan history?</string>
+    <string name="history_confirm_yes">Delete All</string>
+    <string name="history_confirm_no">Cancel</string>
     <string name="history_back">Back</string>
 
     <!-- Errors -->

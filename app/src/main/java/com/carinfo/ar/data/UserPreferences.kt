@@ -17,6 +17,7 @@ object UserPreferences {
     private val SELECTED_COUNTRY = stringPreferencesKey("selected_country")
     private val DVLA_API_KEY = stringPreferencesKey("dvla_api_key")
     private val SOUND_ENABLED = booleanPreferencesKey("sound_enabled")
+    private val APP_LANGUAGE = stringPreferencesKey("app_language") // "", "iw", "nl", "en"
 
     fun isOnboardingComplete(context: Context): Flow<Boolean> =
         context.dataStore.data.map { it[ONBOARDING_COMPLETE] ?: false }
@@ -29,6 +30,9 @@ object UserPreferences {
 
     fun isSoundEnabled(context: Context): Flow<Boolean> =
         context.dataStore.data.map { it[SOUND_ENABLED] ?: true }
+
+    fun getAppLanguage(context: Context): Flow<String> =
+        context.dataStore.data.map { it[APP_LANGUAGE] ?: "" } // "" = device default
 
     suspend fun setOnboardingComplete(context: Context, complete: Boolean) {
         context.dataStore.edit { it[ONBOARDING_COMPLETE] = complete }
@@ -44,5 +48,9 @@ object UserPreferences {
 
     suspend fun setSoundEnabled(context: Context, enabled: Boolean) {
         context.dataStore.edit { it[SOUND_ENABLED] = enabled }
+    }
+
+    suspend fun setAppLanguage(context: Context, langCode: String) {
+        context.dataStore.edit { it[APP_LANGUAGE] = langCode }
     }
 }

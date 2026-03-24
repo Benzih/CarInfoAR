@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">扫描。识别。发现。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">下一步</string>
+    <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_scan_title">扫描任意\n车牌</string>
+    <string name="onboarding_scan_description">将相机对准任何车辆，即可在增强现实中查看其详细信息</string>
+    <string name="onboarding_country_title">选择\n您的国家</string>
+    <string name="onboarding_country_description">我们将使用适合您所在地区的数据库</string>
+    <string name="onboarding_country_israel">以色列</string>
+    <string name="onboarding_country_netherlands">荷兰</string>
+    <string name="onboarding_country_uk">英国</string>
+    <string name="onboarding_requires_api_key">需要 API 密钥</string>
+    <string name="onboarding_free_no_key">免费 - 无需密钥</string>
+    <string name="onboarding_ready_title">准备\n扫描</string>
+    <string name="onboarding_ready_description">授予相机访问权限，开始发现周围的车辆</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">对准车牌</string>
+    <string name="camera_reset">重置</string>
+    <string name="camera_enter_plate">输入车牌号</string>
+    <string name="camera_search">搜索</string>
+    <string name="camera_cancel">取消</string>
+    <string name="camera_plate_placeholder">例如 12345678</string>
+    <string name="camera_saved_to_history">已保存到历史记录</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">未知</string>
+    <string name="overlay_save">保存</string>
+    <string name="overlay_info">信息</string>
+    <string name="overlay_not_found">未找到</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_region">地区</string>
+    <string name="settings_country">国家</string>
+    <string name="settings_tap_to_change">点击更改</string>
+    <string name="settings_sound_feedback">声音 &amp; 反馈</string>
+    <string name="settings_sound_effects">音效</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_version">版本 1.0</string>
+    <string name="settings_about_description">扫描车牌，在增强现实中发现车辆信息。</string>
+
+    <!-- Language -->
+    <string name="settings_language">语言</string>
+    <string name="settings_language_auto">设备默认</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">扫描历史</string>
+    <string name="history_empty">暂无扫描记录</string>
+    <string name="history_clear_all">清除全部</string>
+    <string name="history_delete">删除</string>
+    <string name="history_confirm_clear">确定要删除所有扫描历史记录吗？</string>
+    <string name="history_confirm_yes">全部删除</string>
+    <string name="history_confirm_no">取消</string>
+    <string name="history_back">返回</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">您的国家暂不支持</string>
+    <string name="error_supported_countries">支持：以色列、荷兰、英国</string>
+    <string name="error_camera_required">需要相机\n访问权限</string>
+    <string name="error_camera_grant">请在设置中授予相机访问权限</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">以色列</string>
+    <string name="country_netherlands">荷兰</string>
+    <string name="country_uk">英国</string>
+</resources>

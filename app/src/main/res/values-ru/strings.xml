@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Сканируй. Определяй. Открывай.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_get_started">Начать</string>
+    <string name="onboarding_scan_title">Сканируйте любой\nномерной знак</string>
+    <string name="onboarding_scan_description">Наведите камеру на любой автомобиль и мгновенно увидьте его данные в дополненной реальности</string>
+    <string name="onboarding_country_title">Выберите\nсвою страну</string>
+    <string name="onboarding_country_description">Мы используем подходящую базу данных для вашего региона</string>
+    <string name="onboarding_country_israel">Израиль</string>
+    <string name="onboarding_country_netherlands">Нидерланды</string>
+    <string name="onboarding_country_uk">Великобритания</string>
+    <string name="onboarding_requires_api_key">Требуется API-ключ</string>
+    <string name="onboarding_free_no_key">Бесплатно - ключ не нужен</string>
+    <string name="onboarding_ready_title">Готов к\nсканированию</string>
+    <string name="onboarding_ready_description">Предоставьте доступ к камере и начните узнавать об автомобилях вокруг вас</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Наведите на номерной знак</string>
+    <string name="camera_reset">Сбросить</string>
+    <string name="camera_enter_plate">Введите номер</string>
+    <string name="camera_search">Поиск</string>
+    <string name="camera_cancel">Отмена</string>
+    <string name="camera_plate_placeholder">напр. 12345678</string>
+    <string name="camera_saved_to_history">Сохранено в историю</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Неизвестно</string>
+    <string name="overlay_save">Сохранить</string>
+    <string name="overlay_info">Инфо</string>
+    <string name="overlay_not_found">Не найдено</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_region">Регион</string>
+    <string name="settings_country">Страна</string>
+    <string name="settings_tap_to_change">Нажмите для изменения</string>
+    <string name="settings_sound_feedback">Звук &amp; отклик</string>
+    <string name="settings_sound_effects">Звуковые эффекты</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_version">Версия 1.0</string>
+    <string name="settings_about_description">Сканируйте номерные знаки и узнавайте информацию об автомобиле в дополненной реальности.</string>
+
+    <!-- Language -->
+    <string name="settings_language">Язык</string>
+    <string name="settings_language_auto">По умолчанию устройства</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">История сканирований</string>
+    <string name="history_empty">Сканирований пока нет</string>
+    <string name="history_clear_all">Очистить всё</string>
+    <string name="history_delete">Удалить</string>
+    <string name="history_confirm_clear">Вы уверены, что хотите удалить всю историю сканирований?</string>
+    <string name="history_confirm_yes">Удалить всё</string>
+    <string name="history_confirm_no">Отмена</string>
+    <string name="history_back">Назад</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Ваша страна ещё не поддерживается</string>
+    <string name="error_supported_countries">Поддерживаемые: Израиль, Нидерланды, Великобритания</string>
+    <string name="error_camera_required">Доступ к камере\nнеобходим</string>
+    <string name="error_camera_grant">Пожалуйста, предоставьте доступ к камере в настройках</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">Израиль</string>
+    <string name="country_netherlands">Нидерланды</string>
+    <string name="country_uk">Великобритания</string>
+</resources>

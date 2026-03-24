@@ -1,5 +1,7 @@
 package com.carinfo.ar.data
 
+import android.content.Context
+import android.telephony.TelephonyManager
 import java.util.Locale
 
 enum class SupportedCountry(
@@ -29,21 +31,46 @@ enum class SupportedCountry(
     );
 
     companion object {
+        /** Detect country: SIM/network first (physical location), then locale fallback */
+        fun detect(context: Context): SupportedCountry? {
+            // 1. Try SIM card country (no permission needed)
+            val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+            if (tm != null) {
+                val simCountry = tm.simCountryIso?.uppercase()
+                val networkCountry = tm.networkCountryIso?.uppercase()
+
+                // Prefer network (current physical location) over SIM (home country)
+                val physicalCountry = networkCountry?.takeIf { it.isNotEmpty() }
+                    ?: simCountry?.takeIf { it.isNotEmpty() }
+
+                if (physicalCountry != null) {
+                    val match = fromCountryIso(physicalCountry)
+                    if (match != null) return match
+                }
+            }
+
+            // 2. Fallback to device locale
+            return fromLocale()
+        }
+
+        private fun fromCountryIso(iso: String): SupportedCountry? {
+            return when (iso) {
+                "IL" -> ISRAEL
+                "NL" -> NETHERLANDS
+                "GB" -> UK
+                else -> null
+            }
+        }
+
         fun fromLocale(): SupportedCountry? {
-            val language = Locale.getDefault().language    // "he", "nl", "en"
-            val country = Locale.getDefault().country      // "IL", "NL", "GB", "US"
+            val language = Locale.getDefault().language
+            val country = Locale.getDefault().country
 
             return when {
-                language == "he" || country == "IL" -> ISRAEL
+                language == "he" || language == "iw" || country == "IL" -> ISRAEL
                 language == "nl" || country == "NL" -> NETHERLANDS
                 country == "GB" -> UK
-                else -> {
-                    // Try language-based fallback
-                    when (language) {
-                        "iw" -> ISRAEL  // Old Java code for Hebrew
-                        else -> null
-                    }
-                }
+                else -> null
             }
         }
 

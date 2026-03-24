@@ -53,6 +53,12 @@ object ScanHistory {
         getFile(context).writeText(gson.toJson(trimmed))
     }
 
+    fun delete(context: Context, plateNumber: String) {
+        val records = load(context).toMutableList()
+        records.removeAll { it.plateNumber == plateNumber }
+        getFile(context).writeText(gson.toJson(records))
+    }
+
     fun clear(context: Context) {
         getFile(context).delete()
     }

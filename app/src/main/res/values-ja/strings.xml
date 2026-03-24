@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">スキャン。識別。発見。</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">次へ</string>
+    <string name="onboarding_get_started">始める</string>
+    <string name="onboarding_scan_title">任意の\nナンバープレートをスキャン</string>
+    <string name="onboarding_scan_description">カメラを車両に向けると、ARで詳細情報が即座に表示されます</string>
+    <string name="onboarding_country_title">国を\n選択</string>
+    <string name="onboarding_country_description">お住まいの地域に適したデータベースを使用します</string>
+    <string name="onboarding_country_israel">イスラエル</string>
+    <string name="onboarding_country_netherlands">オランダ</string>
+    <string name="onboarding_country_uk">イギリス</string>
+    <string name="onboarding_requires_api_key">APIキーが必要</string>
+    <string name="onboarding_free_no_key">無料 - キー不要</string>
+    <string name="onboarding_ready_title">スキャン\n準備完了</string>
+    <string name="onboarding_ready_description">カメラへのアクセスを許可して、周囲の車両を発見しましょう</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">ナンバープレートに向けてください</string>
+    <string name="camera_reset">リセット</string>
+    <string name="camera_enter_plate">ナンバーを入力</string>
+    <string name="camera_search">検索</string>
+    <string name="camera_cancel">キャンセル</string>
+    <string name="camera_plate_placeholder">例: 12345678</string>
+    <string name="camera_saved_to_history">履歴に保存しました</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">不明</string>
+    <string name="overlay_save">保存</string>
+    <string name="overlay_info">情報</string>
+    <string name="overlay_not_found">見つかりません</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_region">地域</string>
+    <string name="settings_country">国</string>
+    <string name="settings_tap_to_change">タップして変更</string>
+    <string name="settings_sound_feedback">サウンド &amp; フィードバック</string>
+    <string name="settings_sound_effects">効果音</string>
+    <string name="settings_about">このアプリについて</string>
+    <string name="settings_version">バージョン 1.0</string>
+    <string name="settings_about_description">ナンバープレートをスキャンして、拡張現実で車両情報を確認できます。</string>
+
+    <!-- Language -->
+    <string name="settings_language">言語</string>
+    <string name="settings_language_auto">デバイスの既定</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">スキャン履歴</string>
+    <string name="history_empty">スキャン履歴はまだありません</string>
+    <string name="history_clear_all">すべて消去</string>
+    <string name="history_delete">削除</string>
+    <string name="history_confirm_clear">すべてのスキャン履歴を削除してもよろしいですか？</string>
+    <string name="history_confirm_yes">すべて削除</string>
+    <string name="history_confirm_no">キャンセル</string>
+    <string name="history_back">戻る</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">お住まいの国はまだサポートされていません</string>
+    <string name="error_supported_countries">対応国: イスラエル、オランダ、イギリス</string>
+    <string name="error_camera_required">カメラへのアクセスが\n必要です</string>
+    <string name="error_camera_grant">設定でカメラへのアクセスを許可してください</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">イスラエル</string>
+    <string name="country_netherlands">オランダ</string>
+    <string name="country_uk">イギリス</string>
+</resources>

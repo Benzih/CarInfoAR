@@ -36,7 +36,8 @@
     <!-- Settings -->
     <string name="settings_title">הגדרות</string>
     <string name="settings_region">אזור</string>
-    <string name="settings_country">מדינה</string>
+    <string name="settings_country">מיקום נוכחי</string>
+    <string name="settings_country_hint">בחר את המדינה שבה אתה נמצא כרגע, לא את ארץ המוצא</string>
     <string name="settings_tap_to_change">הקש לשינוי</string>
     <string name="settings_sound_feedback">צליל ומשוב</string>
     <string name="settings_sound_effects">אפקטי צליל</string>
@@ -44,10 +45,32 @@
     <string name="settings_version">גרסה 1.0</string>
     <string name="settings_about_description">סרוק לוחיות רישוי וגלה מידע על רכבים במציאות רבודה.</string>
 
+    <!-- Language -->
+    <string name="settings_language">שפה</string>
+    <string name="settings_language_auto">ברירת מחדל של המכשיר</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
     <!-- History -->
     <string name="history_title">היסטוריית סריקות</string>
     <string name="history_empty">אין סריקות עדיין</string>
     <string name="history_clear_all">נקה הכל</string>
+    <string name="history_delete">מחק</string>
+    <string name="history_confirm_clear">האם אתה בטוח שברצונך למחוק את כל ההיסטוריה?</string>
+    <string name="history_confirm_yes">מחק הכל</string>
+    <string name="history_confirm_no">ביטול</string>
     <string name="history_back">חזרה</string>
 
     <!-- Errors -->

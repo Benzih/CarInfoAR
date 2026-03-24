@@ -164,6 +164,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     var showManualInput by remember { mutableStateOf(false) }
     var manualPlateText by remember { mutableStateOf("") }
 
+    // Sync sound setting
+    val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
+    LaunchedEffect(soundEnabled) { SoundManager.soundEnabled = soundEnabled }
+
     // DVLA API key is hardcoded in VehicleCache
 
     LaunchedEffect(Unit) {
@@ -287,6 +291,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 )
 
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
+                                                    SoundManager.playScanDetected()
+                                                    SoundManager.vibrate(context)
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
                                                         overlayStates[plate.plateNumber]?.let { current ->
@@ -296,6 +302,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                             )
                                                         }
                                                         if (info != null) {
+                                                            SoundManager.playInfoLoaded()
                                                             ScanHistory.save(context, plate.plateNumber, info)
                                                         }
                                                     }
@@ -342,21 +349,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     .padding(top = 52.dp, start = 16.dp, end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CountryIndicator(
-                    country = country,
-                    modifier = Modifier.clickable {
-                        val countries = SupportedCountry.entries
-                        val currentIndex = countries.indexOf(country)
-                        val nextIndex = (currentIndex + 1) % countries.size
-                        val nextCountry = countries[nextIndex]
-                        if (BuildConfig.DEBUG) Log.d("CameraScreen", "Switching country: ${country?.code} -> ${nextCountry.code}")
-                        overlayStates.clear()
-                        plateSeenCount.clear()
-                        scope.launch {
-                            UserPreferences.setSelectedCountry(context, nextCountry.code)
-                        }
-                    }
-                )
                 Spacer(Modifier.weight(1f))
                 Box(
                     modifier = Modifier
@@ -459,10 +451,12 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                 vehicleInfo = state.vehicleInfo,
                                 onClick = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
+                                    SoundManager.playSaved()
                                     Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
                                 },
                                 onSaveToHistory = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
+                                    SoundManager.playSaved()
                                     Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
                                 },
                                 onOpenModelInfo = {

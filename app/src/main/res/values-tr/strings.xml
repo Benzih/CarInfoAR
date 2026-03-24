@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Tara. Tanımla. Keşfet.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">İleri</string>
+    <string name="onboarding_get_started">Başla</string>
+    <string name="onboarding_scan_title">Herhangi bir\nplakayı tara</string>
+    <string name="onboarding_scan_description">Kameranızı herhangi bir araca doğrultun ve ayrıntılarını anında AR ile görün</string>
+    <string name="onboarding_country_title">Ülkenizi\nseçin</string>
+    <string name="onboarding_country_description">Bölgeniz için doğru veritabanını kullanacağız</string>
+    <string name="onboarding_country_israel">İsrail</string>
+    <string name="onboarding_country_netherlands">Hollanda</string>
+    <string name="onboarding_country_uk">Birleşik Krallık</string>
+    <string name="onboarding_requires_api_key">API anahtarı gerekli</string>
+    <string name="onboarding_free_no_key">Ücretsiz - anahtar gerekmez</string>
+    <string name="onboarding_ready_title">Taramaya\nhazır</string>
+    <string name="onboarding_ready_description">Kamera erişimi verin ve çevrenizdeki araçları keşfetmeye başlayın</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Bir plakaya doğrultun</string>
+    <string name="camera_reset">Sıfırla</string>
+    <string name="camera_enter_plate">Plaka numarasını girin</string>
+    <string name="camera_search">Ara</string>
+    <string name="camera_cancel">İptal</string>
+    <string name="camera_plate_placeholder">ör. 12345678</string>
+    <string name="camera_saved_to_history">Geçmişe kaydedildi</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Bilinmiyor</string>
+    <string name="overlay_save">Kaydet</string>
+    <string name="overlay_info">Bilgi</string>
+    <string name="overlay_not_found">Bulunamadı</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_region">Bölge</string>
+    <string name="settings_country">Ülke</string>
+    <string name="settings_tap_to_change">Değiştirmek için dokunun</string>
+    <string name="settings_sound_feedback">Ses &amp; geri bildirim</string>
+    <string name="settings_sound_effects">Ses efektleri</string>
+    <string name="settings_about">Hakkında</string>
+    <string name="settings_version">Sürüm 1.0</string>
+    <string name="settings_about_description">Plakaları tarayın ve araç bilgilerini artırılmış gerçeklikte keşfedin.</string>
+
+    <!-- Language -->
+    <string name="settings_language">Dil</string>
+    <string name="settings_language_auto">Cihaz varsayılanı</string>
+    <string name="settings_language_hebrew">עברית</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_dutch">Nederlands</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_portuguese">Português</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_turkish">Türkçe</string>
+    <string name="settings_language_russian">Русский</string>
+    <string name="settings_language_chinese">中文</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_korean">한국어</string>
+
+    <!-- History -->
+    <string name="history_title">Tarama geçmişi</string>
+    <string name="history_empty">Henüz tarama yok</string>
+    <string name="history_clear_all">Tümünü temizle</string>
+    <string name="history_delete">Sil</string>
+    <string name="history_confirm_clear">Tüm tarama geçmişini silmek istediğinizden emin misiniz?</string>
+    <string name="history_confirm_yes">Tümünü sil</string>
+    <string name="history_confirm_no">İptal</string>
+    <string name="history_back">Geri</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Ülkeniz henüz desteklenmiyor</string>
+    <string name="error_supported_countries">Desteklenen: İsrail, Hollanda, Birleşik Krallık</string>
+    <string name="error_camera_required">Kamera erişimi\ngerekli</string>
+    <string name="error_camera_grant">Lütfen ayarlardan kamera erişimi verin</string>
+
+    <!-- Country Names -->
+    <string name="country_israel">İsrail</string>
+    <string name="country_netherlands">Hollanda</string>
+    <string name="country_uk">Birleşik Krallık</string>
+</resources>
