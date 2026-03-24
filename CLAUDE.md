@@ -26,6 +26,7 @@
 15. [Data Storage](#15-data-storage)
 16. [Ad System](#16-ad-system)
 16b. [Privacy Policy](#16b-privacy-policy)
+16c. [Firebase (Crashlytics & Analytics)](#16c-firebase-crashlytics--analytics)
 17. [Theme & Design](#17-theme--design)
 18. [Debugging](#18-debugging)
 19. [Testing Checklist](#19-testing-checklist)
@@ -833,6 +834,83 @@ The privacy policy covers the following areas:
 
 ---
 
+## 16c. Firebase (Crashlytics & Analytics)
+
+### Firebase Project
+
+| Property          | Value                                                    |
+|-------------------|----------------------------------------------------------|
+| Project ID        | `carinfo-ar`                                             |
+| Project Number    | `640581146754`                                           |
+| App ID            | `1:640581146754:android:e50f473cdd170ca6dc3c9b`          |
+| Analytics Property| `carinfo-ar` (Property ID: 529769932)                    |
+| Analytics Stream  | `14212121707`                                            |
+| Console URL       | https://console.firebase.google.com/project/carinfo-ar   |
+| Plan              | Spark (free)                                             |
+
+### Configuration Files
+
+| File                    | Location                          | Purpose                              |
+|-------------------------|-----------------------------------|--------------------------------------|
+| `google-services.json`  | `app/google-services.json`        | Firebase SDK configuration           |
+| `firebase.json`         | Project root                      | Firebase CLI configuration           |
+| `.firebaserc`           | Project root                      | Firebase project alias mapping       |
+
+### Crashlytics
+
+| Property              | Value                                              |
+|-----------------------|----------------------------------------------------|
+| SDK                   | `firebase-crashlytics-ktx` (via Firebase BOM 33.9.0) |
+| Gradle Plugin         | `com.google.firebase.crashlytics` v3.0.3           |
+| Mapping File Upload   | Automatic on release builds (`uploadCrashlyticsMappingFileRelease`) |
+| ProGuard Rules        | `keepattributes SourceFile,LineNumberTable` for readable stack traces |
+| Initialization        | Automatic — no code needed, SDK initializes via `ContentProvider` |
+
+Crashlytics automatically reports:
+- **Fatal crashes** (unhandled exceptions)
+- **ANRs** (Application Not Responding)
+- **Non-fatal exceptions** (if logged manually via `FirebaseCrashlytics.getInstance().recordException()`)
+
+### Analytics
+
+| Property              | Value                                              |
+|-----------------------|----------------------------------------------------|
+| SDK                   | `firebase-analytics-ktx` (via Firebase BOM 33.9.0) |
+| Account               | Default Account for Firebase                       |
+| Initialization        | Automatic — no code needed                         |
+
+Analytics automatically tracks:
+- **Sessions** (app opens, session duration)
+- **Screen views** (which screens users visit)
+- **User demographics** (country, device, OS version)
+- **App version** distribution
+- **Retention** metrics
+
+### Gradle Plugins
+
+Both plugins are declared in `libs.versions.toml` and applied in `app/build.gradle.kts`:
+
+```
+# Project-level build.gradle.kts
+alias(libs.plugins.google.services) apply false
+alias(libs.plugins.firebase.crashlytics.plugin) apply false
+
+# App-level build.gradle.kts
+alias(libs.plugins.google.services)
+alias(libs.plugins.firebase.crashlytics.plugin)
+```
+
+### Dependencies
+
+```kotlin
+// Firebase BOM manages all Firebase library versions
+implementation(platform(libs.firebase.bom))    // 33.9.0
+implementation(libs.firebase.analytics)         // version from BOM
+implementation(libs.firebase.crashlytics)       // version from BOM
+```
+
+---
+
 ## 17. Theme & Design
 
 ### Design Philosophy
@@ -980,7 +1058,7 @@ curl -X POST \
 | 3  | OCR can misread handwritten/damaged plates  | Medium   | ML Kit performs best on clean, printed plates. Handwritten, dirty, or damaged plates may not be recognized. |
 | 4  | Debounce may miss fast scans               | Low      | Requiring 3 sightings means very brief exposures may not trigger a lookup. |
 | 5  | No offline mode                            | Medium   | The app requires an internet connection for API calls. No cached vehicle database exists. |
-| 6  | No crash reporting                         | Medium   | Firebase Crashlytics or equivalent is not integrated. Crashes in production go unreported. |
+| 6  | ~~No crash reporting~~                     | ~~Done~~ | ~~Firebase Crashlytics is now integrated and active.~~ |
 | 7  | AdMob payment setup required               | Medium   | AdMob account requires payment setup completion for ads to actually serve in production. |
 | 8  | ProGuard rules minimal                     | Low      | Release builds may not be fully optimized or obfuscated. ProGuard/R8 rules should be reviewed. |
 | 9  | No unit or instrumentation tests           | Medium   | The project has no automated test coverage.                   |
@@ -993,7 +1071,7 @@ curl -X POST \
 | Priority | Feature                        | Description                                                        |
 |----------|--------------------------------|--------------------------------------------------------------------|
 | High     | Add more countries             | Extend API support to additional countries (e.g., Germany, France, USA). |
-| High     | Firebase Crashlytics           | Integrate crash reporting for production monitoring.               |
+| ~~Done~~ | ~~Firebase Crashlytics~~       | ~~Integrated and active. Console: https://console.firebase.google.com/project/carinfo-ar~~ |
 | High     | Secure API key storage         | Move the DVLA API key to a backend proxy or encrypted build config. |
 | ~~Done~~ | ~~Real AdMob IDs~~             | ~~Production ad unit IDs are now active.~~                         |
 | ~~Done~~ | ~~Privacy policy~~             | ~~Hosted at https://benzih.github.io/CarInfoAR/~~                 |
