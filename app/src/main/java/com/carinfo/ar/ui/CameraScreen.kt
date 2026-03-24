@@ -108,6 +108,25 @@ import com.carinfo.ar.util.SoundManager
 import androidx.compose.ui.res.stringResource
 import com.carinfo.ar.R
 import kotlinx.coroutines.launch
+import kotlin.math.abs
+
+/**
+ * Safe plate similarity check for grouping OCR variants.
+ * - Same length: allows up to 2-char difference (handles OCR misreads)
+ * - Length differs by exactly 1: only if shorter is suffix/prefix of longer (handles OCR adding/dropping a digit)
+ * - Length differs by 2+: never similar (prevents cross-plate grouping)
+ */
+private fun isSimilarPlate(a: String, b: String): Boolean {
+    if (a.length == b.length) {
+        return a.zip(b).count { (x, y) -> x == y } >= (a.length - 2)
+    }
+    if (abs(a.length - b.length) == 1) {
+        val longer = if (a.length > b.length) a else b
+        val shorter = if (a.length > b.length) b else a
+        return longer.endsWith(shorter) || longer.startsWith(shorter)
+    }
+    return false
+}
 
 data class PlateOverlayState(
     val plateNumber: String,
@@ -261,10 +280,9 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
                                             for (plate in plates) {
                                                 // Find or create vote group for this plate (fuzzy match)
-                                                // Fuzzy match: allow up to 2 char difference for grouping
+                                                // Fuzzy match: safe grouping of OCR variants
                                                 val groupKey = plateVoteGroups.keys.find { existing ->
-                                                    existing.length == plate.plateNumber.length &&
-                                                    existing.zip(plate.plateNumber).count { (a, b) -> a == b } >= (plate.plateNumber.length - 2)
+                                                    isSimilarPlate(existing, plate.plateNumber)
                                                 } ?: plate.plateNumber
 
                                                 val votes = plateVoteGroups.getOrPut(groupKey) { mutableMapOf() }
@@ -280,8 +298,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 // Skip if already showing this plate or a similar one
                                                 if (overlayStates.containsKey(bestPlate)) continue
                                                 val similarKey = overlayStates.keys.find { existingPlate ->
-                                                    existingPlate.length == bestPlate.length &&
-                                                    existingPlate.zip(bestPlate).count { (a, b) -> a == b } >= (bestPlate.length - 2)
+                                                    isSimilarPlate(existingPlate, bestPlate)
                                                 }
                                                 if (similarKey != null) continue
 
