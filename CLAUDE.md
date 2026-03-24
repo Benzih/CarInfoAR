@@ -24,7 +24,8 @@
 13. [Language System](#13-language-system)
 14. [Sound System](#14-sound-system)
 15. [Data Storage](#15-data-storage)
-16. [Ad System (Disabled)](#16-ad-system-disabled)
+16. [Ad System](#16-ad-system)
+16b. [Privacy Policy](#16b-privacy-policy)
 17. [Theme & Design](#17-theme--design)
 18. [Debugging](#18-debugging)
 19. [Testing Checklist](#19-testing-checklist)
@@ -168,7 +169,13 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 | Retrofit                  | 2.11.0      | HTTP client for vehicle APIs     |
 | Navigation Compose        | 2.8.5       | In-app navigation                |
 | DataStore Preferences     | 1.1.2       | Persistent key-value storage     |
-| Play Services Ads         | 23.6.0      | AdMob integration (currently disabled) |
+| Play Services Ads         | 23.6.0      | AdMob integration (active, production IDs) |
+
+### Custom App Icon
+
+- Custom launcher icon provided at all standard densities: **mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi**.
+- Play Store icon: **512x512** (`ic_launcher_playstore.png`).
+- Adaptive icon XML has been removed; the app uses **PNG directly** for the launcher icon.
 
 ### SDK Configuration
 
@@ -543,12 +550,18 @@ The primary screen of the app. Components:
 
 ### 10.4 SettingsScreen
 
-| Setting         | Type           | Details                                              |
-|-----------------|----------------|------------------------------------------------------|
-| Language        | Dropdown       | 15 options (14 languages + device default)           |
-| Sound           | Toggle switch  | Enables/disables scan sounds and vibration           |
-| About           | Info section    | App version, credits                                |
-| Region          | Selector       | Country override; placed last in the list            |
+Settings are displayed in this order:
+
+| #  | Setting         | Type           | Details                                              |
+|----|-----------------|----------------|------------------------------------------------------|
+| 1  | Language        | Dropdown       | 15 options (14 languages + device default)           |
+| 2  | Sound & Feedback| Toggle switch  | Enables/disables scan sounds and vibration           |
+| 3  | About           | Info section   | App version, credits                                 |
+| 4  | Region          | Selector       | Country override; placed **last** in the list        |
+
+**Region hint text:** "Select the country you are currently in, not your home country."
+
+**Note:** The country flag is shown only in Settings (Region selector). It has been removed from the Camera screen.
 
 Changing the language triggers `Activity.recreate()` to apply the new locale immediately.
 
@@ -558,9 +571,10 @@ Changing the language triggers `Activity.recreate()` to apply the new locale imm
 |--------------------|-------------------------------------------------------|
 | List display       | `LazyColumn` with scan records                        |
 | Per-item display   | Plate number, manufacturer, model, year, color, flag  |
-| Swipe-to-delete    | Swipe a row left to reveal delete action              |
+| Swipe-to-delete    | Swipe **left only** to reveal delete action           |
 | Per-item delete    | Explicit delete button/icon on each row               |
-| Clear all          | Button at top; shows a confirmation dialog before clearing |
+| Clear all          | **Text button** at top; shows a confirmation dialog before clearing |
+| Sound effects      | Sound plays on single-item delete and clear-all actions |
 
 History is capped at 100 records. Newest records appear first.
 
@@ -642,11 +656,20 @@ If none of the above yield a supported country code directly, the following fall
 
 `TelephonyManager.getNetworkCountryIso()` and `getSimCountryIso()` do not require `READ_PHONE_STATE` or any location permission. They return the Mobile Country Code (MCC) derived ISO country code, which is publicly available information.
 
+### Independence from Language
+
+Language and Country/API are **separate, independent settings**:
+
+- **Language** follows the device language by default, or can be manually overridden in Settings via the language dropdown.
+- **Country/API** follows the detection priority: network country -> SIM country -> device locale -> manual override in Settings.
+
+Changing one does not affect the other.
+
 ---
 
 ## 13. Language System
 
-### Supported Languages
+### Supported Languages (14)
 
 | # | Language    | Code | Values Directory |
 |---|-------------|------|-----------------|
@@ -664,6 +687,14 @@ If none of the above yield a supported country code directly, the following fall
 | 12| Chinese     | `zh` | `values-zh`     |
 | 13| Japanese    | `ja` | `values-ja`     |
 | 14| Korean      | `ko` | `values-ko`     |
+
+### Language Picker
+
+The language selector is a **dropdown** in the Settings screen (not a tap-to-cycle control). It lists all 14 languages plus a "Device Default" option.
+
+### Independence from Country/API
+
+Language and Country/API are **independent settings**. Changing the display language does not affect which vehicle API is used, and changing the region/country does not affect the display language. For example, a user can set the language to French while querying the Israeli vehicle API.
 
 ### Implementation
 
@@ -701,6 +732,10 @@ A short **50-millisecond** haptic pulse is triggered when a plate is first detec
 ### User Control
 
 Sound and vibration are controlled by the `sound_enabled` preference in DataStore. When disabled, both audio and haptic feedback are suppressed. The toggle is available in the Settings screen.
+
+### Implementation Detail
+
+The app uses `MediaPlayer` with the system's default notification ringtone (via `RingtoneManager.TYPE_NOTIFICATION`), **not** `ToneGenerator`. The sound enabled/disabled state is synced from DataStore preferences via `LaunchedEffect` in composables that need it.
 
 ---
 
@@ -750,28 +785,51 @@ The cache key is the cleaned plate number. A `null` value indicates the plate wa
 
 ---
 
-## 16. Ad System (Disabled)
+## 16. Ad System
 
 ### Current State
 
-The AdMob integration code exists in the codebase but is **currently disabled**.
+AdMob is **active** with real production ad unit IDs.
 
 ### Configuration
 
-| Property       | Value                                |
-|----------------|--------------------------------------|
-| SDK            | Google Play Services Ads 23.6.0      |
-| Ad IDs         | AdMob **test IDs** (not production)  |
-| Interstitial   | Code exists; show call is commented out |
-| Banner         | Code exists; composable is commented out |
-| Trigger        | Every 3 successful plate detections  |
+| Property            | Value                                          |
+|---------------------|------------------------------------------------|
+| SDK                 | Google Play Services Ads 23.6.0                |
+| App ID              | `ca-app-pub-6755700667333024~9262386386`       |
+| Banner Ad Unit ID   | `ca-app-pub-6755700667333024/9070814697`       |
+| Interstitial Ad Unit ID | `ca-app-pub-6755700667333024/6137529598`   |
+| Banner placement    | Bottom of camera screen                        |
+| Interstitial trigger| Every 3 successful plate detections            |
+| Status              | Active with real production IDs                |
 
-### How to Enable
+### How to Disable
 
-1. **Uncomment** the interstitial ad loading and showing code in `CameraScreen.kt`.
-2. **Uncomment** the banner ad composable in the camera screen layout.
-3. **Replace** the AdMob test IDs with real production ad unit IDs from the AdMob console.
-4. **Test** thoroughly on a real device before publishing.
+Ads are currently **enabled** in production. To disable them:
+
+1. **Comment out** the interstitial ad loading and showing code in `CameraScreen.kt`.
+2. **Comment out** the banner ad composable in the camera screen layout.
+3. **Replace** the production ad unit IDs with AdMob test IDs if you want to keep the code but prevent real ad serving during development.
+
+---
+
+## 16b. Privacy Policy
+
+| Property       | Value                                              |
+|----------------|----------------------------------------------------|
+| URL            | https://benzih.github.io/CarInfoAR/                |
+| Hosted via     | GitHub Pages from `docs/index.html`                |
+| Required for   | Google Play Store submission                       |
+
+### Coverage
+
+The privacy policy covers the following areas:
+
+- **Camera usage:** How the app uses the device camera for plate scanning.
+- **Plate data:** How scanned license plate numbers are processed.
+- **Local storage:** How scan history is stored on-device.
+- **AdMob:** Google AdMob advertising SDK and data collection.
+- **Third-party APIs:** Data sent to government vehicle registration APIs (data.gov.il, RDW, DVLA).
 
 ---
 
@@ -923,7 +981,7 @@ curl -X POST \
 | 4  | Debounce may miss fast scans               | Low      | Requiring 3 sightings means very brief exposures may not trigger a lookup. |
 | 5  | No offline mode                            | Medium   | The app requires an internet connection for API calls. No cached vehicle database exists. |
 | 6  | No crash reporting                         | Medium   | Firebase Crashlytics or equivalent is not integrated. Crashes in production go unreported. |
-| 7  | AdMob using test IDs                       | Low      | Ad integration uses test IDs. Must be replaced before production release. |
+| 7  | AdMob payment setup required               | Medium   | AdMob account requires payment setup completion for ads to actually serve in production. |
 | 8  | ProGuard rules minimal                     | Low      | Release builds may not be fully optimized or obfuscated. ProGuard/R8 rules should be reviewed. |
 | 9  | No unit or instrumentation tests           | Medium   | The project has no automated test coverage.                   |
 | 10 | Vehicle cache has no TTL                   | Low      | Cached vehicle data persists for the entire session. Stale data is possible if a vehicle's registration changes. |
@@ -937,8 +995,8 @@ curl -X POST \
 | High     | Add more countries             | Extend API support to additional countries (e.g., Germany, France, USA). |
 | High     | Firebase Crashlytics           | Integrate crash reporting for production monitoring.               |
 | High     | Secure API key storage         | Move the DVLA API key to a backend proxy or encrypted build config. |
-| Medium   | Real AdMob IDs                 | Replace test ad unit IDs with production IDs and configure mediation. |
-| Medium   | Privacy policy                 | Draft and host a privacy policy (required for Play Store).         |
+| ~~Done~~ | ~~Real AdMob IDs~~             | ~~Production ad unit IDs are now active.~~                         |
+| ~~Done~~ | ~~Privacy policy~~             | ~~Hosted at https://benzih.github.io/CarInfoAR/~~                 |
 | Medium   | Play Store listing             | Prepare store listing assets (screenshots, descriptions, feature graphic). |
 | Medium   | Unit tests                     | Add unit tests for OCR correction, API parsing, and cache logic.   |
 | Medium   | Instrumentation tests          | Add UI tests for navigation flow and screen rendering.             |
