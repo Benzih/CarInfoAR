@@ -14,7 +14,7 @@ object VehicleCache {
 
     // DVLA API key - users need to register at https://developer-portal.driver-vehicle-licensing.api.gov.uk/
     // Leave empty to disable UK support
-    var dvlaApiKey: String = ""
+    var dvlaApiKey: String = "vgkhEOnZPp3rF5U7qXC848wHZ4RBV0kg5PtTKsCK"
 
     fun getCached(plateNumber: String): VehicleInfo? {
         return cache[plateNumber]
@@ -68,7 +68,18 @@ object VehicleCache {
         // RDW expects plate without dashes, uppercase
         val kenteken = plateNumber.uppercase()
         val records = RetrofitClient.rdwApi.searchVehicle(kenteken = kenteken)
-        return records.firstOrNull()?.toVehicleInfo()
+        if (records.isNotEmpty()) return records.first().toVehicleInfo()
+
+        // OCR confuses O/0, I/1 — try variants
+        val swaps = mapOf('O' to '0', '0' to 'O', 'I' to '1', '1' to 'I')
+        for (i in kenteken.indices) {
+            val swap = swaps[kenteken[i]] ?: continue
+            val variant = kenteken.substring(0, i) + swap + kenteken.substring(i + 1)
+            Log.d("VehicleCache", "NL: trying variant $variant")
+            val variantRecords = RetrofitClient.rdwApi.searchVehicle(kenteken = variant)
+            if (variantRecords.isNotEmpty()) return variantRecords.first().toVehicleInfo()
+        }
+        return null
     }
 
     private suspend fun fetchUk(plateNumber: String): VehicleInfo? {

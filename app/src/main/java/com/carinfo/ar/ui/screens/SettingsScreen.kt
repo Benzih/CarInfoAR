@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -95,9 +96,17 @@ fun SettingsScreen(onBack: () -> Unit) {
             // Country section
             SectionTitle("Region")
             SettingsCard {
+                val countries = SupportedCountry.entries
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable {
+                            val currentIndex = countries.indexOf(country)
+                            val nextIndex = (currentIndex + 1) % countries.size
+                            scope.launch {
+                                UserPreferences.setSelectedCountry(context, countries[nextIndex].code)
+                            }
+                        }
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -113,6 +122,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                             color = Color(0xFF888888)
                         )
                     }
+                    Text("Tap to change", color = Color(0xFF555555), style = MaterialTheme.typography.bodySmall)
                 }
             }
 

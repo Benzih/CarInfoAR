@@ -2,6 +2,7 @@ package com.carinfo.ar.ui
 
 import android.app.Activity
 import android.Manifest
+import android.util.Log
 import android.content.pm.PackageManager
 import android.util.Size
 import android.view.GestureDetector
@@ -34,12 +35,25 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -136,11 +150,18 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
     val motionTracker = remember { FrameMotionTracker() }
+    val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
+    countryRef.value = country ?: SupportedCountry.ISRAEL
     val knownPlates = remember { mutableSetOf<String>() }
+    val plateSeenCount = remember { mutableMapOf<String, Int>() }
     val activity = context as? Activity
 
     var viewWidth by remember { mutableIntStateOf(1) }
     var viewHeight by remember { mutableIntStateOf(1) }
+    var showManualInput by remember { mutableStateOf(false) }
+    var manualPlateText by remember { mutableStateOf("") }
+
+    // DVLA API key is hardcoded in VehicleCache
 
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) {
@@ -220,7 +241,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                 it.setAnalyzer(
                                     ContextCompat.getMainExecutor(ctx),
                                     PlateAnalyzer(
-                                        country = country,
+                                        countryProvider = { countryRef.value },
                                         motionTracker = motionTracker,
                                         screenWidth = { viewWidth },
                                         screenHeight = { viewHeight },
@@ -238,6 +259,11 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                             val now = System.currentTimeMillis()
 
                                             for (plate in plates) {
+                                                // Debounce: require 3 sightings before processing
+                                                val count = (plateSeenCount[plate.plateNumber] ?: 0) + 1
+                                                plateSeenCount[plate.plateNumber] = count
+                                                if (count < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
+
                                                 val scaleX = viewWidth.toFloat() / imgW.toFloat()
                                                 val scaleY = viewHeight.toFloat() / imgH.toFloat()
 
@@ -257,21 +283,15 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                     lastSeenTime = now
                                                 )
 
-                                                // Ads disabled for now
-                                                // if (knownPlates.add(plate.plateNumber) && activity != null) {
-                                                //     AdManager.onNewPlateDetected(activity)
-                                                // }
-
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     scope.launch {
-                                                        val info = VehicleCache.fetchIfNeeded(plate.plateNumber, country)
+                                                        val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
                                                         overlayStates[plate.plateNumber]?.let { current ->
                                                             overlayStates[plate.plateNumber] = current.copy(
                                                                 vehicleInfo = info,
                                                                 isLoading = false
                                                             )
                                                         }
-                                                        // Auto-save to history
                                                         if (info != null) {
                                                             ScanHistory.save(context, plate.plateNumber, info)
                                                         }
@@ -319,8 +339,31 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     .padding(top = 52.dp, start = 16.dp, end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CountryIndicator(country = country)
+                CountryIndicator(
+                    country = country,
+                    modifier = Modifier.clickable {
+                        val countries = SupportedCountry.entries
+                        val currentIndex = countries.indexOf(country)
+                        val nextIndex = (currentIndex + 1) % countries.size
+                        val nextCountry = countries[nextIndex]
+                        Log.d("CameraScreen", "Switching country: ${country?.code} -> ${nextCountry.code}")
+                        scope.launch {
+                            UserPreferences.setSelectedCountry(context, nextCountry.code)
+                        }
+                    }
+                )
                 Spacer(Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(GlassOverlay)
+                        .clickable { showManualInput = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Edit, "Manual", tint = Color.White, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -359,7 +402,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         .padding(bottom = 40.dp)
                         .clip(CircleShape)
                         .background(GlassOverlay)
-                        .clickable { overlayStates.clear() }
+                        .clickable { overlayStates.clear(); plateSeenCount.clear() }
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -436,6 +479,125 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
                 Text("Please grant camera access in settings", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            }
+        }
+    }
+
+    // Manual plate input dialog
+    if (showManualInput) {
+        ManualPlateDialog(
+            plateText = manualPlateText,
+            onPlateTextChange = { manualPlateText = it },
+            onSearch = {
+                val plate = manualPlateText.trim().uppercase()
+                if (plate.isNotEmpty() && country != null) {
+                    showManualInput = false
+                    // Add as overlay in center of screen
+                    overlayStates[plate] = PlateOverlayState(
+                        plateNumber = plate,
+                        screenX = viewWidth / 2f,
+                        screenY = viewHeight / 2f,
+                        isLoading = true
+                    )
+                    scope.launch {
+                        val info = VehicleCache.fetchIfNeeded(plate, country)
+                        overlayStates[plate]?.let { current ->
+                            overlayStates[plate] = current.copy(
+                                vehicleInfo = info,
+                                isLoading = false
+                            )
+                        }
+                        if (info != null) {
+                            ScanHistory.save(context, plate, info)
+                        }
+                    }
+                    manualPlateText = ""
+                }
+            },
+            onDismiss = {
+                showManualInput = false
+                manualPlateText = ""
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ManualPlateDialog(
+    plateText: String,
+    onPlateTextChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(0xFF1A1A2E))
+                .border(1.dp, Color(0xFF2A2A4A), RoundedCornerShape(20.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Enter Plate Number",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Spacer(Modifier.height(16.dp))
+            TextField(
+                value = plateText,
+                onValueChange = onPlateTextChange,
+                placeholder = { Text("e.g. 12345678", color = Color(0xFF666666)) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.Characters,
+                    imeAction = ImeAction.Search
+                ),
+                keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Color(0xFF0F0F23),
+                    unfocusedContainerColor = Color(0xFF0F0F23),
+                    cursorColor = BrandPrimary,
+                    focusedIndicatorColor = BrandPrimary,
+                    unfocusedIndicatorColor = Color(0xFF333333)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(Modifier.height(20.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF2A2A4A))
+                        .clickable { onDismiss() }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Bold)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BrandPrimary)
+                        .clickable { onSearch() }
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Search, "Search", tint = Color.White, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("Search", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         }
     }
