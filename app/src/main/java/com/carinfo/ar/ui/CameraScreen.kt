@@ -293,6 +293,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     SoundManager.playScanDetected()
                                                     SoundManager.vibrate(context)
+                                                    if (activity != null) AdManager.onNewPlateDetected(activity)
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
                                                         overlayStates[plate.plateNumber]?.let { current ->
@@ -412,23 +413,23 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 }
             }
 
-            // Banner Ad (disabled for now)
-            // Box(
-            //     modifier = Modifier
-            //         .align(Alignment.BottomCenter)
-            //         .fillMaxWidth()
-            // ) {
-            //     AndroidView(
-            //         factory = { ctx ->
-            //             AdView(ctx).apply {
-            //                 setAdSize(AdSize.BANNER)
-            //                 adUnitId = AdManager.BANNER_AD_UNIT_ID
-            //                 loadAd(AdRequest.Builder().build())
-            //             }
-            //         },
-            //         modifier = Modifier.fillMaxWidth()
-            //     )
-            // }
+            // Banner Ad
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+            ) {
+                AndroidView(
+                    factory = { ctx ->
+                        AdView(ctx).apply {
+                            setAdSize(AdSize.BANNER)
+                            adUnitId = AdManager.BANNER_AD_UNIT_ID
+                            loadAd(AdRequest.Builder().build())
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // AR Overlays
             overlayStates.values.forEach { state ->

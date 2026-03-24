@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - CarInfo AR</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #1c2128;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-dim: #1f6feb;
+            --border: #30363d;
+            --highlight: #388bfd26;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        header {
+            text-align: center;
+            padding: 48px 0 40px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 48px;
+        }
+
+        .app-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--accent-dim), var(--accent));
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .last-updated {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 6px 14px;
+            background-color: var(--highlight);
+            border: 1px solid var(--accent-dim);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        h2 {
+            font-size: 1.35rem;
+            font-weight: 600;
+            margin-top: 48px;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        h2 .section-number {
+            color: var(--accent);
+            margin-right: 8px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            margin-bottom: 16px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+
+        .highlight-box {
+            background-color: var(--highlight);
+            border-left: 3px solid var(--accent);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary);
+            margin-bottom: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.92rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-primary);
+            font-weight: 600;
+            background-color: var(--bg-secondary);
+        }
+
+        td {
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            margin-top: 64px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+        }
+
+        footer p {
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 16px 60px;
+            }
+            header {
+                padding: 32px 0 28px;
+                margin-bottom: 32px;
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            h2 {
+                font-size: 1.15rem;
+                margin-top: 36px;
+            }
+            table {
+                font-size: 0.84rem;
+            }
+            th, td {
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="app-icon" aria-hidden="true">&#128663;</div>
+            <h1>Privacy Policy</h1>
+            <p class="subtitle">CarInfo AR &mdash; Vehicle Information via Augmented Reality</p>
+            <span class="last-updated">Last updated: March 24, 2026</span>
+        </header>
+
+        <p>
+            Benzih ("we", "us", or "our") built the <strong>CarInfo AR</strong> app
+            (package: <code>com.carinfo.ar</code>) as a free, ad-supported application.
+            This Privacy Policy explains what information the app accesses, how it is used,
+            and the choices you have regarding your data.
+        </p>
+        <p>
+            By using CarInfo AR you agree to the practices described in this policy.
+            If you do not agree, please do not use the app.
+        </p>
+
+        <!-- 1 -->
+        <h2><span class="section-number">1.</span> Information We Collect</h2>
+
+        <p>CarInfo AR is designed with privacy in mind. We do <strong>not</strong> require user accounts, logins, or any form of personal registration. Below is a complete overview of the data the app accesses:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Purpose</th>
+                    <th>Stored / Transmitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Camera feed</strong></td>
+                    <td>License plate scanning via on-device ML Kit text recognition</td>
+                    <td>Processed on-device only. Images are <strong>never</strong> stored, uploaded, or transmitted.</td>
+                </tr>
+                <tr>
+                    <td><strong>License plate numbers</strong></td>
+                    <td>Queried against government vehicle databases to retrieve public vehicle information</td>
+                    <td>Sent to government APIs over HTTPS. <strong>Not</strong> stored on our servers.</td>
+                </tr>
+                <tr>
+                    <td><strong>Scan history</strong></td>
+                    <td>Lets you review past lookups</td>
+                    <td>Stored locally on your device only (max 100 records). Never uploaded.</td>
+                </tr>
+                <tr>
+                    <td><strong>Country &amp; language preferences</strong></td>
+                    <td>Provides a localized experience</td>
+                    <td>Stored locally via Android DataStore. Never transmitted.</td>
+                </tr>
+                <tr>
+                    <td><strong>Device network / SIM country</strong></td>
+                    <td>Auto-detects your region for default country selection</td>
+                    <td>Read on-device only. Never transmitted.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="highlight-box">
+            <p>We do <strong>not</strong> collect personal information such as your name, email address, phone number, or location coordinates. We do not create user profiles or track you across apps.</p>
+        </div>
+
+        <!-- 2 -->
+        <h2><span class="section-number">2.</span> How We Use Information</h2>
+        <p>The data accessed by CarInfo AR is used solely to provide the app's core functionality:</p>
+        <ul>
+            <li><strong>Camera images</strong> are analyzed in real time on your device using Google ML Kit to detect and read license plate text. No image data leaves your device.</li>
+            <li><strong>Detected plate numbers</strong> are sent to the relevant government vehicle API (based on your selected country) to retrieve publicly available vehicle information such as make, model, year, and registration details.</li>
+            <li><strong>Scan history</strong> is maintained locally so you can revisit previous lookups without re-scanning.</li>
+            <li><strong>Preferences</strong> are stored locally to remember your chosen country and language settings between sessions.</li>
+        </ul>
+
+        <!-- 3 -->
+        <h2><span class="section-number">3.</span> Third-Party Services</h2>
+        <p>CarInfo AR integrates the following third-party services. Each has its own privacy policy governing data it may collect:</p>
+
+        <div class="card">
+            <div class="card-title">Google AdMob</div>
+            <p>Used to display advertisements. AdMob may collect device identifiers, IP addresses, and usage data in accordance with
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
+                You may opt out of personalized ads through your device's advertising settings.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Google ML Kit (On-Device Text Recognition)</div>
+            <p>Used for license plate text recognition. All processing occurs entirely on your device. No image or text data is sent to Google's servers.
+                See <a href="https://developers.google.com/ml-kit" target="_blank" rel="noopener">ML Kit documentation</a> for details.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Government Vehicle APIs</div>
+            <p>License plate numbers are sent to the following public government data services to retrieve vehicle information:</p>
+            <ul>
+                <li><strong>Israel</strong> &mdash; <a href="https://data.gov.il" target="_blank" rel="noopener">data.gov.il</a> (Open Government Data)</li>
+                <li><strong>Netherlands</strong> &mdash; <a href="https://opendata.rdw.nl" target="_blank" rel="noopener">RDW Open Data</a></li>
+                <li><strong>United Kingdom</strong> &mdash; <a href="https://www.gov.uk/guidance/vehicle-enquiry-service-api" target="_blank" rel="noopener">DVLA Vehicle Enquiry Service</a></li>
+            </ul>
+            <p>These are government-operated services. Please refer to their respective privacy policies for information on how they handle API requests.</p>
+        </div>
+
+        <!-- 4 -->
+        <h2><span class="section-number">4.</span> Data Storage &amp; Retention</h2>
+        <ul>
+            <li><strong>All app data is stored locally on your device.</strong> We do not operate servers that store your data.</li>
+            <li>Scan history is limited to the most recent 100 records and is stored in the app's private storage.</li>
+            <li>You can clear your scan history at any time from within the app.</li>
+            <li>Uninstalling the app removes all locally stored data.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p>We do <strong>not</strong> sell, rent, share, or transfer your data to any third party, except as described above (government API queries for vehicle lookups and AdMob for advertising).</p>
+        </div>
+
+        <!-- 5 -->
+        <h2><span class="section-number">5.</span> Your Rights</h2>
+        <p>Because CarInfo AR does not collect or store personal data on remote servers, most traditional data-subject rights (access, deletion, portability) are handled directly on your device:</p>
+        <ul>
+            <li><strong>Access &amp; Deletion:</strong> View or delete your scan history directly within the app settings.</li>
+            <li><strong>Camera Permission:</strong> You can revoke camera access at any time through your device's system settings. The app will not function without camera access but no data is retained.</li>
+            <li><strong>Ad Personalization:</strong> Manage your advertising preferences through your Android device settings under <em>Google &gt; Ads</em>.</li>
+            <li><strong>Uninstall:</strong> Removing the app deletes all associated local data.</li>
+        </ul>
+
+        <!-- 6 -->
+        <h2><span class="section-number">6.</span> Children's Privacy</h2>
+        <p>
+            CarInfo AR is not directed at children under the age of 13. We do not knowingly collect personal information from children.
+            If you are a parent or guardian and believe your child has provided personal information through the app, please
+            <a href="mailto:contact@carinfo-ar.app">contact us</a> so we can take appropriate action.
+        </p>
+
+        <!-- 7 -->
+        <h2><span class="section-number">7.</span> Changes to This Policy</h2>
+        <p>
+            We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated
+            "Last updated" date. We encourage you to review this page periodically. Continued use of the app after
+            changes are posted constitutes acceptance of the updated policy.
+        </p>
+
+        <!-- 8 -->
+        <h2><span class="section-number">8.</span> Contact Us</h2>
+        <p>If you have any questions or concerns about this Privacy Policy or the app's data practices, please contact us:</p>
+        <div class="card">
+            <p>
+                <strong>Developer:</strong> Benzih<br>
+                <strong>Email:</strong> <a href="mailto:contact@carinfo-ar.app">contact@carinfo-ar.app</a><br>
+                <strong>GitHub:</strong> <a href="https://github.com/Benzih" target="_blank" rel="noopener">github.com/Benzih</a>
+            </p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Benzih. All rights reserved.</p>
+            <p style="margin-top: 8px;">CarInfo AR &mdash; Vehicle Information via Augmented Reality</p>
+        </footer>
+    </div>
+</body>
+</html>
