@@ -1,6 +1,7 @@
 package com.carinfo.ar.data
 
 import android.util.Log
+import com.carinfo.ar.BuildConfig
 import com.carinfo.ar.data.api.DvlaRequest
 import com.carinfo.ar.data.api.RetrofitClient
 import com.carinfo.ar.data.model.VehicleInfo
@@ -37,7 +38,7 @@ object VehicleCache {
         }
 
         return try {
-            Log.d("VehicleCache", "Fetching plate: $plateNumber (${country.code})")
+            if (BuildConfig.DEBUG) Log.d("VehicleCache", "Fetching plate: $plateNumber (${country.code})")
             val info = when (country) {
                 SupportedCountry.ISRAEL -> fetchIsrael(plateNumber)
                 SupportedCountry.NETHERLANDS -> fetchNetherlands(plateNumber)
@@ -45,9 +46,9 @@ object VehicleCache {
             }
             cache[plateNumber] = info
             if (info != null) {
-                Log.d("VehicleCache", "Found: ${info.manufacturer} ${info.model} ${info.year}")
+                if (BuildConfig.DEBUG) Log.d("VehicleCache", "Found: ${info.manufacturer} ${info.model} ${info.year}")
             } else {
-                Log.d("VehicleCache", "No record found for $plateNumber")
+                if (BuildConfig.DEBUG) Log.d("VehicleCache", "No record found for $plateNumber")
             }
             info
         } catch (e: Exception) {
@@ -75,7 +76,7 @@ object VehicleCache {
         for (i in kenteken.indices) {
             val swap = swaps[kenteken[i]] ?: continue
             val variant = kenteken.substring(0, i) + swap + kenteken.substring(i + 1)
-            Log.d("VehicleCache", "NL: trying variant $variant")
+            if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL: trying variant $variant")
             val variantRecords = RetrofitClient.rdwApi.searchVehicle(kenteken = variant)
             if (variantRecords.isNotEmpty()) return variantRecords.first().toVehicleInfo()
         }

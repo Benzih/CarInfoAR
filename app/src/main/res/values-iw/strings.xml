@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">סרוק. זהה. גלה.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">הבא</string>
+    <string name="onboarding_get_started">בואו נתחיל</string>
+    <string name="onboarding_scan_title">סרוק כל\nלוחית רישוי</string>
+    <string name="onboarding_scan_description">כוון את המצלמה לכל רכב וראה את הפרטים שלו מרחפים במציאות רבודה</string>
+    <string name="onboarding_country_title">בחר את\nהמדינה שלך</string>
+    <string name="onboarding_country_description">נשתמש במסד הנתונים המתאים לאזור שלך</string>
+    <string name="onboarding_country_israel">ישראל</string>
+    <string name="onboarding_country_netherlands">הולנד</string>
+    <string name="onboarding_country_uk">בריטניה</string>
+    <string name="onboarding_requires_api_key">דורש מפתח API</string>
+    <string name="onboarding_free_no_key">חינם - ללא מפתח</string>
+    <string name="onboarding_ready_title">מוכן\nלסריקה</string>
+    <string name="onboarding_ready_description">אשר גישה למצלמה והתחל לגלות רכבים סביבך</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">כוון אל לוחית רישוי</string>
+    <string name="camera_reset">איפוס</string>
+    <string name="camera_enter_plate">הזן מספר לוחית</string>
+    <string name="camera_search">חיפוש</string>
+    <string name="camera_cancel">ביטול</string>
+    <string name="camera_plate_placeholder">לדוגמה 12345678</string>
+    <string name="camera_saved_to_history">נשמר בהיסטוריה</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">לא ידוע</string>
+    <string name="overlay_save">שמור</string>
+    <string name="overlay_info">מידע</string>
+    <string name="overlay_not_found">לא נמצא</string>
+
+    <!-- Settings -->
+    <string name="settings_title">הגדרות</string>
+    <string name="settings_region">אזור</string>
+    <string name="settings_country">מדינה</string>
+    <string name="settings_tap_to_change">הקש לשינוי</string>
+    <string name="settings_sound_feedback">צליל ומשוב</string>
+    <string name="settings_sound_effects">אפקטי צליל</string>
+    <string name="settings_about">אודות</string>
+    <string name="settings_version">גרסה 1.0</string>
+    <string name="settings_about_description">סרוק לוחיות רישוי וגלה מידע על רכבים במציאות רבודה.</string>
+
+    <!-- History -->
+    <string name="history_title">היסטוריית סריקות</string>
+    <string name="history_empty">אין סריקות עדיין</string>
+    <string name="history_clear_all">נקה הכל</string>
+    <string name="history_back">חזרה</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">המדינה שלך עדיין לא נתמכת</string>
+    <string name="error_supported_countries">נתמכות: ישראל, הולנד, בריטניה</string>
+    <string name="error_camera_required">נדרשת גישה\nלמצלמה</string>
+    <string name="error_camera_grant">אנא אשר גישה למצלמה בהגדרות</string>
+
+    <!-- Country Names (CountryIndicator) -->
+    <string name="country_israel">ישראל</string>
+    <string name="country_netherlands">הולנד</string>
+    <string name="country_uk">בריטניה</string>
+</resources>

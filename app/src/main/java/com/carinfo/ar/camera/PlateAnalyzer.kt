@@ -3,6 +3,7 @@ package com.carinfo.ar.camera
 import android.graphics.Rect
 import android.util.Log
 import androidx.annotation.OptIn
+import com.carinfo.ar.BuildConfig
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -106,7 +107,7 @@ class PlateAnalyzer(
             // NL: try all O/0 variants
             for (variant in fixOcrNl(cleaned)) {
                 if (variant != upper && country.plateRegex.matches(variant)) {
-                    Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$variant'")
+                    if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$variant'")
                     return DetectedPlate(variant, box)
                 }
             }
@@ -117,7 +118,7 @@ class PlateAnalyzer(
                 else -> upper
             }
             if (fixed != upper && country.plateRegex.matches(fixed)) {
-                Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$fixed'")
+                if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$fixed'")
                 return DetectedPlate(fixed, box)
             }
         }
@@ -165,7 +166,7 @@ class PlateAnalyzer(
                         // Log all OCR text for debugging
                         val cleaned = cleanText(line.text)
                         if (cleaned.length in 4..10) {
-                            Log.d("PlateAnalyzer", "OCR[${country.code}]: '${line.text}' -> cleaned='$cleaned' regex=${country.plateRegex.matches(cleaned.uppercase())}")
+                            if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR[${country.code}]: '${line.text}' -> cleaned='$cleaned' regex=${country.plateRegex.matches(cleaned.uppercase())}")
                         }
 
                         for (element in line.elements) {
@@ -188,7 +189,7 @@ class PlateAnalyzer(
                 }
 
                 if (foundPlates.isNotEmpty()) {
-                    Log.d("PlateAnalyzer", "Found ${foundPlates.size} plates: ${foundPlates.map { it.plateNumber }}")
+                    if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "Found ${foundPlates.size} plates: ${foundPlates.map { it.plateNumber }}")
                 }
 
                 onPlatesDetected(foundPlates, inputImage.width, inputImage.height)

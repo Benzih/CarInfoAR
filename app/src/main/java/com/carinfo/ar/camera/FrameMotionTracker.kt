@@ -1,6 +1,7 @@
 package com.carinfo.ar.camera
 
 import android.util.Log
+import com.carinfo.ar.BuildConfig
 import java.nio.ByteBuffer
 import kotlin.math.abs
 import kotlin.math.min
@@ -74,13 +75,13 @@ class FrameMotionTracker {
 
             frameCount++
             if (frameCount % 30 == 0) {
-                Log.d(TAG, "Motion: ds=($dxDs,$dyDs) screen=(${dx.toInt()},${dy.toInt()}) " +
+                if (BuildConfig.DEBUG) Log.d(TAG, "Motion: ds=($dxDs,$dyDs) screen=(${dx.toInt()},${dy.toInt()}) " +
                         "img=${imgWidth}x${imgHeight} screen=${screenWidth}x${screenHeight}")
             }
         } else {
             result = null
             if (prev == null) {
-                Log.d(TAG, "First frame captured: ${imgWidth}x${imgHeight} → ${DS_WIDTH}x${DS_HEIGHT}")
+                if (BuildConfig.DEBUG) Log.d(TAG, "First frame captured: ${imgWidth}x${imgHeight} → ${DS_WIDTH}x${DS_HEIGHT}")
             }
         }
 

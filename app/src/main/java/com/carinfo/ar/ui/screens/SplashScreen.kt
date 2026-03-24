@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 import com.carinfo.ar.ui.theme.BrandPrimary
 import kotlinx.coroutines.delay
 
@@ -104,7 +106,7 @@ fun SplashScreen(onFinished: () -> Unit) {
 
             // App name
             Text(
-                text = "CarInfo AR",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge,
                 color = Color.White,
                 fontWeight = FontWeight.Black,
@@ -114,7 +116,7 @@ fun SplashScreen(onFinished: () -> Unit) {
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Scan. Identify. Discover.",
+                text = stringResource(R.string.splash_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = BrandPrimary,
                 fontWeight = FontWeight.Medium,

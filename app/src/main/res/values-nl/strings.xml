@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Scan. Herken. Ontdek.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Volgende</string>
+    <string name="onboarding_get_started">Aan de slag</string>
+    <string name="onboarding_scan_title">Scan elk\nkenteken</string>
+    <string name="onboarding_scan_description">Richt je camera op een voertuig en zie de details direct zweven in AR</string>
+    <string name="onboarding_country_title">Selecteer je\nland</string>
+    <string name="onboarding_country_description">We gebruiken de juiste database voor jouw regio</string>
+    <string name="onboarding_country_israel">Isra\u00ebl</string>
+    <string name="onboarding_country_netherlands">Nederland</string>
+    <string name="onboarding_country_uk">Verenigd Koninkrijk</string>
+    <string name="onboarding_requires_api_key">API-sleutel vereist</string>
+    <string name="onboarding_free_no_key">Gratis - geen sleutel nodig</string>
+    <string name="onboarding_ready_title">Klaar om\nte scannen</string>
+    <string name="onboarding_ready_description">Geef cameratoegang en begin voertuigen om je heen te ontdekken</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Richt op een kenteken</string>
+    <string name="camera_reset">Opnieuw</string>
+    <string name="camera_enter_plate">Voer kenteken in</string>
+    <string name="camera_search">Zoeken</string>
+    <string name="camera_cancel">Annuleren</string>
+    <string name="camera_plate_placeholder">bijv. 12345678</string>
+    <string name="camera_saved_to_history">Opgeslagen in geschiedenis</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Onbekend</string>
+    <string name="overlay_save">Opslaan</string>
+    <string name="overlay_info">Info</string>
+    <string name="overlay_not_found">Niet gevonden</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Instellingen</string>
+    <string name="settings_region">Regio</string>
+    <string name="settings_country">Land</string>
+    <string name="settings_tap_to_change">Tik om te wijzigen</string>
+    <string name="settings_sound_feedback">Geluid en feedback</string>
+    <string name="settings_sound_effects">Geluidseffecten</string>
+    <string name="settings_about">Over</string>
+    <string name="settings_version">Versie 1.0</string>
+    <string name="settings_about_description">Scan kentekens en ontdek voertuiginformatie in augmented reality.</string>
+
+    <!-- History -->
+    <string name="history_title">Scangeschiedenis</string>
+    <string name="history_empty">Nog geen scans</string>
+    <string name="history_clear_all">Alles wissen</string>
+    <string name="history_back">Terug</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Je land wordt nog niet ondersteund</string>
+    <string name="error_supported_countries">Ondersteund: Isra\u00ebl, Nederland, VK</string>
+    <string name="error_camera_required">Cameratoegang\nvereist</string>
+    <string name="error_camera_grant">Geef cameratoegang in de instellingen</string>
+
+    <!-- Country Names (CountryIndicator) -->
+    <string name="country_israel">Isra\u00ebl</string>
+    <string name="country_netherlands">Nederland</string>
+    <string name="country_uk">VK</string>
+</resources>

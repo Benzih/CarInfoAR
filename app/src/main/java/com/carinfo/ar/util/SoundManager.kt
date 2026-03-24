@@ -1,43 +1,38 @@
 package com.carinfo.ar.util
 
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.SoundPool
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 
 object SoundManager {
-    private var soundPool: SoundPool? = null
-    private var scanSoundId = 0
-    private var infoSoundId = 0
+    private var toneGenerator: ToneGenerator? = null
     private var isInitialized = false
     var soundEnabled = true
 
     fun init(context: Context) {
         if (isInitialized) return
-        val attrs = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(3)
-            .setAudioAttributes(attrs)
-            .build()
-
-        // We'll use system sounds as fallback since we don't have custom sound files
+        try {
+            toneGenerator = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+        } catch (_: Exception) {}
         isInitialized = true
     }
 
     fun playScanDetected() {
         if (!soundEnabled) return
-        // Haptic feedback only - simple vibration
+        try {
+            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 100)
+        } catch (_: Exception) {}
     }
 
     fun playInfoLoaded() {
         if (!soundEnabled) return
+        try {
+            toneGenerator?.startTone(ToneGenerator.TONE_PROP_ACK, 150)
+        } catch (_: Exception) {}
     }
 
     fun vibrate(context: Context, durationMs: Long = 50) {
@@ -62,8 +57,8 @@ object SoundManager {
     }
 
     fun release() {
-        soundPool?.release()
-        soundPool = null
+        toneGenerator?.release()
+        toneGenerator = null
         isInitialized = false
     }
 }

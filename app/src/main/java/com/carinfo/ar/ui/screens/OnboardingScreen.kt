@@ -46,6 +46,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.ui.theme.AccentIsrael
@@ -135,7 +137,7 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                 colors = ButtonDefaults.buttonColors(containerColor = BrandPrimary)
             ) {
                 Text(
-                    text = if (currentPage < 2) "Next" else "Get Started",
+                    text = if (currentPage < 2) stringResource(R.string.onboarding_next) else stringResource(R.string.onboarding_get_started),
                     style = MaterialTheme.typography.titleMedium,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold
@@ -149,8 +151,8 @@ fun OnboardingScreen(onComplete: () -> Unit) {
 private fun WelcomePage() {
     OnboardingPage(
         icon = Icons.Default.DirectionsCar,
-        title = "Scan Any\nLicense Plate",
-        description = "Point your camera at any vehicle and instantly see its details floating in AR"
+        title = stringResource(R.string.onboarding_scan_title),
+        description = stringResource(R.string.onboarding_scan_description)
     )
 }
 
@@ -168,7 +170,7 @@ private fun CountryPage(
         )
         Spacer(Modifier.height(24.dp))
         Text(
-            text = "Select Your\nCountry",
+            text = stringResource(R.string.onboarding_country_title),
             style = MaterialTheme.typography.headlineLarge,
             color = Color.White,
             fontWeight = FontWeight.Black,
@@ -176,22 +178,22 @@ private fun CountryPage(
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            text = "We'll use the right database for your region",
+            text = stringResource(R.string.onboarding_country_description),
             style = MaterialTheme.typography.bodyLarge,
             color = Color(0xFF888888),
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(32.dp))
 
-        CountryOption("IL", "Israel", AccentIsrael, selectedCountry == SupportedCountry.ISRAEL) {
+        CountryOption("IL", stringResource(R.string.onboarding_country_israel), AccentIsrael, selectedCountry == SupportedCountry.ISRAEL) {
             onCountrySelected(SupportedCountry.ISRAEL)
         }
         Spacer(Modifier.height(12.dp))
-        CountryOption("NL", "Netherlands", AccentNetherlands, selectedCountry == SupportedCountry.NETHERLANDS) {
+        CountryOption("NL", stringResource(R.string.onboarding_country_netherlands), AccentNetherlands, selectedCountry == SupportedCountry.NETHERLANDS) {
             onCountrySelected(SupportedCountry.NETHERLANDS)
         }
         Spacer(Modifier.height(12.dp))
-        CountryOption("GB", "United Kingdom", AccentUK, selectedCountry == SupportedCountry.UK) {
+        CountryOption("GB", stringResource(R.string.onboarding_country_uk), AccentUK, selectedCountry == SupportedCountry.UK) {
             onCountrySelected(SupportedCountry.UK)
         }
     }
@@ -236,7 +238,7 @@ private fun CountryOption(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = if (flag == "GB") "Requires API key" else "Free - no key needed",
+                text = if (flag == "GB") stringResource(R.string.onboarding_requires_api_key) else stringResource(R.string.onboarding_free_no_key),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color(0xFF888888)
             )
@@ -248,8 +250,8 @@ private fun CountryOption(
 private fun ReadyPage() {
     OnboardingPage(
         icon = Icons.Default.CameraAlt,
-        title = "Ready to\nScan",
-        description = "Grant camera access and start discovering vehicles around you"
+        title = stringResource(R.string.onboarding_ready_title),
+        description = stringResource(R.string.onboarding_ready_description)
     )
 }
 

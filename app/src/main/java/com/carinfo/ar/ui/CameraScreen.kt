@@ -98,6 +98,8 @@ import com.carinfo.ar.ui.components.ViewfinderOverlay
 import com.carinfo.ar.ui.theme.BrandPrimary
 import com.carinfo.ar.ui.theme.GlassOverlay
 import com.carinfo.ar.util.SoundManager
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 import kotlinx.coroutines.launch
 
 data class PlateOverlayState(
@@ -124,11 +126,11 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("CarInfo AR", style = MaterialTheme.typography.headlineLarge, color = Color.White)
+                Text(stringResource(R.string.app_name), style = MaterialTheme.typography.headlineLarge, color = Color.White)
                 Spacer(Modifier.height(16.dp))
-                Text("Your country is not supported yet", style = MaterialTheme.typography.bodyLarge, color = Color(0xFFFF6B6B))
+                Text(stringResource(R.string.error_country_not_supported), style = MaterialTheme.typography.bodyLarge, color = Color(0xFFFF6B6B))
                 Spacer(Modifier.height(8.dp))
-                Text("Supported: Israel, Netherlands, UK", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text(stringResource(R.string.error_supported_countries), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
             }
         }
         return
@@ -303,7 +305,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                             val toRemove = overlayStates.keys.filter { key ->
                                                 val state = overlayStates[key] ?: return@filter true
                                                 if (state.vehicleInfo != null) false
-                                                else (now - state.lastSeenTime) > 1500
+                                                else (now - state.lastSeenTime) > 3000
                                             }
                                             toRemove.forEach { overlayStates.remove(it) }
                                         }
@@ -390,7 +392,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             // Bottom hint/reset
             if (overlayStates.isEmpty()) {
                 Text(
-                    "Point at a license plate",
+                    stringResource(R.string.camera_point_at_plate),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0x88FFFFFF),
                     modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 48.dp)
@@ -409,7 +411,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Refresh, "Reset", tint = Color.White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Reset", color = Color.White, fontSize = 14.sp,
+                        Text(stringResource(R.string.camera_reset), color = Color.White, fontSize = 14.sp,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                     }
                 }
@@ -435,7 +437,9 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
             // AR Overlays
             overlayStates.values.forEach { state ->
-                if (state.vehicleInfo == null && !state.isLoading) return@forEach
+                if (state.vehicleInfo == null && !state.isLoading) {
+                    // Show "not found" briefly — will be auto-removed
+                }
 
                 val overlayHeightPx = with(density) { 80.dp.toPx() }
                 val offsetXPx = state.screenX.toInt()
@@ -453,7 +457,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                 vehicleInfo = state.vehicleInfo,
                                 onSaveToHistory = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
-                                    Toast.makeText(context, "Saved to history", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
                                 },
                                 onOpenModelInfo = {
                                     val url = ScanHistory.buildSearchUrl(state.vehicleInfo)
@@ -462,6 +466,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                             )
                         } else if (state.isLoading) {
                             LoadingPlateIndicator(plateNumber = state.plateNumber)
+                        } else if (!state.isLoading && state.vehicleInfo == null) {
+                            PlateNotFoundIndicator(plateNumber = state.plateNumber)
                         }
                     }
                 }
@@ -475,10 +481,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Default.Settings, null, tint = BrandPrimary, modifier = Modifier.size(48.dp))
                 Spacer(Modifier.height(16.dp))
-                Text("Camera Access\nRequired", style = MaterialTheme.typography.headlineMedium, color = Color.White,
+                Text(stringResource(R.string.error_camera_required), style = MaterialTheme.typography.headlineMedium, color = Color.White,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
-                Text("Please grant camera access in settings", style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                Text(stringResource(R.string.error_camera_grant), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
             }
         }
     }
@@ -540,7 +546,7 @@ private fun ManualPlateDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                "Enter Plate Number",
+                stringResource(R.string.camera_enter_plate),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
@@ -549,7 +555,7 @@ private fun ManualPlateDialog(
             TextField(
                 value = plateText,
                 onValueChange = onPlateTextChange,
-                placeholder = { Text("e.g. 12345678", color = Color(0xFF666666)) },
+                placeholder = { Text(stringResource(R.string.camera_plate_placeholder), color = Color(0xFF666666)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Characters,
@@ -581,7 +587,7 @@ private fun ManualPlateDialog(
                         .padding(vertical = 12.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Cancel", color = Color.Gray, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.camera_cancel), color = Color.Gray, fontWeight = FontWeight.Bold)
                 }
                 Box(
                     modifier = Modifier
@@ -595,7 +601,7 @@ private fun ManualPlateDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Search, "Search", tint = Color.White, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Search", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.camera_search), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }

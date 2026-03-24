@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.ui.theme.GlassOverlay
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 
 @Composable
 fun CountryIndicator(
@@ -25,9 +27,9 @@ fun CountryIndicator(
     modifier: Modifier = Modifier
 ) {
     val (flag, name) = when (country) {
-        SupportedCountry.ISRAEL -> "\uD83C\uDDEE\uD83C\uDDF1" to "Israel"
-        SupportedCountry.NETHERLANDS -> "\uD83C\uDDF3\uD83C\uDDF1" to "Netherlands"
-        SupportedCountry.UK -> "\uD83C\uDDEC\uD83C\uDDE7" to "UK"
+        SupportedCountry.ISRAEL -> "\uD83C\uDDEE\uD83C\uDDF1" to stringResource(R.string.country_israel)
+        SupportedCountry.NETHERLANDS -> "\uD83C\uDDF3\uD83C\uDDF1" to stringResource(R.string.country_netherlands)
+        SupportedCountry.UK -> "\uD83C\uDDEC\uD83C\uDDE7" to stringResource(R.string.country_uk)
     }
 
     Row(

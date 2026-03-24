@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.ui.theme.BrandDark
@@ -53,9 +55,9 @@ fun SettingsScreen(onBack: () -> Unit) {
 
     val country = selectedCountryCode?.let { SupportedCountry.fromCode(it) } ?: SupportedCountry.fromLocale()
     val countryFlag = when (country) {
-        SupportedCountry.ISRAEL -> "\uD83C\uDDEE\uD83C\uDDF1 Israel"
-        SupportedCountry.NETHERLANDS -> "\uD83C\uDDF3\uD83C\uDDF1 Netherlands"
-        SupportedCountry.UK -> "\uD83C\uDDEC\uD83C\uDDE7 United Kingdom"
+        SupportedCountry.ISRAEL -> "\uD83C\uDDEE\uD83C\uDDF1 ${stringResource(R.string.onboarding_country_israel)}"
+        SupportedCountry.NETHERLANDS -> "\uD83C\uDDF3\uD83C\uDDF1 ${stringResource(R.string.onboarding_country_netherlands)}"
+        SupportedCountry.UK -> "\uD83C\uDDEC\uD83C\uDDE7 ${stringResource(R.string.onboarding_country_uk)}"
         null -> "Not set"
     }
 
@@ -67,7 +69,7 @@ fun SettingsScreen(onBack: () -> Unit) {
         TopAppBar(
             title = {
                 Text(
-                    "Settings",
+                    stringResource(R.string.settings_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Black
                 )
@@ -76,7 +78,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 IconButton(onClick = onBack) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.history_back),
                         tint = Color.White
                     )
                 }
@@ -94,7 +96,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 .padding(horizontal = 20.dp)
         ) {
             // Country section
-            SectionTitle("Region")
+            SectionTitle(stringResource(R.string.settings_region))
             SettingsCard {
                 val countries = SupportedCountry.entries
                 Row(
@@ -112,7 +114,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            "Country",
+                            stringResource(R.string.settings_country),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White
                         )
@@ -122,14 +124,14 @@ fun SettingsScreen(onBack: () -> Unit) {
                             color = Color(0xFF888888)
                         )
                     }
-                    Text("Tap to change", color = Color(0xFF555555), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.settings_tap_to_change), color = Color(0xFF555555), style = MaterialTheme.typography.bodySmall)
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
             // Sound section
-            SectionTitle("Sound & Feedback")
+            SectionTitle(stringResource(R.string.settings_sound_feedback))
             SettingsCard {
                 Row(
                     modifier = Modifier
@@ -140,7 +142,7 @@ fun SettingsScreen(onBack: () -> Unit) {
                     Icon(Icons.Default.VolumeUp, contentDescription = null, tint = BrandPrimary)
                     Spacer(Modifier.width(12.dp))
                     Text(
-                        "Sound Effects",
+                        stringResource(R.string.settings_sound_effects),
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         modifier = Modifier.weight(1f)
@@ -161,23 +163,23 @@ fun SettingsScreen(onBack: () -> Unit) {
             Spacer(Modifier.height(24.dp))
 
             // About section
-            SectionTitle("About")
+            SectionTitle(stringResource(R.string.settings_about))
             SettingsCard {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        "CarInfo AR",
+                        stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "Version 1.0",
+                        stringResource(R.string.settings_version),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF888888)
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "Scan license plates and discover vehicle info in augmented reality.",
+                        stringResource(R.string.settings_about_description),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF666666)
                     )

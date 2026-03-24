@@ -42,6 +42,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 import com.carinfo.ar.data.ScanHistory
 import com.carinfo.ar.data.ScanRecord
 import com.carinfo.ar.data.model.VehicleInfo
@@ -64,10 +66,10 @@ fun HistoryScreen(onBack: () -> Unit) {
             .background(Color(0xFF0A0A0A))
     ) {
         TopAppBar(
-            title = { Text("Scan History", color = Color.White) },
+            title = { Text(stringResource(R.string.history_title), color = Color.White) },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.history_back), tint = Color.White)
                 }
             },
             actions = {
@@ -76,7 +78,7 @@ fun HistoryScreen(onBack: () -> Unit) {
                         ScanHistory.clear(context)
                         records = emptyList()
                     }) {
-                        Icon(Icons.Default.Delete, "Clear all", tint = Color(0xFFFF6B6B))
+                        Icon(Icons.Default.Delete, stringResource(R.string.history_clear_all), tint = Color(0xFFFF6B6B))
                     }
                 }
             },
@@ -88,7 +90,7 @@ fun HistoryScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No scans yet", color = Color.Gray, fontSize = 16.sp)
+                Text(stringResource(R.string.history_empty), color = Color.Gray, fontSize = 16.sp)
             }
         } else {
             LazyColumn(
@@ -181,6 +183,6 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit) {
             Spacer(Modifier.height(4.dp))
             Text(dateStr, color = Color(0xFF666666), fontSize = 11.sp)
         }
-        Icon(Icons.Default.OpenInNew, "Info", tint = Color(0xFF666666), modifier = Modifier.size(20.dp))
+        Icon(Icons.Default.OpenInNew, stringResource(R.string.overlay_info), tint = Color(0xFF666666), modifier = Modifier.size(20.dp))
     }
 }

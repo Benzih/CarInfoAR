@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">CarInfo AR</string>
+
+    <!-- Splash Screen -->
+    <string name="splash_tagline">Scan. Identify. Discover.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_scan_title">Scan Any\nLicense Plate</string>
+    <string name="onboarding_scan_description">Point your camera at any vehicle and instantly see its details floating in AR</string>
+    <string name="onboarding_country_title">Select Your\nCountry</string>
+    <string name="onboarding_country_description">We\'ll use the right database for your region</string>
+    <string name="onboarding_country_israel">Israel</string>
+    <string name="onboarding_country_netherlands">Netherlands</string>
+    <string name="onboarding_country_uk">United Kingdom</string>
+    <string name="onboarding_requires_api_key">Requires API key</string>
+    <string name="onboarding_free_no_key">Free - no key needed</string>
+    <string name="onboarding_ready_title">Ready to\nScan</string>
+    <string name="onboarding_ready_description">Grant camera access and start discovering vehicles around you</string>
+
+    <!-- Camera Screen -->
+    <string name="camera_point_at_plate">Point at a license plate</string>
+    <string name="camera_reset">Reset</string>
+    <string name="camera_enter_plate">Enter Plate Number</string>
+    <string name="camera_search">Search</string>
+    <string name="camera_cancel">Cancel</string>
+    <string name="camera_plate_placeholder">e.g. 12345678</string>
+    <string name="camera_saved_to_history">Saved to history</string>
+
+    <!-- Overlay -->
+    <string name="overlay_unknown">Unknown</string>
+    <string name="overlay_save">Save</string>
+    <string name="overlay_info">Info</string>
+    <string name="overlay_not_found">Not found</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_region">Region</string>
+    <string name="settings_country">Country</string>
+    <string name="settings_tap_to_change">Tap to change</string>
+    <string name="settings_sound_feedback">Sound &amp; Feedback</string>
+    <string name="settings_sound_effects">Sound Effects</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version 1.0</string>
+    <string name="settings_about_description">Scan license plates and discover vehicle info in augmented reality.</string>
+
+    <!-- History -->
+    <string name="history_title">Scan History</string>
+    <string name="history_empty">No scans yet</string>
+    <string name="history_clear_all">Clear all</string>
+    <string name="history_back">Back</string>
+
+    <!-- Errors -->
+    <string name="error_country_not_supported">Your country is not supported yet</string>
+    <string name="error_supported_countries">Supported: Israel, Netherlands, UK</string>
+    <string name="error_camera_required">Camera Access\nRequired</string>
+    <string name="error_camera_grant">Please grant camera access in settings</string>
+
+    <!-- Country Names (CountryIndicator) -->
+    <string name="country_israel">Israel</string>
+    <string name="country_netherlands">Netherlands</string>
+    <string name="country_uk">UK</string>
+</resources>

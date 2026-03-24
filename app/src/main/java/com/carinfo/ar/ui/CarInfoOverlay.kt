@@ -41,6 +41,8 @@ import com.carinfo.ar.data.model.VehicleInfo
 import com.carinfo.ar.ui.theme.BrandPrimary
 import com.carinfo.ar.ui.theme.GlassBorder
 import com.carinfo.ar.ui.theme.GlassOverlay
+import androidx.compose.ui.res.stringResource
+import com.carinfo.ar.R
 
 @Composable
 fun FloatingCarInfo(
@@ -90,7 +92,7 @@ fun FloatingCarInfo(
                         if (isNotEmpty()) append(" ")
                         append(it)
                     }
-                }.ifEmpty { "Unknown" },
+                }.ifEmpty { stringResource(R.string.overlay_unknown) },
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.ExtraBold,
@@ -147,7 +149,7 @@ fun FloatingCarInfo(
                         ) {
                             Icon(Icons.Default.History, "Save", tint = BrandPrimary, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Save", color = BrandPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.overlay_save), color = BrandPrimary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                     if (onSaveToHistory != null && onOpenModelInfo != null) {
@@ -164,7 +166,7 @@ fun FloatingCarInfo(
                         ) {
                             Icon(Icons.Default.OpenInNew, "Info", tint = Color.White, modifier = Modifier.size(14.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Info", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.overlay_info), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -209,6 +211,24 @@ fun LoadingPlateIndicator(
             .clip(RoundedCornerShape(10.dp))
             .background(GlassOverlay)
             .border(1.dp, BrandPrimary.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    )
+}
+
+@Composable
+fun PlateNotFoundIndicator(
+    plateNumber: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "$plateNumber — ${stringResource(R.string.overlay_not_found)}",
+        color = Color(0xFFFF6B6B),
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Bold,
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(GlassOverlay)
+            .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.3f), RoundedCornerShape(10.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp)
     )
 }

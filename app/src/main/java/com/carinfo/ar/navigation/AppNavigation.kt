@@ -12,8 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.ui.screens.HistoryScreen
+import kotlinx.coroutines.runBlocking
 import com.carinfo.ar.ui.screens.OnboardingScreen
 import com.carinfo.ar.ui.screens.SettingsScreen
 import com.carinfo.ar.ui.screens.SplashScreen
@@ -48,7 +50,21 @@ fun AppNavigation() {
         ) {
             SplashScreen(
                 onFinished = {
-                    val dest = if (onboardingComplete == true) Routes.CAMERA else Routes.ONBOARDING
+                    val dest = if (onboardingComplete == true) {
+                        Routes.CAMERA
+                    } else {
+                        // Auto-detect country from locale — skip onboarding if detected
+                        val autoCountry = SupportedCountry.fromLocale()
+                        if (autoCountry != null) {
+                            runBlocking {
+                                UserPreferences.setSelectedCountry(context, autoCountry.code)
+                                UserPreferences.setOnboardingComplete(context, true)
+                            }
+                            Routes.CAMERA
+                        } else {
+                            Routes.ONBOARDING
+                        }
+                    }
                     navController.navigate(dest) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
