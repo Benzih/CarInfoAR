@@ -23,7 +23,7 @@ object AdManager {
 
     private var interstitialAd: InterstitialAd? = null
     private var detectionCount = 0
-    private const val DETECTIONS_BEFORE_INTERSTITIAL = 2
+    private const val DETECTIONS_BEFORE_INTERSTITIAL = 3
 
     fun initialize(context: Context) {
         MobileAds.initialize(context) {

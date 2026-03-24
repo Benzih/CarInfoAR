@@ -45,6 +45,12 @@ android {
         jvmTarget = "11"
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     buildFeatures {
         compose = true
         buildConfig = true

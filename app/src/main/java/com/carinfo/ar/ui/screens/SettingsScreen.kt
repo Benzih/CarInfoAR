@@ -16,7 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -202,7 +202,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.VolumeUp, contentDescription = null, tint = BrandPrimary)
+                    Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = null, tint = BrandPrimary)
                     Spacer(Modifier.width(12.dp))
                     Text(
                         stringResource(R.string.settings_sound_effects),
