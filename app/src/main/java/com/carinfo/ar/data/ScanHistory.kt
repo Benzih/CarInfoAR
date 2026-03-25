@@ -14,7 +14,31 @@ data class ScanRecord(
     val color: String?,
     val fuelType: String?,
     val country: String,
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = System.currentTimeMillis(),
+    // Extended fields
+    val trimLevel: String? = null,
+    val ownership: String? = null,
+    val lastTestDate: String? = null,
+    val testValidUntil: String? = null,
+    val engineModel: String? = null,
+    val engineCapacity: Int? = null,
+    val chassisNumber: String? = null,
+    val frontTires: String? = null,
+    val rearTires: String? = null,
+    val onRoadDate: String? = null,
+    val emissionGroup: Int? = null,
+    val co2Emissions: Int? = null,
+    val taxStatus: String? = null,
+    val taxDueDate: String? = null,
+    val motStatus: String? = null,
+    val numCylinders: Int? = null,
+    val numDoors: Int? = null,
+    val numSeats: Int? = null,
+    val catalogPrice: Int? = null,
+    val weight: Int? = null,
+    val bodyType: String? = null,
+    val insured: String? = null,
+    val wheelbase: Int? = null
 )
 
 object ScanHistory {
@@ -46,7 +70,30 @@ object ScanHistory {
             year = info.year,
             color = info.color,
             fuelType = info.fuelType,
-            country = info.country
+            country = info.country,
+            trimLevel = info.trimLevel,
+            ownership = info.ownership,
+            lastTestDate = info.lastTestDate,
+            testValidUntil = info.testValidUntil,
+            engineModel = info.engineModel,
+            engineCapacity = info.engineCapacity,
+            chassisNumber = info.chassisNumber,
+            frontTires = info.frontTires,
+            rearTires = info.rearTires,
+            onRoadDate = info.onRoadDate,
+            emissionGroup = info.emissionGroup,
+            co2Emissions = info.co2Emissions,
+            taxStatus = info.taxStatus,
+            taxDueDate = info.taxDueDate,
+            motStatus = info.motStatus,
+            numCylinders = info.numCylinders,
+            numDoors = info.numDoors,
+            numSeats = info.numSeats,
+            catalogPrice = info.catalogPrice,
+            weight = info.weight,
+            bodyType = info.bodyType,
+            insured = info.insured,
+            wheelbase = info.wheelbase
         ))
         // Keep max 100
         val trimmed = records.take(100)

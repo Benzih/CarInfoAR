@@ -34,6 +34,34 @@
     <string name="overlay_info">信息</string>
     <string name="overlay_not_found">未找到</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">车牌</string>
+    <string name="label_color">颜色</string>
+    <string name="label_fuel">燃料</string>
+    <string name="label_ownership">所有权</string>
+    <string name="label_body">车身</string>
+    <string name="label_trim">配置级别</string>
+    <string name="label_registered">注册日期</string>
+    <string name="label_engine">发动机</string>
+    <string name="label_engine_model">发动机型号</string>
+    <string name="label_cylinders">气缸数</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">排放等级</string>
+    <string name="label_mot_test">年检</string>
+    <string name="label_valid_until">有效期至</string>
+    <string name="label_last_test">上次检验</string>
+    <string name="label_tax">税费</string>
+    <string name="label_tax_due">税费到期</string>
+    <string name="label_doors">车门</string>
+    <string name="label_seats">座位</string>
+    <string name="label_weight">重量</string>
+    <string name="label_wheelbase">轴距</string>
+    <string name="label_catalog_price">目录价</string>
+    <string name="label_front_tires">前轮胎</string>
+    <string name="label_rear_tires">后轮胎</string>
+    <string name="label_insured">已投保</string>
+    <string name="label_chassis">底盘号</string>
+
     <!-- Settings -->
     <string name="settings_title">设置</string>
     <string name="settings_region">地区</string>

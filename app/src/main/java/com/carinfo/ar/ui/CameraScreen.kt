@@ -317,16 +317,16 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                     SoundManager.vibrate(context)
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(bestPlate, countryRef.value)
-                                                        overlayStates[bestPlate]?.let { current ->
-                                                            overlayStates[bestPlate] = current.copy(
-                                                                vehicleInfo = info,
-                                                                isLoading = false
-                                                            )
-                                                        }
+                                                        // Always show result, even if overlay was removed while loading
+                                                        overlayStates[bestPlate] = PlateOverlayState(
+                                                            plateNumber = bestPlate,
+                                                            vehicleInfo = info,
+                                                            isLoading = false,
+                                                            lastSeenTime = System.currentTimeMillis()
+                                                        )
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
                                                             ScanHistory.save(context, bestPlate, info)
-                                                            // Ad trigger: only on successful match of unique vehicle
                                                             if (activity != null) AdManager.onNewPlateDetected(activity)
                                                         }
                                                     }
@@ -488,6 +488,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         if (state.vehicleInfo != null) {
                             FloatingCarInfo(
                                 vehicleInfo = state.vehicleInfo,
+                                plateNumber = state.plateNumber,
                                 onClick = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
                                     SoundManager.playSaved()

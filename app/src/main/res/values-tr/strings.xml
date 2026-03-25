@@ -34,6 +34,34 @@
     <string name="overlay_info">Bilgi</string>
     <string name="overlay_not_found">Bulunamadı</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">Plaka</string>
+    <string name="label_color">Renk</string>
+    <string name="label_fuel">Yakıt</string>
+    <string name="label_ownership">Mülkiyet</string>
+    <string name="label_body">Kasa</string>
+    <string name="label_trim">Donanım seviyesi</string>
+    <string name="label_registered">Tescil</string>
+    <string name="label_engine">Motor</string>
+    <string name="label_engine_model">Motor modeli</string>
+    <string name="label_cylinders">Silindir</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">Emisyon grubu</string>
+    <string name="label_mot_test">Muayene</string>
+    <string name="label_valid_until">Geçerlilik</string>
+    <string name="label_last_test">Son muayene</string>
+    <string name="label_tax">Vergi</string>
+    <string name="label_tax_due">Vergi vadesi</string>
+    <string name="label_doors">Kapı</string>
+    <string name="label_seats">Koltuk</string>
+    <string name="label_weight">Ağırlık</string>
+    <string name="label_wheelbase">Dingil mesafesi</string>
+    <string name="label_catalog_price">Katalog fiyatı</string>
+    <string name="label_front_tires">Ön lastikler</string>
+    <string name="label_rear_tires">Arka lastikler</string>
+    <string name="label_insured">Sigortalı</string>
+    <string name="label_chassis">Şasi</string>
+
     <!-- Settings -->
     <string name="settings_title">Ayarlar</string>
     <string name="settings_region">Bölge</string>

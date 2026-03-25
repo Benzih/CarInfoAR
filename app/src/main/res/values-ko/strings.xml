@@ -34,6 +34,34 @@
     <string name="overlay_info">정보</string>
     <string name="overlay_not_found">찾을 수 없음</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">번호판</string>
+    <string name="label_color">색상</string>
+    <string name="label_fuel">연료</string>
+    <string name="label_ownership">소유권</string>
+    <string name="label_body">차체</string>
+    <string name="label_trim">트림 레벨</string>
+    <string name="label_registered">등록일</string>
+    <string name="label_engine">엔진</string>
+    <string name="label_engine_model">엔진 모델</string>
+    <string name="label_cylinders">실린더</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">배출 등급</string>
+    <string name="label_mot_test">검사</string>
+    <string name="label_valid_until">유효기간</string>
+    <string name="label_last_test">최근 검사</string>
+    <string name="label_tax">세금</string>
+    <string name="label_tax_due">세금 만기</string>
+    <string name="label_doors">도어</string>
+    <string name="label_seats">좌석</string>
+    <string name="label_weight">중량</string>
+    <string name="label_wheelbase">축거</string>
+    <string name="label_catalog_price">카탈로그 가격</string>
+    <string name="label_front_tires">전방 타이어</string>
+    <string name="label_rear_tires">후방 타이어</string>
+    <string name="label_insured">보험</string>
+    <string name="label_chassis">차대번호</string>
+
     <!-- Settings -->
     <string name="settings_title">설정</string>
     <string name="settings_region">지역</string>

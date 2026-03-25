@@ -34,6 +34,34 @@
     <string name="overlay_info">Info</string>
     <string name="overlay_not_found">Niet gevonden</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">Kenteken</string>
+    <string name="label_color">Kleur</string>
+    <string name="label_fuel">Brandstof</string>
+    <string name="label_ownership">Eigendom</string>
+    <string name="label_body">Carrosserie</string>
+    <string name="label_trim">Uitvoeringsniveau</string>
+    <string name="label_registered">Geregistreerd</string>
+    <string name="label_engine">Motor</string>
+    <string name="label_engine_model">Motormodel</string>
+    <string name="label_cylinders">Cilinders</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">Emissieklasse</string>
+    <string name="label_mot_test">APK</string>
+    <string name="label_valid_until">Geldig tot</string>
+    <string name="label_last_test">Laatste keuring</string>
+    <string name="label_tax">Belasting</string>
+    <string name="label_tax_due">Belasting vervalt</string>
+    <string name="label_doors">Deuren</string>
+    <string name="label_seats">Zitplaatsen</string>
+    <string name="label_weight">Gewicht</string>
+    <string name="label_wheelbase">Wielbasis</string>
+    <string name="label_catalog_price">Catalogusprijs</string>
+    <string name="label_front_tires">Voorbanden</string>
+    <string name="label_rear_tires">Achterbanden</string>
+    <string name="label_insured">Verzekerd</string>
+    <string name="label_chassis">Chassis</string>
+
     <!-- Settings -->
     <string name="settings_title">Instellingen</string>
     <string name="settings_region">Regio</string>

@@ -34,6 +34,34 @@
     <string name="overlay_info">Инфо</string>
     <string name="overlay_not_found">Не найдено</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">Номерной знак</string>
+    <string name="label_color">Цвет</string>
+    <string name="label_fuel">Топливо</string>
+    <string name="label_ownership">Собственность</string>
+    <string name="label_body">Кузов</string>
+    <string name="label_trim">Уровень комплектации</string>
+    <string name="label_registered">Зарегистрирован</string>
+    <string name="label_engine">Двигатель</string>
+    <string name="label_engine_model">Модель двигателя</string>
+    <string name="label_cylinders">Цилиндры</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">Класс выбросов</string>
+    <string name="label_mot_test">Техосмотр</string>
+    <string name="label_valid_until">Действителен до</string>
+    <string name="label_last_test">Последний осмотр</string>
+    <string name="label_tax">Налог</string>
+    <string name="label_tax_due">Срок налога</string>
+    <string name="label_doors">Двери</string>
+    <string name="label_seats">Места</string>
+    <string name="label_weight">Вес</string>
+    <string name="label_wheelbase">Колёсная база</string>
+    <string name="label_catalog_price">Цена каталога</string>
+    <string name="label_front_tires">Передние шины</string>
+    <string name="label_rear_tires">Задние шины</string>
+    <string name="label_insured">Застрахован</string>
+    <string name="label_chassis">Шасси</string>
+
     <!-- Settings -->
     <string name="settings_title">Настройки</string>
     <string name="settings_region">Регион</string>

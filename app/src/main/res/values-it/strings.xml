@@ -34,6 +34,34 @@
     <string name="overlay_info">Info</string>
     <string name="overlay_not_found">Non trovato</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">Targa</string>
+    <string name="label_color">Colore</string>
+    <string name="label_fuel">Carburante</string>
+    <string name="label_ownership">Proprietà</string>
+    <string name="label_body">Carrozzeria</string>
+    <string name="label_trim">Livello di allestimento</string>
+    <string name="label_registered">Registrato</string>
+    <string name="label_engine">Motore</string>
+    <string name="label_engine_model">Modello motore</string>
+    <string name="label_cylinders">Cilindri</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">Classe emissione</string>
+    <string name="label_mot_test">Revisione</string>
+    <string name="label_valid_until">Valido fino al</string>
+    <string name="label_last_test">Ultima revisione</string>
+    <string name="label_tax">Tassa</string>
+    <string name="label_tax_due">Scadenza tassa</string>
+    <string name="label_doors">Porte</string>
+    <string name="label_seats">Posti</string>
+    <string name="label_weight">Peso</string>
+    <string name="label_wheelbase">Interasse</string>
+    <string name="label_catalog_price">Prezzo catalogo</string>
+    <string name="label_front_tires">Pneumatici anteriori</string>
+    <string name="label_rear_tires">Pneumatici posteriori</string>
+    <string name="label_insured">Assicurato</string>
+    <string name="label_chassis">Telaio</string>
+
     <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
     <string name="settings_region">Regione</string>

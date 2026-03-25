@@ -34,6 +34,34 @@
     <string name="overlay_info">מידע</string>
     <string name="overlay_not_found">לא נמצא</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">לוחית רישוי</string>
+    <string name="label_color">צבע</string>
+    <string name="label_fuel">דלק</string>
+    <string name="label_ownership">בעלות</string>
+    <string name="label_body">מרכב</string>
+    <string name="label_trim">רמת גימור</string>
+    <string name="label_registered">רישום</string>
+    <string name="label_engine">מנוע</string>
+    <string name="label_engine_model">דגם מנוע</string>
+    <string name="label_cylinders">צילינדרים</string>
+    <string name="label_co2">פליטת CO₂</string>
+    <string name="label_emission_group">קבוצת זיהום</string>
+    <string name="label_mot_test">טסט</string>
+    <string name="label_valid_until">בתוקף עד</string>
+    <string name="label_last_test">טסט אחרון</string>
+    <string name="label_tax">מס רכב</string>
+    <string name="label_tax_due">תוקף מס</string>
+    <string name="label_doors">דלתות</string>
+    <string name="label_seats">מושבים</string>
+    <string name="label_weight">משקל</string>
+    <string name="label_wheelbase">בסיס גלגלים</string>
+    <string name="label_catalog_price">מחיר קטלוג</string>
+    <string name="label_front_tires">צמיגים קדמיים</string>
+    <string name="label_rear_tires">צמיגים אחוריים</string>
+    <string name="label_insured">ביטוח</string>
+    <string name="label_chassis">מספר שלדה</string>
+
     <!-- Settings -->
     <string name="settings_title">הגדרות</string>
     <string name="settings_region">אזור</string>

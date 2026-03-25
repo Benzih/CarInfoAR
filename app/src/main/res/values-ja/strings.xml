@@ -34,6 +34,34 @@
     <string name="overlay_info">情報</string>
     <string name="overlay_not_found">見つかりません</string>
 
+    <!-- Vehicle Info Labels -->
+    <string name="label_plate">ナンバープレート</string>
+    <string name="label_color">色</string>
+    <string name="label_fuel">燃料</string>
+    <string name="label_ownership">所有権</string>
+    <string name="label_body">車体</string>
+    <string name="label_trim">グレード</string>
+    <string name="label_registered">登録日</string>
+    <string name="label_engine">エンジン</string>
+    <string name="label_engine_model">エンジン型式</string>
+    <string name="label_cylinders">気筒数</string>
+    <string name="label_co2">CO₂</string>
+    <string name="label_emission_group">排出ガス等級</string>
+    <string name="label_mot_test">車検</string>
+    <string name="label_valid_until">有効期限</string>
+    <string name="label_last_test">最終検査</string>
+    <string name="label_tax">税金</string>
+    <string name="label_tax_due">納税期限</string>
+    <string name="label_doors">ドア</string>
+    <string name="label_seats">座席</string>
+    <string name="label_weight">重量</string>
+    <string name="label_wheelbase">ホイールベース</string>
+    <string name="label_catalog_price">カタログ価格</string>
+    <string name="label_front_tires">前輪タイヤ</string>
+    <string name="label_rear_tires">後輪タイヤ</string>
+    <string name="label_insured">保険加入</string>
+    <string name="label_chassis">車台番号</string>
+
     <!-- Settings -->
     <string name="settings_title">設定</string>
     <string name="settings_region">地域</string>
