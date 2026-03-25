@@ -180,9 +180,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
     countryRef.value = country ?: SupportedCountry.ISRAEL
     val knownPlates = remember { mutableSetOf<String>() }
-    // Track OCR readings per plate group for majority vote
-    // Key: "canonical" plate (first seen), Value: map of variant→count
-    val plateVoteGroups = remember { mutableMapOf<String, MutableMap<String, Int>>() }
+    // Track exact OCR readings — each exact string counted separately
+    val plateExactCounts = remember { mutableMapOf<String, Int>() }
     val activity = context as? Activity
 
     var viewWidth by remember { mutableIntStateOf(1) }
@@ -279,54 +278,51 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                             val now = System.currentTimeMillis()
 
                                             for (plate in plates) {
-                                                // Find or create vote group for this plate (fuzzy match)
-                                                // Fuzzy match: safe grouping of OCR variants
-                                                val groupKey = plateVoteGroups.keys.find { existing ->
-                                                    isSimilarPlate(existing, plate.plateNumber)
-                                                } ?: plate.plateNumber
+                                                // Count exact readings (no fuzzy grouping)
+                                                val count = (plateExactCounts[plate.plateNumber] ?: 0) + 1
+                                                plateExactCounts[plate.plateNumber] = count
 
-                                                val votes = plateVoteGroups.getOrPut(groupKey) { mutableMapOf() }
-                                                votes[plate.plateNumber] = (votes[plate.plateNumber] ?: 0) + 1
-                                                val totalVotes = votes.values.sum()
+                                                Log.d("VoteSystem", "Plate: ${plate.plateNumber}, exact count: $count")
 
-                                                // Need at least 3 total sightings
-                                                if (totalVotes < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
-
-                                                // Pick the most common reading (majority vote)
-                                                val bestPlate = votes.maxByOrNull { it.value }?.key ?: plate.plateNumber
+                                                // Need at least 3 identical readings (or already known from cache)
+                                                if (count < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
 
                                                 // Skip if already showing this plate or a similar one
-                                                if (overlayStates.containsKey(bestPlate)) continue
+                                                if (overlayStates.containsKey(plate.plateNumber)) continue
                                                 val similarKey = overlayStates.keys.find { existingPlate ->
-                                                    isSimilarPlate(existingPlate, bestPlate)
+                                                    isSimilarPlate(existingPlate, plate.plateNumber)
                                                 }
                                                 if (similarKey != null) continue
 
-                                                val existing = overlayStates[bestPlate]
-                                                val cachedInfo = VehicleCache.getCached(bestPlate)
+                                                Log.d("VoteSystem", "ACCEPTED: ${plate.plateNumber} (count=$count)")
 
-                                                overlayStates[bestPlate] = PlateOverlayState(
-                                                    plateNumber = bestPlate,
+                                                val existing = overlayStates[plate.plateNumber]
+                                                val cachedInfo = VehicleCache.getCached(plate.plateNumber)
+
+                                                overlayStates[plate.plateNumber] = PlateOverlayState(
+                                                    plateNumber = plate.plateNumber,
                                                     vehicleInfo = cachedInfo ?: existing?.vehicleInfo,
-                                                    isLoading = cachedInfo == null && existing?.vehicleInfo == null && !VehicleCache.isKnown(bestPlate),
+                                                    isLoading = cachedInfo == null && existing?.vehicleInfo == null && !VehicleCache.isKnown(plate.plateNumber),
                                                     lastSeenTime = now
                                                 )
 
-                                                if (!VehicleCache.isKnown(bestPlate) && !VehicleCache.isLoading(bestPlate)) {
+                                                if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     SoundManager.playScanDetected()
                                                     SoundManager.vibrate(context)
+                                                    Log.d("VoteSystem", ">>> FETCHING: ${plate.plateNumber}")
                                                     scope.launch {
-                                                        val info = VehicleCache.fetchIfNeeded(bestPlate, countryRef.value)
+                                                        val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
+                                                        Log.d("VoteSystem", "<<< RESULT: ${plate.plateNumber} -> ${info?.manufacturer} ${info?.model} ${info?.year}")
                                                         // Always show result, even if overlay was removed while loading
-                                                        overlayStates[bestPlate] = PlateOverlayState(
-                                                            plateNumber = bestPlate,
+                                                        overlayStates[plate.plateNumber] = PlateOverlayState(
+                                                            plateNumber = plate.plateNumber,
                                                             vehicleInfo = info,
                                                             isLoading = false,
                                                             lastSeenTime = System.currentTimeMillis()
                                                         )
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
-                                                            ScanHistory.save(context, bestPlate, info)
+                                                            ScanHistory.save(context, plate.plateNumber, info)
                                                             if (activity != null) AdManager.onNewPlateDetected(activity)
                                                         }
                                                     }
@@ -377,7 +373,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(Color(0x99FF4444))
-                            .clickable { overlayStates.clear(); plateVoteGroups.clear() }
+                            .clickable { overlayStates.clear(); plateExactCounts.clear() }
                             .padding(horizontal = 14.dp, vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {

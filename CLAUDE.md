@@ -477,24 +477,23 @@ UK plates have a known structure (two letters, two digits, three letters in the 
 | Digit position | `S`     | `5`         |
 | Digit position | `B`     | `8`         |
 
-### Debounce & Majority Vote
+### Debounce & Exact-Match Counting
 
-Plate detection uses a **majority vote** system instead of a simple counter:
+Plate detection uses an **exact-match counting** system (no fuzzy grouping):
 
-1. **Fuzzy grouping:** All OCR readings that differ by at most **2 characters** (same length) are grouped together into one vote group. Readings that differ in length by exactly 1 are also grouped if the shorter is a prefix or suffix of the longer. Readings differing by 2+ characters in length are never grouped.
-2. **Vote counting:** Each OCR frame adds a vote for the specific reading it produced.
-3. **Threshold:** A minimum of **3 total votes** across all variants in a group is required before triggering an API call.
-4. **Winner selection:** The variant with the **most votes** in the group is selected as the canonical plate number.
-5. **Duplicate prevention:** Before adding a new overlay, the system checks if a similar plate (within 2-char tolerance) already exists in the overlay list.
+1. **Exact counting:** Each OCR reading is counted separately by its exact string value. `21262602` and `82262602` are tracked independently. This prevents OCR misreads (e.g., `B`→`8` at first digit) from contaminating the correct plate number.
+2. **Threshold:** A minimum of **3 identical readings** of the exact same plate string is required before triggering an API call. Plates already in `VehicleCache` (previously looked up in this session) bypass this threshold.
+3. **Duplicate prevention:** Before adding a new overlay, the system checks if a similar plate (within 2-char tolerance via `isSimilarPlate`) already exists in the overlay list. This prevents duplicate cards when OCR eventually reads a variant that differs slightly from the already-displayed plate.
 
 This prevents:
 
+- **Wrong vehicle identification** from OCR misreads that happen to match a different real plate number.
 - False positives from partial reads.
 - Redundant API calls from flickering detections.
-- **Duplicate cards** from OCR reading slightly different variants of the same plate (e.g., `7276537` vs `7276532`).
+- Duplicate cards from OCR reading slightly different variants of the same plate.
 - Processing of non-plate text that momentarily matches the regex.
 
-The vote groups are cleared when the user presses the Reset button.
+The exact-match counters are cleared when the user presses the Reset button.
 
 ### Dynamic Country Provider
 

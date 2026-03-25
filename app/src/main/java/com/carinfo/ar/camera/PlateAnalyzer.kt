@@ -105,7 +105,7 @@ class PlateAnalyzer(
             // NL: try all O/0 variants
             for (variant in fixOcrNl(cleaned)) {
                 if (variant != upper && country.plateRegex.matches(variant)) {
-                    if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$variant'")
+                    Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$variant'")
                     return DetectedPlate(variant, box)
                 }
             }
@@ -116,7 +116,7 @@ class PlateAnalyzer(
                 else -> upper
             }
             if (fixed != upper && country.plateRegex.matches(fixed)) {
-                if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$fixed'")
+                Log.d("PlateAnalyzer", "OCR fix: '$upper' -> '$fixed'")
                 return DetectedPlate(fixed, box)
             }
         }
@@ -146,7 +146,7 @@ class PlateAnalyzer(
                         // Log all OCR text for debugging
                         val cleaned = cleanText(line.text)
                         if (cleaned.length in 4..10) {
-                            if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "OCR[${country.code}]: '${line.text}' -> cleaned='$cleaned' regex=${country.plateRegex.matches(cleaned.uppercase())}")
+                            Log.d("PlateAnalyzer", "OCR[${country.code}]: '${line.text}' -> cleaned='$cleaned' regex=${country.plateRegex.matches(cleaned.uppercase())}")
                         }
 
                         for (element in line.elements) {
@@ -169,7 +169,7 @@ class PlateAnalyzer(
                 }
 
                 if (foundPlates.isNotEmpty()) {
-                    if (BuildConfig.DEBUG) Log.d("PlateAnalyzer", "Found ${foundPlates.size} plates: ${foundPlates.map { it.plateNumber }}")
+                    Log.d("PlateAnalyzer", "Found ${foundPlates.size} plates: ${foundPlates.map { it.plateNumber }}")
                 }
 
                 onPlatesDetected(foundPlates, inputImage.width, inputImage.height)
