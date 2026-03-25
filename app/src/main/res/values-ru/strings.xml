@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">Убрать рекламу</string>
     <string name="settings_remove_ads_subtitle">Разовая покупка — без рекламы навсегда</string>
     <string name="settings_buy">Купить</string>
+    <string name="settings_country_hint">Выберите страну, в которой вы сейчас находитесь, а не вашу родную страну</string>
+    <string name="billing_store_unavailable">Магазин недоступен, попробуйте ещё раз</string>
+    <string name="billing_loading_price">Загрузка цены, пожалуйста подождите…</string>
+    <string name="billing_purchase_pending">Покупка в обработке — реклама будет удалена после завершения оплаты</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_version">Версия 1.0</string>
     <string name="settings_about_description">Сканируйте номерные знаки и узнавайте информацию об автомобиле в дополненной реальности.</string>

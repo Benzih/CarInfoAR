@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">Eliminar anuncios</string>
     <string name="settings_remove_ads_subtitle">Compra única — sin anuncios para siempre</string>
     <string name="settings_buy">Comprar</string>
+    <string name="settings_country_hint">Selecciona el país en el que te encuentras actualmente, no tu país de origen</string>
+    <string name="billing_store_unavailable">Tienda no disponible, por favor inténtalo de nuevo</string>
+    <string name="billing_loading_price">Cargando precio, por favor espera…</string>
+    <string name="billing_purchase_pending">Compra pendiente — los anuncios se eliminarán cuando se complete el pago</string>
     <string name="settings_about">Acerca de</string>
     <string name="settings_version">Versión 1.0</string>
     <string name="settings_about_description">Escanea matrículas y descubre información del vehículo en realidad aumentada.</string>

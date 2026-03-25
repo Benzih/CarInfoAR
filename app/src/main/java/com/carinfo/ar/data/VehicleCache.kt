@@ -57,7 +57,7 @@ object VehicleCache {
             }
             info
         } catch (e: Exception) {
-            Log.e("VehicleCache", "API error for $plateNumber (${country.code})", e)
+            if (BuildConfig.DEBUG) Log.e("VehicleCache", "API error for $plateNumber (${country.code})", e)
             synchronized(cacheLock) { cache[plateNumber] = null }
             null
         } finally {

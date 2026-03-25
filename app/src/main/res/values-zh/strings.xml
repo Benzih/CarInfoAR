@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">移除广告</string>
     <string name="settings_remove_ads_subtitle">一次性购买 — 永久无广告</string>
     <string name="settings_buy">购买</string>
+    <string name="settings_country_hint">选择您当前所在的国家，而不是您的祖国</string>
+    <string name="billing_store_unavailable">商店不可用，请重试</string>
+    <string name="billing_loading_price">正在加载价格，请稍候…</string>
+    <string name="billing_purchase_pending">购买待处理 — 付款完成后广告将被移除</string>
     <string name="settings_about">关于</string>
     <string name="settings_version">版本 1.0</string>
     <string name="settings_about_description">扫描车牌，在增强现实中发现车辆信息。</string>

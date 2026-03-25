@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">광고 제거</string>
     <string name="settings_remove_ads_subtitle">일회성 구매 — 영원히 광고 없음</string>
     <string name="settings_buy">구매</string>
+    <string name="settings_country_hint">본국이 아닌 현재 거주 중인 국가를 선택하세요</string>
+    <string name="billing_store_unavailable">스토어를 사용할 수 없습니다. 다시 시도해 주세요</string>
+    <string name="billing_loading_price">가격 로딩 중, 잠시만 기다려 주세요…</string>
+    <string name="billing_purchase_pending">구매 대기 중 — 결제가 완료되면 광고가 제거됩니다</string>
     <string name="settings_about">정보</string>
     <string name="settings_version">버전 1.0</string>
     <string name="settings_about_description">번호판을 스캔하고 증강 현실로 차량 정보를 확인하세요.</string>

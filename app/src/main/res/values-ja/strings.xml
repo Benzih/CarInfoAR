@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">広告を削除</string>
     <string name="settings_remove_ads_subtitle">一度の購入で広告を永久に削除</string>
     <string name="settings_buy">購入</string>
+    <string name="settings_country_hint">母国ではなく、現在滞在している国を選択してください</string>
+    <string name="billing_store_unavailable">ストアを利用できません。もう一度お試しください</string>
+    <string name="billing_loading_price">価格を読み込み中、お待ちください…</string>
+    <string name="billing_purchase_pending">購入保留中 — お支払い完了後に広告が削除されます</string>
     <string name="settings_about">このアプリについて</string>
     <string name="settings_version">バージョン 1.0</string>
     <string name="settings_about_description">ナンバープレートをスキャンして、拡張現実で車両情報を確認できます。</string>

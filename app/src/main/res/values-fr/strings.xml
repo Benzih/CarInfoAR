@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">Supprimer les publicités</string>
     <string name="settings_remove_ads_subtitle">Achat unique — sans publicité pour toujours</string>
     <string name="settings_buy">Acheter</string>
+    <string name="settings_country_hint">Sélectionnez le pays dans lequel vous vous trouvez actuellement, pas votre pays d\'origine</string>
+    <string name="billing_store_unavailable">Boutique non disponible, veuillez réessayer</string>
+    <string name="billing_loading_price">Chargement du prix, veuillez patienter…</string>
+    <string name="billing_purchase_pending">Achat en attente — les publicités seront supprimées une fois le paiement effectué</string>
     <string name="settings_about">À propos</string>
     <string name="settings_version">Version 1.0</string>
     <string name="settings_about_description">Scannez les plaques d\'immatriculation et découvrez les informations du véhicule en réalité augmentée.</string>

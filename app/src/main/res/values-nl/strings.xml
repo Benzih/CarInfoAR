@@ -74,6 +74,9 @@
     <string name="settings_remove_ads">Advertenties verwijderen</string>
     <string name="settings_remove_ads_subtitle">Eenmalige aankoop — nooit meer advertenties</string>
     <string name="settings_buy">Kopen</string>
+    <string name="billing_store_unavailable">Winkel niet beschikbaar, probeer het opnieuw</string>
+    <string name="billing_loading_price">Prijs laden, even geduld…</string>
+    <string name="billing_purchase_pending">Aankoop in behandeling — advertenties worden verwijderd zodra de betaling is voltooid</string>
     <string name="settings_about">Over</string>
     <string name="settings_version">Versie 1.0</string>
     <string name="settings_about_description">Scan kentekens en ontdek voertuiginformatie in augmented reality.</string>

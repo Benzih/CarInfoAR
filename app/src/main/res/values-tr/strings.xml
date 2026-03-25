@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">Reklamları kaldır</string>
     <string name="settings_remove_ads_subtitle">Tek seferlik satın alma — sonsuza kadar reklamsız</string>
     <string name="settings_buy">Satın al</string>
+    <string name="settings_country_hint">Şu anda bulunduğunuz ülkeyi seçin, kendi ülkenizi değil</string>
+    <string name="billing_store_unavailable">Mağaza kullanılamıyor, lütfen tekrar deneyin</string>
+    <string name="billing_loading_price">Fiyat yükleniyor, lütfen bekleyin…</string>
+    <string name="billing_purchase_pending">Satın alma beklemede — ödeme tamamlandığında reklamlar kaldırılacaktır</string>
     <string name="settings_about">Hakkında</string>
     <string name="settings_version">Sürüm 1.0</string>
     <string name="settings_about_description">Plakaları tarayın ve araç bilgilerini artırılmış gerçeklikte keşfedin.</string>

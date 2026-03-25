@@ -73,6 +73,10 @@
     <string name="settings_remove_ads">Werbung entfernen</string>
     <string name="settings_remove_ads_subtitle">Einmalkauf — nie wieder Werbung</string>
     <string name="settings_buy">Kaufen</string>
+    <string name="settings_country_hint">Wählen Sie das Land, in dem Sie sich derzeit befinden, nicht Ihr Heimatland</string>
+    <string name="billing_store_unavailable">Store nicht verfügbar, bitte versuchen Sie es erneut</string>
+    <string name="billing_loading_price">Preis wird geladen, bitte warten…</string>
+    <string name="billing_purchase_pending">Kauf ausstehend — Werbung wird entfernt, sobald die Zahlung abgeschlossen ist</string>
     <string name="settings_about">Über</string>
     <string name="settings_version">Version 1.0</string>
     <string name="settings_about_description">Scannen Sie Kennzeichen und entdecken Sie Fahrzeuginformationen in erweiterter Realität.</string>
