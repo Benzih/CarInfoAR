@@ -12,6 +12,7 @@ import com.carinfo.ar.ads.BillingManager
 import com.carinfo.ar.navigation.AppNavigation
 import com.carinfo.ar.ui.theme.CarInfoTheme
 import com.carinfo.ar.util.SoundManager
+import com.google.android.gms.security.ProviderInstaller
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +36,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Update SSL provider for older Android versions (API < 29)
+        // This fixes "Trust anchor not found" errors on Android 8.x
+        try { ProviderInstaller.installIfNeeded(this) } catch (_: Exception) {}
+
         SoundManager.init(this)
         AdManager.initialize(this)
         BillingManager.initialize(this)
