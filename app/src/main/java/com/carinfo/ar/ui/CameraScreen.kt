@@ -139,8 +139,10 @@ data class PlateOverlayState(
 @Composable
 fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}) {
     val context = LocalContext.current
-    val selectedCountryCode by UserPreferences.getSelectedCountry(context).collectAsState(initial = null)
-    val country = selectedCountryCode?.let { SupportedCountry.fromCode(it) }
+    val selectedCountryCode by UserPreferences.getSelectedCountry(context).collectAsState(initial = "LOADING")
+    // While DataStore is loading, show nothing (avoid "not supported" flash)
+    if (selectedCountryCode == "LOADING") return
+    val country = selectedCountryCode?.takeIf { it.isNotEmpty() }?.let { SupportedCountry.fromCode(it) }
         ?: SupportedCountry.fromLocale()
 
     if (country == null) {

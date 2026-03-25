@@ -63,7 +63,7 @@ fun OnboardingScreen(onComplete: () -> Unit) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var currentPage by remember { mutableIntStateOf(0) }
-    var selectedCountry by remember { mutableStateOf(SupportedCountry.fromLocale()) }
+    var selectedCountry by remember { mutableStateOf(SupportedCountry.fromLocale() ?: SupportedCountry.ISRAEL) }
 
     Box(
         modifier = Modifier
