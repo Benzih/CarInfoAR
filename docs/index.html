@@ -222,12 +222,13 @@
             <div class="app-icon" aria-hidden="true">&#128663;</div>
             <h1>Privacy Policy</h1>
             <p class="subtitle">CarInfo AR &mdash; Vehicle Information via Augmented Reality</p>
-            <span class="last-updated">Last updated: March 24, 2026</span>
+            <span class="last-updated">Last updated: March 25, 2026</span>
         </header>
 
         <p>
             Benzih ("we", "us", or "our") built the <strong>CarInfo AR</strong> app
-            (package: <code>com.carinfo.ar</code>) as a free, ad-supported application.
+            (package: <code>com.carinfo.ar</code>) as a free, ad-supported application with an optional
+            one-time in-app purchase to remove advertisements.
             This Privacy Policy explains what information the app accesses, how it is used,
             and the choices you have regarding your data.
         </p>
@@ -271,6 +272,16 @@
                     <td>Stored locally via Android DataStore. Never transmitted.</td>
                 </tr>
                 <tr>
+                    <td><strong>Purchase status</strong></td>
+                    <td>Tracks whether you purchased the ad-free upgrade</td>
+                    <td>Managed by Google Play. A boolean flag is cached locally. No payment details are accessible to the app.</td>
+                </tr>
+                <tr>
+                    <td><strong>Crash reports</strong></td>
+                    <td>Helps us fix bugs and improve stability</td>
+                    <td>Sent to Firebase Crashlytics. Contains stack traces, device model, OS version. No personal data.</td>
+                </tr>
+                <tr>
                     <td><strong>Device network / SIM country</strong></td>
                     <td>Auto-detects your region for default country selection</td>
                     <td>Read on-device only. Never transmitted.</td>
@@ -301,6 +312,23 @@
             <p>Used to display advertisements. AdMob may collect device identifiers, IP addresses, and usage data in accordance with
                 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.
                 You may opt out of personalized ads through your device's advertising settings.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Google Play Billing</div>
+            <p>Used to process the optional one-time in-app purchase ("Remove Ads"). All payment processing is handled entirely by Google Play.
+                We do not collect, store, or have access to your payment information (credit card, bank details, etc.).
+                Purchase status is verified through Google Play's servers and cached locally on your device.
+                See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a> for details.
+            </p>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Firebase Crashlytics &amp; Analytics</div>
+            <p>Used to monitor app stability and understand usage patterns. Firebase may collect crash reports (stack traces, device model, OS version),
+                session data, and anonymous usage statistics. No personally identifiable information is collected.
+                See <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Firebase Privacy</a> for details.
             </p>
         </div>
 
