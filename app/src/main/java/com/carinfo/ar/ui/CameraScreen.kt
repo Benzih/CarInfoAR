@@ -246,7 +246,12 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
                     val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                     cameraProviderFuture.addListener({
-                        val cameraProvider = cameraProviderFuture.get()
+                        val cameraProvider = try {
+                            cameraProviderFuture.get()
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            return@addListener
+                        }
 
                         val preview = Preview.Builder().build().also {
                             it.surfaceProvider = previewView.surfaceProvider
