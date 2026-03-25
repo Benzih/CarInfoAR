@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">Tocca per cambiare</string>
     <string name="settings_sound_feedback">Suono &amp; feedback</string>
     <string name="settings_sound_effects">Effetti sonori</string>
+    <string name="settings_premium">Premium</string>
+    <string name="settings_remove_ads">Rimuovi pubblicità</string>
+    <string name="settings_remove_ads_subtitle">Acquisto unico — niente più pubblicità</string>
+    <string name="settings_buy">Acquista</string>
     <string name="settings_about">Informazioni</string>
     <string name="settings_version">Versione 1.0</string>
     <string name="settings_about_description">Scansiona le targhe e scopri le informazioni del veicolo in realtà aumentata.</string>

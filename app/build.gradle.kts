@@ -87,6 +87,7 @@ dependencies {
     implementation(libs.splashscreen)
     implementation(libs.datastore.preferences)
     implementation(libs.play.services.ads)
+    implementation(libs.billing)
     implementation("com.google.guava:guava:32.1.3-android")
 
     // Firebase

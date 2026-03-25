@@ -24,6 +24,12 @@ object AdManager {
     private const val DETECTIONS_BEFORE_INTERSTITIAL = 3
 
     fun initialize(context: Context) {
+        // Don't initialize ads at all if premium
+        if (BillingManager.adsRemoved.value) {
+            Log.d(TAG, "Premium user — skipping AdMob init")
+            return
+        }
+
         // Restore detection count from SharedPreferences
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         detectionCount = prefs.getInt(KEY_DETECTION_COUNT, 0)
@@ -33,6 +39,12 @@ object AdManager {
             Log.d(TAG, "AdMob initialized")
         }
         loadInterstitial(context)
+    }
+
+    fun resetCount(context: Context) {
+        detectionCount = 0
+        saveCount(context)
+        Log.d(TAG, "Detection count reset (premium purchased)")
     }
 
     private fun saveCount(context: Context) {
@@ -62,6 +74,8 @@ object AdManager {
     }
 
     fun onNewPlateDetected(activity: Activity) {
+        if (BillingManager.adsRemoved.value) return
+
         detectionCount++
         saveCount(activity)
         Log.d(TAG, "Detection count: $detectionCount / $DETECTIONS_BEFORE_INTERSTITIAL")

@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.carinfo.ar.ads.AdManager
+import com.carinfo.ar.ads.BillingManager
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.navigation.AppNavigation
 import com.carinfo.ar.ui.theme.CarInfoTheme
@@ -38,6 +39,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         SoundManager.init(this)
         AdManager.initialize(this)
+        BillingManager.initialize(this)
 
         setContent {
             CarInfoTheme {
@@ -49,5 +51,6 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         SoundManager.release()
+        BillingManager.disconnect()
     }
 }

@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">タップして変更</string>
     <string name="settings_sound_feedback">サウンド &amp; フィードバック</string>
     <string name="settings_sound_effects">効果音</string>
+    <string name="settings_premium">プレミアム</string>
+    <string name="settings_remove_ads">広告を削除</string>
+    <string name="settings_remove_ads_subtitle">一度の購入で広告を永久に削除</string>
+    <string name="settings_buy">購入</string>
     <string name="settings_about">このアプリについて</string>
     <string name="settings_version">バージョン 1.0</string>
     <string name="settings_about_description">ナンバープレートをスキャンして、拡張現実で車両情報を確認できます。</string>

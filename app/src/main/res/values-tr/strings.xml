@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">Değiştirmek için dokunun</string>
     <string name="settings_sound_feedback">Ses &amp; geri bildirim</string>
     <string name="settings_sound_effects">Ses efektleri</string>
+    <string name="settings_premium">Premium</string>
+    <string name="settings_remove_ads">Reklamları kaldır</string>
+    <string name="settings_remove_ads_subtitle">Tek seferlik satın alma — sonsuza kadar reklamsız</string>
+    <string name="settings_buy">Satın al</string>
     <string name="settings_about">Hakkında</string>
     <string name="settings_version">Sürüm 1.0</string>
     <string name="settings_about_description">Plakaları tarayın ve araç bilgilerini artırılmış gerçeklikte keşfedin.</string>

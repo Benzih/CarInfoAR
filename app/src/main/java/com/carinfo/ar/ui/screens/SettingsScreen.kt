@@ -249,6 +249,54 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
 
             Spacer(Modifier.height(24.dp))
 
+            // Remove Ads section
+            val adsRemoved by com.carinfo.ar.ads.BillingManager.adsRemoved.collectAsState()
+            if (!adsRemoved) {
+                SectionTitle(stringResource(R.string.settings_premium))
+                SettingsCard {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                val activity = (context as? android.app.Activity)
+                                if (activity != null) {
+                                    com.carinfo.ar.ads.BillingManager.launchPurchase(activity)
+                                }
+                            }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_remove_ads),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                            val price = com.carinfo.ar.ads.BillingManager.getFormattedPrice()
+                            Text(
+                                price ?: stringResource(R.string.settings_remove_ads_subtitle),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color(0xFF888888)
+                            )
+                        }
+                        androidx.compose.foundation.layout.Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(com.carinfo.ar.ui.theme.BrandPrimary)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.settings_buy),
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                Spacer(Modifier.height(24.dp))
+            }
+
             // About section
             SectionTitle(stringResource(R.string.settings_about))
             SettingsCard {

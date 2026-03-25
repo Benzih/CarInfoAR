@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">点击更改</string>
     <string name="settings_sound_feedback">声音 &amp; 反馈</string>
     <string name="settings_sound_effects">音效</string>
+    <string name="settings_premium">高级版</string>
+    <string name="settings_remove_ads">移除广告</string>
+    <string name="settings_remove_ads_subtitle">一次性购买 — 永久无广告</string>
+    <string name="settings_buy">购买</string>
     <string name="settings_about">关于</string>
     <string name="settings_version">版本 1.0</string>
     <string name="settings_about_description">扫描车牌，在增强现实中发现车辆信息。</string>

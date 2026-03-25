@@ -164,6 +164,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+    val adsRemoved by com.carinfo.ar.ads.BillingManager.adsRemoved.collectAsState()
 
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -446,22 +447,24 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 }
             }
 
-            // Banner Ad
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-            ) {
-                AndroidView(
-                    factory = { ctx ->
-                        AdView(ctx).apply {
-                            setAdSize(AdSize.BANNER)
-                            adUnitId = AdManager.BANNER_AD_UNIT_ID
-                            loadAd(AdRequest.Builder().build())
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            // Banner Ad (hidden if premium purchased)
+            if (!adsRemoved) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                ) {
+                    AndroidView(
+                        factory = { ctx ->
+                            AdView(ctx).apply {
+                                setAdSize(AdSize.BANNER)
+                                adUnitId = AdManager.BANNER_AD_UNIT_ID
+                                loadAd(AdRequest.Builder().build())
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
 
             // Vehicle info cards — scrollable list in top third of screen

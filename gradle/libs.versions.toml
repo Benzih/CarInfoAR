@@ -16,6 +16,7 @@ playServicesAds = "23.6.0"
 firebaseBom = "33.9.0"
 googleServices = "4.4.2"
 firebaseCrashlytics = "3.0.3"
+billingClient = "7.1.1"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -47,6 +48,7 @@ play-services-ads = { group = "com.google.android.gms", name = "play-services-ad
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
+billing = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billingClient" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

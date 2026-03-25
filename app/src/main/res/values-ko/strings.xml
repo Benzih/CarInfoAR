@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">탭하여 변경</string>
     <string name="settings_sound_feedback">소리 &amp; 피드백</string>
     <string name="settings_sound_effects">효과음</string>
+    <string name="settings_premium">프리미엄</string>
+    <string name="settings_remove_ads">광고 제거</string>
+    <string name="settings_remove_ads_subtitle">일회성 구매 — 영원히 광고 없음</string>
+    <string name="settings_buy">구매</string>
     <string name="settings_about">정보</string>
     <string name="settings_version">버전 1.0</string>
     <string name="settings_about_description">번호판을 스캔하고 증강 현실로 차량 정보를 확인하세요.</string>

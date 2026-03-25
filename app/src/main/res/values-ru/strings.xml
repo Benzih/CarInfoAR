@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">Нажмите для изменения</string>
     <string name="settings_sound_feedback">Звук &amp; отклик</string>
     <string name="settings_sound_effects">Звуковые эффекты</string>
+    <string name="settings_premium">Премиум</string>
+    <string name="settings_remove_ads">Убрать рекламу</string>
+    <string name="settings_remove_ads_subtitle">Разовая покупка — без рекламы навсегда</string>
+    <string name="settings_buy">Купить</string>
     <string name="settings_about">О приложении</string>
     <string name="settings_version">Версия 1.0</string>
     <string name="settings_about_description">Сканируйте номерные знаки и узнавайте информацию об автомобиле в дополненной реальности.</string>

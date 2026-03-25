@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">انقر للتغيير</string>
     <string name="settings_sound_feedback">الصوت &amp; الاستجابة</string>
     <string name="settings_sound_effects">المؤثرات الصوتية</string>
+    <string name="settings_premium">بريميوم</string>
+    <string name="settings_remove_ads">إزالة الإعلانات</string>
+    <string name="settings_remove_ads_subtitle">شراء لمرة واحدة — بدون إعلانات للأبد</string>
+    <string name="settings_buy">شراء</string>
     <string name="settings_about">حول</string>
     <string name="settings_version">الإصدار 1.0</string>
     <string name="settings_about_description">امسح لوحات الترخيص واكتشف معلومات المركبة بالواقع المعزز.</string>

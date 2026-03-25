@@ -69,6 +69,10 @@
     <string name="settings_tap_to_change">Toque para alterar</string>
     <string name="settings_sound_feedback">Som &amp; feedback</string>
     <string name="settings_sound_effects">Efeitos sonoros</string>
+    <string name="settings_premium">Premium</string>
+    <string name="settings_remove_ads">Remover anúncios</string>
+    <string name="settings_remove_ads_subtitle">Compra única — sem anúncios para sempre</string>
+    <string name="settings_buy">Comprar</string>
     <string name="settings_about">Sobre</string>
     <string name="settings_version">Versão 1.0</string>
     <string name="settings_about_description">Digitalize matrículas e descubra informações do veículo em realidade aumentada.</string>

@@ -70,6 +70,10 @@
     <string name="settings_tap_to_change">הקש לשינוי</string>
     <string name="settings_sound_feedback">צליל ומשוב</string>
     <string name="settings_sound_effects">אפקטי צליל</string>
+    <string name="settings_premium">פרימיום</string>
+    <string name="settings_remove_ads">הסרת פרסומות</string>
+    <string name="settings_remove_ads_subtitle">רכישה חד פעמית — ללא פרסומות לצמיתות</string>
+    <string name="settings_buy">רכישה</string>
     <string name="settings_about">אודות</string>
     <string name="settings_version">גרסה 1.0</string>
     <string name="settings_about_description">סרוק לוחיות רישוי וגלה מידע על רכבים במציאות רבודה.</string>
