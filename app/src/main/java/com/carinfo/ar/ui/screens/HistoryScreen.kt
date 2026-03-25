@@ -70,8 +70,13 @@ import java.util.Locale
 @Composable
 fun HistoryScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    var records by remember { mutableStateOf(ScanHistory.load(context)) }
+    var records by remember { mutableStateOf(emptyList<ScanRecord>()) }
     var showClearDialog by remember { mutableStateOf(false) }
+
+    // Reload history every time this screen appears
+    LaunchedEffect(Unit) {
+        records = ScanHistory.load(context)
+    }
 
     // Confirmation dialog
     if (showClearDialog) {
