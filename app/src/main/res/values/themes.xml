@@ -9,7 +9,6 @@
 
     <style name="Theme.CarInfoAR.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#FF0A0A0A</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_blank</item>
         <item name="postSplashScreenTheme">@style/Theme.CarInfoAR</item>
     </style>
 </resources>
