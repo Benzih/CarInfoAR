@@ -12,24 +12,34 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 object AdManager {
     private const val TAG = "AdManager"
+    private const val PREFS_NAME = "ad_prefs"
+    private const val KEY_DETECTION_COUNT = "detection_count"
 
-    // Production IDs (uncomment when AdMob account is approved):
-    // const val BANNER_AD_UNIT_ID = "ca-app-pub-6755700667333024/9070814697"
-    // private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-6755700667333024/6137529598"
-
-    // Test IDs (for development/testing):
-    const val BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
-    private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
+    // Production IDs
+    const val BANNER_AD_UNIT_ID = "ca-app-pub-6755700667333024/9070814697"
+    private const val INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-6755700667333024/6137529598"
 
     private var interstitialAd: InterstitialAd? = null
     private var detectionCount = 0
     private const val DETECTIONS_BEFORE_INTERSTITIAL = 3
 
     fun initialize(context: Context) {
+        // Restore detection count from SharedPreferences
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        detectionCount = prefs.getInt(KEY_DETECTION_COUNT, 0)
+        Log.d(TAG, "Restored detection count: $detectionCount")
+
         MobileAds.initialize(context) {
             Log.d(TAG, "AdMob initialized")
         }
         loadInterstitial(context)
+    }
+
+    private fun saveCount(context: Context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putInt(KEY_DETECTION_COUNT, detectionCount)
+            .apply()
     }
 
     private fun loadInterstitial(context: Context) {
@@ -53,10 +63,12 @@ object AdManager {
 
     fun onNewPlateDetected(activity: Activity) {
         detectionCount++
+        saveCount(activity)
         Log.d(TAG, "Detection count: $detectionCount / $DETECTIONS_BEFORE_INTERSTITIAL")
 
         if (detectionCount >= DETECTIONS_BEFORE_INTERSTITIAL) {
             detectionCount = 0
+            saveCount(activity)
             showInterstitial(activity)
         }
     }
