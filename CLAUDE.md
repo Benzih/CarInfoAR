@@ -27,6 +27,7 @@
 16. [Ad System](#16-ad-system)
 16b. [Privacy Policy](#16b-privacy-policy)
 16c. [Firebase (Crashlytics & Analytics)](#16c-firebase-crashlytics--analytics)
+16d. [In-App Purchase (Remove Ads)](#16d-in-app-purchase-remove-ads)
 17. [Theme & Design](#17-theme--design)
 18. [Debugging](#18-debugging)
 19. [Testing Checklist](#19-testing-checklist)
@@ -171,12 +172,25 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 | Navigation Compose        | 2.8.5       | In-app navigation                |
 | DataStore Preferences     | 1.1.2       | Persistent key-value storage     |
 | Play Services Ads         | 23.6.0      | AdMob integration (active, production IDs) |
+| Play Billing              | 7.1.1       | In-app purchase (remove ads)     |
+| Desugar JDK Libs          | 2.1.4       | java.time backport for API 24-25 |
 
 ### Custom App Icon
 
 - Custom launcher icon provided at all standard densities: **mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi**.
 - Play Store icon: **512x512** (`ic_launcher_playstore.png`).
 - Adaptive icon XML has been removed; the app uses **PNG directly** for the launcher icon.
+
+### Release Signing
+
+| Property       | Value                                              |
+|----------------|----------------------------------------------------|
+| Keystore       | `~/.keystores/carinfo-release.keystore`            |
+| Key Alias      | `carinfo`                                          |
+| NOT in repo    | `*.keystore` in `.gitignore`                       |
+| Backup         | Google Drive + local `~/.keystores/`               |
+
+**CRITICAL:** If the keystore is lost, the app can never be updated on Play Store. Always back up to multiple locations. Enable Google Play App Signing as a safety net.
 
 ### SDK Configuration
 
@@ -197,6 +211,7 @@ compileSdk = 35
 | `CAMERA`             | Dangerous | Live camera preview and plate scanning          |
 | `INTERNET`           | Normal    | Vehicle API calls                               |
 | `VIBRATE`            | Normal    | Haptic feedback on plate detection              |
+| `ACCESS_NETWORK_STATE` | Normal  | Network connectivity check for AdMob            |
 
 ### Permissions NOT Required
 
@@ -974,6 +989,73 @@ implementation(libs.firebase.crashlytics)       // version from BOM
 
 ---
 
+## 16d. In-App Purchase (Remove Ads)
+
+### Overview
+
+The app offers a one-time in-app purchase to permanently remove all ads (banner + interstitial). This is implemented via Google Play Billing Library.
+
+### Configuration
+
+| Property              | Value                                              |
+|-----------------------|----------------------------------------------------|
+| Library               | Google Play Billing 7.1.1 (`billing-ktx`)          |
+| Product ID            | `remove_ads`                                       |
+| Product Type          | `INAPP` (one-time, not subscription)               |
+| Manager               | `BillingManager.kt` (singleton)                    |
+| State                 | `adsRemoved: StateFlow<Boolean>`                   |
+| Local Cache           | `SharedPreferences("purchases", "remove_ads_purchased")` |
+
+### Pricing (set in Play Console)
+
+| Country      | Price    |
+|--------------|----------|
+| Israel       | 24.90 ILS |
+| Netherlands  | 6.99 EUR  |
+| UK           | 4.99 GBP  |
+
+### Purchase Flow
+
+1. User taps "Buy" in Settings screen
+2. `BillingManager.launchPurchase(activity)` checks client is ready and product details loaded
+3. Google Play purchase dialog appears
+4. On success: `handlePurchase` → `acknowledgePurchase` (required within 3 days) → `grantRemoveAds`
+5. `_adsRemoved.value = true` → banner disappears, interstitials stop
+6. `AdManager.resetCount()` clears the detection counter
+
+### Security & Edge Cases
+
+| Scenario                        | Handling                                                    |
+|---------------------------------|-------------------------------------------------------------|
+| App restart                     | `SharedPreferences` read on init (instant, no flicker)      |
+| Refund via Google Play          | `restorePurchases` finds no valid purchase → `revokeRemoveAds` → ads resume |
+| Billing connection failure      | Exponential backoff retry (3 attempts, 1s/2s/4s delays)    |
+| Product details not loaded      | Toast "Loading price, please wait..." + retry query         |
+| Store not available             | Toast "Store not available, please try again" + reconnect   |
+| Pending payment (bank transfer) | Toast "Purchase pending" + `_purchasePending` state         |
+| Acknowledge failure             | Retry up to 3 times with 3s delay                          |
+| Activity destroyed mid-purchase | `restorePurchases` on next init recovers the purchase       |
+| Premium user — AdManager init   | `AdManager.initialize` skips AdMob if `adsRemoved` is true  |
+| Premium user — interstitial     | `onNewPlateDetected` returns immediately if `adsRemoved`     |
+| Premium user — banner           | `CameraScreen` hides banner via `if (!adsRemoved)` check    |
+
+### Integration Points
+
+- **MainActivity.kt**: `BillingManager.initialize(this)` in `onCreate`, `BillingManager.disconnect()` in `onDestroy`
+- **AdManager.kt**: Checks `BillingManager.adsRemoved.value` before init and before each interstitial trigger
+- **CameraScreen.kt**: Collects `adsRemoved` StateFlow, conditionally renders banner
+- **SettingsScreen.kt**: Shows "Remove Ads" section with price and Buy button (hidden if already purchased)
+
+### Play Console Setup Required
+
+To activate the purchase, create an in-app product in Play Console:
+1. Go to Monetize → In-app products
+2. Create product with ID `remove_ads`
+3. Set price for each country
+4. Activate the product
+
+---
+
 ## 17. Theme & Design
 
 ### Design Philosophy
@@ -1123,9 +1205,11 @@ curl -X POST \
 | 5  | No offline mode                            | Medium   | The app requires an internet connection for API calls. No cached vehicle database exists. |
 | 6  | ~~No crash reporting~~                     | ~~Done~~ | ~~Firebase Crashlytics is now integrated and active.~~ |
 | 7  | AdMob payment setup required               | Medium   | AdMob account requires payment setup completion for ads to actually serve in production. |
-| 8  | ProGuard rules minimal                     | Low      | Release builds may not be fully optimized or obfuscated. ProGuard/R8 rules should be reviewed. |
+| 8  | ~~ProGuard rules minimal~~                 | ~~Done~~ | ~~ProGuard rules added for Retrofit, Gson, Billing, Firebase, ML Kit.~~ |
 | 9  | No unit or instrumentation tests           | Medium   | The project has no automated test coverage.                   |
-| 10 | Vehicle cache has no TTL                   | Low      | Cached vehicle data persists for the entire session. Stale data is possible if a vehicle's registration changes. |
+| 10 | Vehicle cache has no TTL                   | Low      | Cached vehicle data (including failures) persists for the entire session. Failed lookups cached as null — user must restart app to retry. |
+| 11 | ScanHistory file I/O on main thread        | Low      | save/delete/load use synchronized file I/O. Fast enough for 100 records but not ideal. |
+| 12 | Keystore password in build.gradle.kts      | Medium   | Signing passwords hardcoded in source. Acceptable for private repo but should use local.properties for public repos. |
 
 ---
 
@@ -1137,11 +1221,14 @@ curl -X POST \
 | ~~Done~~ | ~~Firebase Crashlytics~~       | ~~Integrated and active. Console: https://console.firebase.google.com/project/carinfo-ar~~ |
 | High     | Secure API key storage         | Move the DVLA API key to a backend proxy or encrypted build config. |
 | ~~Done~~ | ~~Real AdMob IDs~~             | ~~Production ad unit IDs are now active.~~                         |
-| ~~Done~~ | ~~Privacy policy~~             | ~~Hosted at https://benzih.github.io/CarInfoAR/~~                 |
+| ~~Done~~ | ~~Privacy policy~~             | ~~Hosted at https://carinfoar.com~~                                |
 | ~~Done~~ | ~~Play Store listing~~         | ~~Screenshots, descriptions, and icon ready. See Section 22.~~     |
+| ~~Done~~ | ~~Remove ads purchase~~        | ~~One-time IAP via Google Play Billing 7.1.1. See Section 16d.~~   |
+| ~~Done~~ | ~~Core library desugaring~~    | ~~java.time backport for Android 7.0-7.1 (API 24-25).~~           |
+| ~~Done~~ | ~~Thread safety hardening~~    | ~~VehicleCache, ScanHistory, BillingManager — all synchronized.~~  |
+| ~~Done~~ | ~~Retrofit timeouts~~          | ~~5s connect, 8s read on all API clients.~~                        |
 | Medium   | Unit tests                     | Add unit tests for OCR correction, API parsing, and cache logic.   |
 | Medium   | Instrumentation tests          | Add UI tests for navigation flow and screen rendering.             |
-| Low      | Premium features               | Offer ad-free experience, extended history, or additional country support as in-app purchases. |
 | Low      | Offline vehicle database       | Cache a subset of vehicle data for offline lookups.                |
 | Low      | Dark/light theme toggle        | Add a light theme option for outdoor use.                          |
 | Low      | Export history                 | Allow users to export scan history as CSV or PDF.                  |
