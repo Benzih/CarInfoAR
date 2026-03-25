@@ -39,7 +39,7 @@ data class VehicleInfo(
 
 data class DataStoreResponse(
     val success: Boolean,
-    val result: DataStoreResult
+    val result: DataStoreResult?
 )
 
 data class DataStoreResult(

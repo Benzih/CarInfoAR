@@ -6,6 +6,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 
+private val historyLock = Any()
+
 data class ScanRecord(
     val plateNumber: String,
     val manufacturer: String?,
@@ -48,7 +50,7 @@ object ScanHistory {
     private fun getFile(context: Context): File =
         File(context.filesDir, FILE_NAME)
 
-    fun load(context: Context): List<ScanRecord> {
+    fun load(context: Context): List<ScanRecord> = synchronized(historyLock) {
         val file = getFile(context)
         if (!file.exists()) return emptyList()
         return try {
@@ -59,7 +61,7 @@ object ScanHistory {
         }
     }
 
-    fun save(context: Context, plateNumber: String, info: VehicleInfo) {
+    fun save(context: Context, plateNumber: String, info: VehicleInfo) = synchronized(historyLock) {
         val records = load(context).toMutableList()
         // Don't duplicate — update if exists
         records.removeAll { it.plateNumber == plateNumber }
@@ -100,13 +102,13 @@ object ScanHistory {
         getFile(context).writeText(gson.toJson(trimmed))
     }
 
-    fun delete(context: Context, plateNumber: String) {
+    fun delete(context: Context, plateNumber: String) = synchronized(historyLock) {
         val records = load(context).toMutableList()
         records.removeAll { it.plateNumber == plateNumber }
         getFile(context).writeText(gson.toJson(records))
     }
 
-    fun clear(context: Context) {
+    fun clear(context: Context) = synchronized(historyLock) {
         getFile(context).delete()
     }
 

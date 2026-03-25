@@ -52,5 +52,11 @@ object UserPreferences {
 
     suspend fun setAppLanguage(context: Context, langCode: String) {
         context.dataStore.edit { it[APP_LANGUAGE] = langCode }
+        // Also write to SharedPreferences for fast access in attachBaseContext
+        // (DataStore is too slow for attachBaseContext — causes ANR)
+        context.getSharedPreferences("language_prefs", Context.MODE_PRIVATE)
+            .edit()
+            .putString("app_language", langCode)
+            .apply()
     }
 }

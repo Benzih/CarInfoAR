@@ -9,28 +9,33 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 object VehicleCache {
-    private val cache = mutableMapOf<String, VehicleInfo?>()
-    private val inFlight = mutableSetOf<String>()
+    // Using synchronized HashMap because ConcurrentHashMap doesn't allow null values
+    // and we need to cache null for "not found" plates
+    private val cache = HashMap<String, VehicleInfo?>()
+    private val cacheLock = Any()
+    private val inFlight = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     private val mutex = Mutex()
 
     // DVLA API key - users need to register at https://developer-portal.driver-vehicle-licensing.api.gov.uk/
     // Leave empty to disable UK support
     var dvlaApiKey: String = "vgkhEOnZPp3rF5U7qXC848wHZ4RBV0kg5PtTKsCK"
 
-    fun getCached(plateNumber: String): VehicleInfo? {
-        return cache[plateNumber]
+    fun getCached(plateNumber: String): VehicleInfo? = synchronized(cacheLock) {
+        cache[plateNumber]
     }
 
-    fun isKnown(plateNumber: String): Boolean {
-        return plateNumber in cache
+    fun isKnown(plateNumber: String): Boolean = synchronized(cacheLock) {
+        cache.containsKey(plateNumber)
     }
 
     fun isLoading(plateNumber: String): Boolean {
-        return plateNumber in inFlight
+        return inFlight.contains(plateNumber)
     }
 
     suspend fun fetchIfNeeded(plateNumber: String, country: SupportedCountry): VehicleInfo? {
-        if (plateNumber in cache) return cache[plateNumber]
+        synchronized(cacheLock) {
+            if (cache.containsKey(plateNumber)) return cache[plateNumber]
+        }
 
         mutex.withLock {
             if (plateNumber in inFlight) return null
@@ -44,7 +49,7 @@ object VehicleCache {
                 SupportedCountry.NETHERLANDS -> fetchNetherlands(plateNumber)
                 SupportedCountry.UK -> fetchUk(plateNumber)
             }
-            cache[plateNumber] = info
+            synchronized(cacheLock) { cache[plateNumber] = info }
             if (info != null) {
                 if (BuildConfig.DEBUG) Log.d("VehicleCache", "Found: ${info.manufacturer} ${info.model} ${info.year}")
             } else {
@@ -53,6 +58,7 @@ object VehicleCache {
             info
         } catch (e: Exception) {
             Log.e("VehicleCache", "API error for $plateNumber (${country.code})", e)
+            synchronized(cacheLock) { cache[plateNumber] = null }
             null
         } finally {
             mutex.withLock { inFlight.remove(plateNumber) }
@@ -62,7 +68,7 @@ object VehicleCache {
     private suspend fun fetchIsrael(plateNumber: String): VehicleInfo? {
         val filters = """{"mispar_rechev":$plateNumber}"""
         val response = RetrofitClient.israelApi.searchVehicle(filters = filters)
-        return response.result.records.firstOrNull()?.toVehicleInfo()
+        return response.result?.records?.firstOrNull()?.toVehicleInfo()
     }
 
     private suspend fun fetchNetherlands(plateNumber: String): VehicleInfo? {

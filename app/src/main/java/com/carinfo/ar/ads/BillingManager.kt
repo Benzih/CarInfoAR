@@ -20,7 +20,10 @@ object BillingManager {
     private var productDetails: ProductDetails? = null
     private var appContext: Context? = null
     private var reconnectAttempts = 0
+    private var queryProductAttempts = 0
+    private var acknowledgeRetryCount = 0
     private const val MAX_RECONNECT_ATTEMPTS = 3
+    private const val MAX_QUERY_ATTEMPTS = 3
     private val handler = Handler(Looper.getMainLooper())
 
     private val _adsRemoved = MutableStateFlow(false)
@@ -96,11 +99,15 @@ object BillingManager {
         client.queryProductDetailsAsync(params) { billingResult, productDetailsList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
+                queryProductAttempts = 0
                 Log.d(TAG, "Product: ${productDetails?.title} - ${productDetails?.oneTimePurchaseOfferDetails?.formattedPrice}")
             } else {
                 Log.e(TAG, "Query product failed: ${billingResult.debugMessage}")
-                // Retry after 5 seconds
-                handler.postDelayed({ queryProduct() }, 5000)
+                if (queryProductAttempts < MAX_QUERY_ATTEMPTS) {
+                    queryProductAttempts++
+                    val delay = (3000L * queryProductAttempts)
+                    handler.postDelayed({ queryProduct() }, delay)
+                }
             }
         }
     }
@@ -138,7 +145,7 @@ object BillingManager {
     fun launchPurchase(activity: Activity): Boolean {
         val client = billingClient
         if (client == null || !client.isReady) {
-            Toast.makeText(activity, "Store not available, please try again", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_store_unavailable), Toast.LENGTH_SHORT).show()
             // Try to reconnect
             connectBillingClient(activity)
             return false
@@ -146,7 +153,7 @@ object BillingManager {
 
         val details = productDetails
         if (details == null) {
-            Toast.makeText(activity, "Loading price, please wait...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_loading_price), Toast.LENGTH_SHORT).show()
             queryProduct()
             return false
         }
@@ -176,13 +183,19 @@ object BillingManager {
                     billingClient?.acknowledgePurchase(params) { billingResult ->
                         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                             Log.d(TAG, "Purchase acknowledged")
+                            acknowledgeRetryCount = 0
                             grantRemoveAds(context)
                             // Reset ad detection counter
                             AdManager.resetCount(context)
                         } else {
                             Log.e(TAG, "Acknowledge failed: ${billingResult.debugMessage}")
-                            // Retry acknowledge after 3 seconds
-                            handler.postDelayed({ handlePurchase(context, purchase) }, 3000)
+                            if (acknowledgeRetryCount < MAX_RECONNECT_ATTEMPTS) {
+                                acknowledgeRetryCount++
+                                handler.postDelayed({ handlePurchase(context, purchase) }, 3000)
+                            } else {
+                                Log.e(TAG, "Acknowledge failed after $MAX_RECONNECT_ATTEMPTS retries")
+                                acknowledgeRetryCount = 0
+                            }
                         }
                     }
                 } else {
@@ -193,7 +206,7 @@ object BillingManager {
                 _purchasePending.value = true
                 Log.d(TAG, "Purchase pending — waiting for payment to complete")
                 handler.post {
-                    Toast.makeText(context, "Purchase pending — ads will be removed once payment completes", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(com.carinfo.ar.R.string.billing_purchase_pending), Toast.LENGTH_LONG).show()
                 }
             }
             else -> {

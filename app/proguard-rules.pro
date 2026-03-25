@@ -19,6 +19,11 @@
 # AdMob
 -dontwarn com.google.android.gms.ads.**
 
+# Play Billing
+-keep class com.android.billingclient.** { *; }
+-dontwarn com.android.billingclient.**
+
 # Firebase Crashlytics
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
+-keep class com.google.firebase.crashlytics.** { *; }

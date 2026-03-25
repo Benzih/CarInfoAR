@@ -89,7 +89,6 @@ import com.carinfo.ar.ads.AdManager
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import com.carinfo.ar.camera.FrameMotionTracker
 import com.carinfo.ar.data.ScanHistory
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -180,7 +179,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
     val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
     countryRef.value = country ?: SupportedCountry.ISRAEL
-    val knownPlates = remember { mutableSetOf<String>() }
     // Track exact OCR readings — each exact string counted separately
     val plateExactCounts = remember { mutableMapOf<String, Int>() }
     val activity = context as? Activity
@@ -283,7 +281,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 val count = (plateExactCounts[plate.plateNumber] ?: 0) + 1
                                                 plateExactCounts[plate.plateNumber] = count
 
-                                                Log.d("VoteSystem", "Plate: ${plate.plateNumber}, exact count: $count")
+                                                if (BuildConfig.DEBUG) Log.d("VoteSystem", "Plate: ${plate.plateNumber}, exact count: $count")
 
                                                 // Need at least 3 identical readings (or already known from cache)
                                                 if (count < 3 && !VehicleCache.isKnown(plate.plateNumber)) continue
@@ -295,7 +293,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 }
                                                 if (similarKey != null) continue
 
-                                                Log.d("VoteSystem", "ACCEPTED: ${plate.plateNumber} (count=$count)")
+                                                if (BuildConfig.DEBUG) Log.d("VoteSystem", "ACCEPTED: ${plate.plateNumber} (count=$count)")
 
                                                 val existing = overlayStates[plate.plateNumber]
                                                 val cachedInfo = VehicleCache.getCached(plate.plateNumber)
@@ -310,10 +308,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 if (!VehicleCache.isKnown(plate.plateNumber) && !VehicleCache.isLoading(plate.plateNumber)) {
                                                     SoundManager.playScanDetected()
                                                     SoundManager.vibrate(context)
-                                                    Log.d("VoteSystem", ">>> FETCHING: ${plate.plateNumber}")
+                                                    if (BuildConfig.DEBUG) Log.d("VoteSystem", ">>> FETCHING: ${plate.plateNumber}")
                                                     scope.launch {
                                                         val info = VehicleCache.fetchIfNeeded(plate.plateNumber, countryRef.value)
-                                                        Log.d("VoteSystem", "<<< RESULT: ${plate.plateNumber} -> ${info?.manufacturer} ${info?.model} ${info?.year}")
+                                                        if (BuildConfig.DEBUG) Log.d("VoteSystem", "<<< RESULT: ${plate.plateNumber} -> ${info?.manufacturer} ${info?.model} ${info?.year}")
                                                         // Always show result, even if overlay was removed while loading
                                                         overlayStates[plate.plateNumber] = PlateOverlayState(
                                                             plateNumber = plate.plateNumber,

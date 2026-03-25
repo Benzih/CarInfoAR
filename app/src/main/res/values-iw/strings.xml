@@ -74,6 +74,9 @@
     <string name="settings_remove_ads">הסרת פרסומות</string>
     <string name="settings_remove_ads_subtitle">רכישה חד פעמית — ללא פרסומות לצמיתות</string>
     <string name="settings_buy">רכישה</string>
+    <string name="billing_store_unavailable">החנות לא זמינה, נסה שוב</string>
+    <string name="billing_loading_price">טוען מחיר, אנא המתן…</string>
+    <string name="billing_purchase_pending">רכישה בהמתנה — הפרסומות יוסרו כשהתשלום יושלם</string>
     <string name="settings_about">אודות</string>
     <string name="settings_version">גרסה 1.0</string>
     <string name="settings_about_description">סרוק לוחיות רישוי וגלה מידע על רכבים במציאות רבודה.</string>

@@ -20,7 +20,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../carinfo-release.keystore")
+            storeFile = file(System.getProperty("user.home") + "/.keystores/carinfo-release.keystore")
             storePassword = "CarInfo2026!"
             keyAlias = "carinfo"
             keyPassword = "CarInfo2026!"
@@ -39,6 +39,7 @@ android {
     }
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
@@ -60,6 +61,8 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.activity.compose)

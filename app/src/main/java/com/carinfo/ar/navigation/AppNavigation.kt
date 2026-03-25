@@ -15,7 +15,9 @@ import androidx.navigation.compose.rememberNavController
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.ui.screens.HistoryScreen
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.carinfo.ar.ui.screens.OnboardingScreen
 import com.carinfo.ar.ui.screens.SettingsScreen
 import com.carinfo.ar.ui.screens.SplashScreen
@@ -55,7 +57,7 @@ fun AppNavigation() {
                     val dest = if (onboardingComplete == true) {
                         Routes.CAMERA
                     } else if (autoCountry != null) {
-                        runBlocking {
+                        CoroutineScope(Dispatchers.IO).launch {
                             UserPreferences.setSelectedCountry(context, autoCountry.code)
                             UserPreferences.setOnboardingComplete(context, true)
                         }
