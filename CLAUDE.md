@@ -2,7 +2,7 @@
 
 > **Version:** 1.0
 > **Platform:** Android
-> **Last Updated:** 2026-03-24
+> **Last Updated:** 2026-03-25
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -39,7 +39,7 @@
 
 ### What CarInfoAR Does
 
-CarInfoAR is an Android augmented reality application that uses the device camera to scan vehicle license plates in real time. Once a plate is detected via on-device OCR, the app queries government vehicle-registration APIs to retrieve information about the vehicle (manufacturer, model, year, color, fuel type, and more). The results are displayed as floating AR overlay cards anchored to the detected plate position in the camera preview.
+CarInfoAR is an Android augmented reality application that uses the device camera to scan vehicle license plates in real time. Once a plate is detected via on-device OCR, the app queries government vehicle-registration APIs to retrieve information about the vehicle (manufacturer, model, year, color, fuel type, and more). The results are displayed as info cards in a scrollable list at the bottom of the camera screen.
 
 ### Target Audience
 
@@ -273,6 +273,17 @@ All screen transitions use a combined **slide + fade** animation with a duration
 | `shnat_yitzur`    | Year of manufacture   | `year`               |
 | `tzeva_rechev`    | Vehicle color         | `color`              |
 | `sug_delek_nm`    | Fuel type             | `fuelType`           |
+| `ramat_gimur`     | Trim level            | `trimLevel`          |
+| `baalut`          | Ownership type        | `ownership`          |
+| `mivchan_acharon_dt` | Last test date     | `lastTestDate`       |
+| `tokef_dt`        | Test valid until      | `testValidUntil`     |
+| `degem_manoa`     | Engine model          | `engineModel`        |
+| `misgeret`        | Chassis number        | `chassisNumber`      |
+| `zmig_kidmi`      | Front tires           | `frontTires`         |
+| `zmig_ahori`      | Rear tires            | `rearTires`          |
+| `moed_aliya_lakvish` | On-road date       | `onRoadDate`         |
+| `kvutzat_zihum`   | Emission group        | `emissionGroup`      |
+| `degem_nm`        | Model (fallback)      | `model` (fallback)   |
 
 **Example Request:**
 
@@ -307,6 +318,17 @@ curl "https://data.gov.il/api/3/action/datastore_search?resource_id=053cea08-09b
 | `handelsbenaming`         | Commercial model name       | `model`         |
 | `eerste_kleur`            | Primary color               | `color`         |
 | `datum_eerste_toelating`  | First registration date (YYYYMMDD) | `year` (parsed) |
+| `brandstof_omschrijving`  | Fuel type                          | `fuelType`      |
+| `cilinderinhoud`          | Engine capacity (cc)               | `engineCapacity`|
+| `aantal_cilinders`        | Number of cylinders                | `numCylinders`  |
+| `aantal_deuren`           | Number of doors                    | `numDoors`      |
+| `aantal_zitplaatsen`      | Number of seats                    | `numSeats`      |
+| `vervaldatum_apk`         | APK expiry date                    | `testValidUntil`|
+| `catalogusprijs`          | Catalog price                      | `catalogPrice`  |
+| `massa_rijklaar`          | Vehicle weight (kg)                | `weight`        |
+| `inrichting`              | Body type                          | `bodyType`      |
+| `wam_verzekerd`           | Insurance status                   | `insured`       |
+| `wielbasis`               | Wheelbase (cm)                     | `wheelbase`     |
 
 **OCR Fallback Logic:**
 
@@ -357,6 +379,11 @@ curl "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=3XKH01"
 | `engineCapacity`  | Engine capacity (cc)     | `engineCapacity` |
 | `taxStatus`       | Tax status               | `taxStatus`     |
 | `motStatus`       | MOT status               | `motStatus`     |
+| `co2Emissions`    | CO2 emissions (g/km)     | `co2Emissions`  |
+| `motExpiryDate`   | MOT expiry date          | `testValidUntil`|
+| `wheelplan`       | Body/wheel plan          | `bodyType`      |
+| `monthOfFirstRegistration` | First registration | `onRoadDate`   |
+| `taxDueDate`      | Tax due date             | `taxDueDate`    |
 
 **Important Limitation:** The DVLA API does **not** return the vehicle model name. Only the manufacturer (make) is available.
 
@@ -454,7 +481,7 @@ UK plates have a known structure (two letters, two digits, three letters in the 
 
 Plate detection uses a **majority vote** system instead of a simple counter:
 
-1. **Fuzzy grouping:** All OCR readings that differ by at most **2 characters** (same length) are grouped together into one vote group.
+1. **Fuzzy grouping:** All OCR readings that differ by at most **2 characters** (same length) are grouped together into one vote group. Readings that differ in length by exactly 1 are also grouped if the shorter is a prefix or suffix of the longer. Readings differing by 2+ characters in length are never grouped.
 2. **Vote counting:** Each OCR frame adds a vote for the specific reading it produced.
 3. **Threshold:** A minimum of **3 total votes** across all variants in a group is required before triggering an API call.
 4. **Winner selection:** The variant with the **most votes** in the group is selected as the canonical plate number.
@@ -555,7 +582,7 @@ The primary screen of the app. Components:
 | Live camera preview | Full-screen CameraX preview surface                        |
 | Viewfinder overlay  | Semi-transparent frame guiding where to point the camera   |
 | AR overlay cards    | `FloatingCarInfo`, `LoadingPlateIndicator`, or `PlateNotFoundIndicator` positioned at detected plate locations |
-| Top toolbar         | Settings (gear icon) and History (clock icon) buttons      |
+| Top toolbar         | Reset button (red, visible only when overlays exist), Manual input button (pencil icon), History button (clock icon), and Settings button (gear icon) |
 | Manual input FAB    | Opens a dialog for typing a plate number manually          |
 | Reset button        | Clears all current overlays                                |
 
@@ -583,7 +610,10 @@ Changing the language triggers `Activity.recreate()` to apply the new locale imm
 | Feature            | Implementation                                        |
 |--------------------|-------------------------------------------------------|
 | List display       | `LazyColumn` with scan records                        |
-| Per-item display   | Plate number, manufacturer, model, year, color, flag  |
+| Per-item display   | Plate number (header), manufacturer, model, year, color, fuel type, country flag, trim level, test status |
+| Expandable details | Tap on item to expand/collapse showing all vehicle fields |
+| Info button        | "מידע" text button next to color/fuel opens Google search for vehicle |
+| Date expired highlighting | Expired test/tax dates shown in red              |
 | Swipe-to-delete    | Swipe **left only** to reveal delete action           |
 | Per-item delete    | Explicit delete button/icon on each row               |
 | Clear all          | **Text button** at top; shows a confirmation dialog before clearing |
@@ -628,14 +658,20 @@ Each detected plate gets its own `PlateOverlayState` instance. The state tracks 
 
 The glass-morphism card displays:
 
-- **Country flag** (top corner).
-- **Manufacturer** name.
-- **Model** name (if available; not returned by DVLA).
-- **Year** of manufacture.
-- **Color** of the vehicle.
-- **Fuel type**.
-- **Save button:** Tapping saves the scan to history (with sound feedback).
-- **Info button:** Opens a web search for the specific vehicle model.
+**Header:**
+- Country flag + Manufacturer + Model (title)
+- Year + Trim Level (subtitle, in brand color)
+- Save button + Info button
+
+**After accent line (sections in order):**
+1. Test/MOT/APK — motStatus, testValidUntil, lastTestDate (expired dates in red)
+2. Basic info — color, fuelType, ownership, bodyType, onRoadDate, plateNumber
+3. Engine — engineCapacity, engineModel, numCylinders, co2Emissions, emissionGroup
+4. Tax (UK) — taxStatus, taxDueDate (expired in red)
+5. Specs — numDoors, numSeats, weight, wheelbase, catalogPrice
+6. Tires (IL) — frontTires, rearTires
+7. Insurance (NL) — insured status
+8. Chassis (IL) — chassisNumber
 
 ### Auto-Save
 
@@ -844,9 +880,11 @@ Ads are currently **enabled** in production. To disable them:
 
 | Property       | Value                                              |
 |----------------|----------------------------------------------------|
-| URL            | https://benzih.github.io/CarInfoAR/                |
+| URL            | https://carinfoar.com                              |
 | Hosted via     | GitHub Pages from `docs/index.html`                |
 | Required for   | Google Play Store submission                       |
+
+Custom domain `carinfoar.com` purchased via Namecheap, pointed to GitHub Pages via CNAME record in `docs/CNAME`.
 
 ### Coverage
 
@@ -1064,7 +1102,7 @@ curl -X POST \
 
 - [ ] Test pinch-to-zoom. Verify smooth zoom in and out.
 - [ ] Test double-tap zoom. Verify toggle between 1x and 2x.
-- [ ] Test with camera moving. Verify AR overlays track the plate position (motion tracking).
+- [ ] Test with camera moving. Verify vehicle info cards appear in scrollable list at bottom of screen.
 
 ### Edge Case Tests
 
@@ -1154,7 +1192,7 @@ Just open the app and point your camera at a license plate. CarInfo AR uses adva
 • No user accounts required
 • No personal data collected
 • Scan history stored locally on your device
-• Full privacy policy: https://benzih.github.io/CarInfoAR/
+• Full privacy policy: https://carinfoar.com
 
 🌐 LANGUAGES
 Hebrew, English, Dutch, French, German, Spanish, Italian, Portuguese, Arabic, Turkish, Russian, Chinese, Japanese, Korean
@@ -1168,7 +1206,7 @@ The app automatically detects your location and language. You can also manually 
 | Category           | Auto & Vehicles                                    |
 | Content Rating     | Everyone                                           |
 | Contact Email      | contact@carinfo-ar.app                             |
-| Privacy Policy URL | https://benzih.github.io/CarInfoAR/                |
+| Privacy Policy URL | https://carinfoar.com                              |
 | Tags               | license plate, vehicle info, car scanner, AR, augmented reality, plate reader, vehicle lookup, car details, DVLA, RDW |
 
 ### Screenshots
