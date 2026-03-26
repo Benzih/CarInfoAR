@@ -95,7 +95,7 @@ com.carinfo.ar/
 |   |   |-- IsraelApiService.kt  # Retrofit interface for data.gov.il
 |   |   |-- NetherlandsApiService.kt  # Retrofit interface for RDW
 |   |   |-- UkApiService.kt      # Retrofit interface for DVLA VES
-|   |   |-- RetrofitClient.kt    # Shared Retrofit instances
+|   |   |-- RetrofitClient.kt    # Shared Retrofit instances + trust-all client for data.gov.il
 |   |   |-- DvlaRequest.kt       # UK DVLA request body model
 |   |-- model/
 |   |   |-- VehicleInfo.kt       # Unified vehicle data class
@@ -236,7 +236,16 @@ compileSdk = 35
 The app uses a custom `network_security_config.xml` (referenced in `AndroidManifest.xml`):
 
 - **Cleartext traffic disabled** (`cleartextTrafficPermitted="false"`) — all network communication must use HTTPS.
-- **Custom trust anchors:** In addition to system certificates, the app bundles `res/raw/data_gov_il_chain` — a certificate chain for `data.gov.il`. This ensures the Israeli government API works even on devices where the system trust store does not include the required intermediate/root certificates.
+- **System certificates only** — the network security config trusts system certificates.
+
+### data.gov.il SSL Handling
+
+The Israeli government API (`data.gov.il`) uses an SSL certificate from SSL.com/Entrust that is **not trusted** by Android 8.x and older devices. Instead of bundling a certificate file (which would expire and need app updates), the app uses a **trust-all OkHttpClient scoped exclusively to `data.gov.il`**:
+
+- **Hostname verification** ensures the trust-all policy only applies to `data.gov.il` — all other domains use standard certificate verification.
+- **No expiration risk** — nothing to renew or update.
+- **Acceptable security tradeoff** — `data.gov.il` serves public vehicle registration data (not sensitive/financial).
+- **Other APIs** (RDW Netherlands, DVLA UK) use the standard secure `OkHttpClient` with full certificate verification.
 
 ### Permissions NOT Required
 
