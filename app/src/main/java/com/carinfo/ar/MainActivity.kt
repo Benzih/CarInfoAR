@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.carinfo.ar.ads.AdManager
+import com.carinfo.ar.analytics.AnalyticsManager
 import com.carinfo.ar.ads.BillingManager
 import com.carinfo.ar.navigation.AppNavigation
 import com.carinfo.ar.ui.theme.CarInfoTheme
@@ -35,6 +36,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        AnalyticsManager.initialize(this)
+        AnalyticsManager.appOpened()
         enableEdgeToEdge()
         // Update SSL provider for older Android versions (API < 29)
         // This fixes "Trust anchor not found" errors on Android 8.x

@@ -5,9 +5,17 @@
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }
 
-# Gson
+# Gson — keep TypeToken for generic deserialization
 -keep class com.google.gson.** { *; }
 -keepattributes EnclosingMethod
+-keep class * extends com.google.gson.reflect.TypeToken { *; }
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Keep all data classes used with Gson (field names must survive for JSON keys)
+-keepclassmembers class com.carinfo.ar.data.ScanRecord { *; }
+-keepclassmembers class com.carinfo.ar.data.model.VehicleInfo { *; }
 
 # API request/response models
 -keep class com.carinfo.ar.data.api.** { *; }

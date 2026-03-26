@@ -1,9 +1,9 @@
 package com.carinfo.ar.data
 
 import android.content.Context
+import android.util.Log
 import com.carinfo.ar.data.model.VehicleInfo
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.io.File
 
 private val historyLock = Any()
@@ -52,16 +52,25 @@ object ScanHistory {
 
     fun load(context: Context): List<ScanRecord> = synchronized(historyLock) {
         val file = getFile(context)
-        if (!file.exists()) return emptyList()
+        if (!file.exists()) {
+            Log.w("ScanHistory", "LOAD: file does not exist")
+            return emptyList()
+        }
         return try {
-            val type = object : TypeToken<List<ScanRecord>>() {}.type
-            gson.fromJson(file.readText(), type) ?: emptyList()
-        } catch (_: Exception) {
+            val json = file.readText()
+            Log.d("ScanHistory", "LOAD: file size=${json.length}, first100=${json.take(100)}")
+            val array = gson.fromJson(json, Array<ScanRecord>::class.java)
+            val result = array?.toList() ?: emptyList()
+            Log.d("ScanHistory", "LOAD: parsed ${result.size} records")
+            result
+        } catch (e: Exception) {
+            Log.e("ScanHistory", "LOAD FAILED: ${e.javaClass.simpleName}: ${e.message}")
             emptyList()
         }
     }
 
     fun save(context: Context, plateNumber: String, info: VehicleInfo) = synchronized(historyLock) {
+        Log.d("ScanHistory", "SAVE: plate=$plateNumber, manufacturer=${info.manufacturer}")
         val records = load(context).toMutableList()
         // Don't duplicate — update if exists
         records.removeAll { it.plateNumber == plateNumber }
@@ -99,7 +108,14 @@ object ScanHistory {
         ))
         // Keep max 100
         val trimmed = records.take(100)
-        getFile(context).writeText(gson.toJson(trimmed))
+        val json = gson.toJson(trimmed)
+        Log.d("ScanHistory", "SAVE: writing ${trimmed.size} records, json size=${json.length}")
+        try {
+            getFile(context).writeText(json)
+            Log.d("ScanHistory", "SAVE: write SUCCESS")
+        } catch (e: Exception) {
+            Log.e("ScanHistory", "SAVE WRITE FAILED: ${e.javaClass.simpleName}: ${e.message}")
+        }
     }
 
     fun delete(context: Context, plateNumber: String) = synchronized(historyLock) {

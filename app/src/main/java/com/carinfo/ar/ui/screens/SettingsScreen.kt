@@ -43,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import com.carinfo.ar.R
+import com.carinfo.ar.analytics.AnalyticsManager
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
 import com.carinfo.ar.ui.theme.BrandDark
@@ -58,6 +59,10 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
     val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
     val selectedCountryCode by UserPreferences.getSelectedCountry(context).collectAsState(initial = null)
     val appLanguage by UserPreferences.getAppLanguage(context).collectAsState(initial = "")
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        AnalyticsManager.settingsOpened()
+    }
 
     val country = selectedCountryCode?.let { SupportedCountry.fromCode(it) } ?: SupportedCountry.fromLocale()
     val countryFlag = when (country) {
@@ -165,6 +170,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                                         .background(if (isSelected) BrandPrimary.copy(alpha = 0.15f) else Color.Transparent)
                                         .clickable {
                                             langExpanded = false
+                                            AnalyticsManager.languageChanged(name)
                                             scope.launch {
                                                 UserPreferences.setAppLanguage(context, code)
                                                 (context as? android.app.Activity)?.recreate()
@@ -213,6 +219,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                     Switch(
                         checked = soundEnabled,
                         onCheckedChange = {
+                            AnalyticsManager.soundToggled(it)
                             scope.launch { UserPreferences.setSoundEnabled(context, it) }
                         },
                         colors = SwitchDefaults.colors(
@@ -258,6 +265,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
+                                AnalyticsManager.removeAdsClicked()
                                 val activity = (context as? android.app.Activity)
                                 if (activity != null) {
                                     com.carinfo.ar.ads.BillingManager.launchPurchase(activity)
@@ -334,6 +342,7 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                             .clickable {
                                 val currentIndex = countries.indexOf(country)
                                 val nextIndex = (currentIndex + 1) % countries.size
+                                AnalyticsManager.countryChanged(countries[nextIndex].code)
                                 scope.launch {
                                     UserPreferences.setSelectedCountry(context, countries[nextIndex].code)
                                 }

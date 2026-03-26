@@ -96,6 +96,7 @@ import com.carinfo.ar.ui.components.ScanEffect
 import com.carinfo.ar.ui.components.ViewfinderOverlay
 import com.carinfo.ar.ui.theme.BrandPrimary
 import com.carinfo.ar.ui.theme.GlassOverlay
+import com.carinfo.ar.analytics.AnalyticsManager
 import com.carinfo.ar.util.SoundManager
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
@@ -170,7 +171,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
-    ) { granted -> hasCameraPermission = granted }
+    ) { granted ->
+        hasCameraPermission = granted
+        if (granted) AnalyticsManager.cameraPermissionGranted() else AnalyticsManager.cameraPermissionDenied()
+    }
 
     val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
     val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
@@ -183,6 +187,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     var viewHeight by remember { mutableIntStateOf(1) }
     var showManualInput by remember { mutableStateOf(false) }
     var manualPlateText by remember { mutableStateOf("") }
+    var pinchZoomLogged by remember { mutableStateOf(false) }
 
     // Sync sound setting
     val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
@@ -193,6 +198,12 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    LaunchedEffect(hasCameraPermission) {
+        if (hasCameraPermission) {
+            AnalyticsManager.cameraOpened()
         }
     }
 
@@ -218,6 +229,10 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                     val cam = camera ?: return true
                                     val currentZoom = cam.cameraInfo.zoomState.value?.zoomRatio ?: 1f
                                     cam.cameraControl.setZoomRatio(currentZoom * detector.scaleFactor)
+                                    if (!pinchZoomLogged) {
+                                        pinchZoomLogged = true
+                                        AnalyticsManager.pinchZoomUsed()
+                                    }
                                     return true
                                 }
                             })
@@ -233,6 +248,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                     val max = state.maxZoomRatio
                                     val target = if (current > min + 0.1f) min else (max * 0.5f).coerceAtMost(max)
                                     cam.cameraControl.setZoomRatio(target)
+                                    AnalyticsManager.doubleTapZoomUsed()
                                     return true
                                 }
                             })
@@ -295,6 +311,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 if (similarKey != null) continue
 
                                                 if (BuildConfig.DEBUG) Log.d("VoteSystem", "ACCEPTED: ${plate.plateNumber} (count=$count)")
+                                                AnalyticsManager.plateAccepted(plate.plateNumber, countryRef.value.code)
 
                                                 val existing = overlayStates[plate.plateNumber]
                                                 val cachedInfo = VehicleCache.getCached(plate.plateNumber)
@@ -322,8 +339,11 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                         )
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
-                                                            ScanHistory.save(context, plate.plateNumber, info)
+                                                            AnalyticsManager.vehicleInfoLoaded(plate.plateNumber, info.manufacturer, info.model, countryRef.value.code)
+                                                            // Save only via manual Save button, not automatically
                                                             if (activity != null) AdManager.onNewPlateDetected(activity)
+                                                        } else {
+                                                            AnalyticsManager.vehicleNotFound(plate.plateNumber, countryRef.value.code)
                                                         }
                                                     }
                                                 }
@@ -373,7 +393,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         modifier = Modifier
                             .clip(CircleShape)
                             .background(Color(0x99FF4444))
-                            .clickable { overlayStates.clear(); plateExactCounts.clear() }
+                            .clickable { overlayStates.clear(); plateExactCounts.clear(); AnalyticsManager.scanReset() }
                             .padding(horizontal = 14.dp, vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -391,7 +411,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(GlassOverlay)
-                        .clickable { showManualInput = true },
+                        .clickable { showManualInput = true; AnalyticsManager.manualInputOpened() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.Edit, "Manual", tint = Color.White, modifier = Modifier.size(20.dp))
@@ -530,9 +550,11 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                 onSaveToHistory = {
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
                                     SoundManager.playSaved()
+                                    AnalyticsManager.historySavedFromCamera(state.plateNumber, countryRef.value.code)
                                     Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
                                 },
                                 onOpenModelInfo = {
+                                    AnalyticsManager.modelInfoClicked(state.vehicleInfo.manufacturer, state.vehicleInfo.model)
                                     val url = ScanHistory.buildSearchUrl(state.vehicleInfo)
                                     context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                                 }
@@ -568,6 +590,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             onSearch = {
                 val plate = manualPlateText.trim().uppercase()
                 if (plate.isNotEmpty() && country != null) {
+                    AnalyticsManager.manualInputSearched(plate, country.code)
                     showManualInput = false
                     // Add as overlay in center of screen
                     overlayStates[plate] = PlateOverlayState(
@@ -592,6 +615,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 }
             },
             onDismiss = {
+                AnalyticsManager.manualInputCancelled()
                 showManualInput = false
                 manualPlateText = ""
             }

@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.carinfo.ar.R
+import com.carinfo.ar.analytics.AnalyticsManager
 import com.carinfo.ar.data.ScanHistory
 import com.carinfo.ar.data.ScanRecord
 import com.carinfo.ar.data.model.VehicleInfo
@@ -76,6 +77,7 @@ fun HistoryScreen(onBack: () -> Unit) {
     // Reload history every time this screen appears
     LaunchedEffect(Unit) {
         records = ScanHistory.load(context)
+        AnalyticsManager.historyOpened(records.size)
     }
 
     // Confirmation dialog
@@ -90,6 +92,7 @@ fun HistoryScreen(onBack: () -> Unit) {
                     color = Color(0xFFFF6B6B),
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.clickable {
+                        AnalyticsManager.historyClearedAll(records.size)
                         ScanHistory.clear(context)
                         SoundManager.playDeleteAll()
                         records = emptyList()
@@ -157,6 +160,7 @@ fun HistoryScreen(onBack: () -> Unit) {
 
                     LaunchedEffect(dismissState.currentValue) {
                         if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                            AnalyticsManager.historyItemDeleted()
                             ScanHistory.delete(context, record.plateNumber)
                             SoundManager.playDelete()
                             records = ScanHistory.load(context)
@@ -201,6 +205,7 @@ fun HistoryScreen(onBack: () -> Unit) {
                                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                             },
                             onDelete = {
+                                AnalyticsManager.historyItemDeleted()
                                 ScanHistory.delete(context, record.plateNumber)
                                 records = ScanHistory.load(context)
                             }
@@ -238,7 +243,12 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(GlassOverlay)
-            .clickable { expanded = !expanded }
+            .clickable {
+                if (!expanded) {
+                    AnalyticsManager.historyItemExpanded(record.plateNumber)
+                }
+                expanded = !expanded
+            }
             .padding(16.dp)
     ) {
         // Header row
@@ -275,7 +285,10 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
                             modifier = Modifier
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(BrandPrimary.copy(alpha = 0.15f))
-                                .clickable { onClick() }
+                                .clickable {
+                                    AnalyticsManager.historyInfoButtonClicked()
+                                    onClick()
+                                }
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
