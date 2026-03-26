@@ -115,6 +115,12 @@
     <string name="error_camera_required">Kamera erişimi\ngerekli</string>
     <string name="error_camera_grant">Lütfen ayarlardan kamera erişimi verin</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Bu uygulama hiçbir devlet kurumu ile bağlantılı, onaylanmış veya ilişkili değildir. Araç verileri kamuya açık devlet veritabanlarından alınmaktadır.</string>
+    <string name="label_data_source">Veri kaynağı</string>
+    <string name="disclaimer_title">Sorumluluk Reddi</string>
+    <string name="disclaimer_data_sources">Veri kaynakları:</string>
+
     <!-- Country Names -->
     <string name="country_israel">İsrail</string>
     <string name="country_netherlands">Hollanda</string>

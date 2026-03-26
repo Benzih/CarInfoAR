@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import com.carinfo.ar.R
 import com.carinfo.ar.analytics.AnalyticsManager
 import com.carinfo.ar.data.SupportedCountry
@@ -326,6 +327,54 @@ fun SettingsScreen(onBack: () -> Unit, onOpenHistory: () -> Unit = {}) {
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color(0xFF666666)
                     )
+
+                    // Disclaimer
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        stringResource(R.string.disclaimer_title),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color(0xFFFF6B6B),
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.disclaimer_not_government),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFF999999)
+                    )
+
+                    // Data Sources
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        stringResource(R.string.disclaimer_data_sources),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    val sourceLinks = listOf(
+                        "Israel" to "https://data.gov.il",
+                        "Netherlands" to "https://opendata.rdw.nl",
+                        "United Kingdom" to "https://driver-vehicle-licensing.api.gov.uk"
+                    )
+                    sourceLinks.forEach { (label, url) ->
+                        Text(
+                            text = "$label: $url",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                textDecoration = TextDecoration.Underline
+                            ),
+                            color = BrandPrimary,
+                            modifier = Modifier
+                                .clickable {
+                                    val intent = android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW,
+                                        android.net.Uri.parse(url)
+                                    )
+                                    context.startActivity(intent)
+                                }
+                                .padding(vertical = 2.dp)
+                        )
+                    }
                 }
             }
 

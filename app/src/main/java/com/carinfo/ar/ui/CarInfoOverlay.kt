@@ -282,6 +282,23 @@ fun FloatingCarInfo(
                 InfoRow(stringResource(R.string.label_chassis), it)
             }
 
+            // === DATA SOURCE ===
+            val dataSource = when (vehicleInfo.country) {
+                "IL" -> "data.gov.il"
+                "NL" -> "opendata.rdw.nl"
+                "GB" -> "dvla.gov.uk"
+                else -> null
+            }
+            if (dataSource != null) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = "${stringResource(R.string.label_data_source)}: $dataSource",
+                    color = Color(0xFF555555),
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Normal
+                )
+            }
+
             // Action buttons moved to header row
         }
     }

@@ -115,6 +115,12 @@
     <string name="error_camera_required">카메라 접근\n권한 필요</string>
     <string name="error_camera_grant">설정에서 카메라 접근을 허용해 주세요</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">이 앱은 어떤 정부 기관과도 제휴, 승인 또는 관련이 없습니다. 차량 데이터는 공개된 정부 데이터베이스에서 제공됩니다.</string>
+    <string name="label_data_source">데이터 출처</string>
+    <string name="disclaimer_title">면책 조항</string>
+    <string name="disclaimer_data_sources">데이터 출처:</string>
+
     <!-- Country Names -->
     <string name="country_israel">이스라엘</string>
     <string name="country_netherlands">네덜란드</string>

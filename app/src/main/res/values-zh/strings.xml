@@ -115,6 +115,12 @@
     <string name="error_camera_required">需要相机\n访问权限</string>
     <string name="error_camera_grant">请在设置中授予相机访问权限</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">本应用与任何政府机构无关联、未获其认可或支持。车辆数据来源于公开的政府数据库。</string>
+    <string name="label_data_source">数据来源</string>
+    <string name="disclaimer_title">免责声明</string>
+    <string name="disclaimer_data_sources">数据来源：</string>
+
     <!-- Country Names -->
     <string name="country_israel">以色列</string>
     <string name="country_netherlands">荷兰</string>

@@ -115,6 +115,12 @@
     <string name="error_camera_required">Accesso alla fotocamera\nrichiesto</string>
     <string name="error_camera_grant">Concedi l\'accesso alla fotocamera nelle impostazioni</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Questa app non è affiliata, approvata o associata ad alcun ente governativo. I dati dei veicoli provengono da database governativi accessibili al pubblico.</string>
+    <string name="label_data_source">Fonte dati</string>
+    <string name="disclaimer_title">Avviso</string>
+    <string name="disclaimer_data_sources">Fonti dei dati:</string>
+
     <!-- Country Names -->
     <string name="country_israel">Israele</string>
     <string name="country_netherlands">Paesi Bassi</string>

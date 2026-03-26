@@ -722,6 +722,7 @@ The glass-morphism card displays:
 6. Tires (IL) — frontTires, rearTires
 7. Insurance (NL) — insured status
 8. Chassis (IL) — chassisNumber
+9. Data source — shows the government data source URL (e.g., "Data source: data.gov.il")
 
 ### Save Behavior
 
@@ -1372,6 +1373,14 @@ Just open the app and point your camera at a license plate. CarInfo AR uses adva
 Hebrew, English, Dutch, French, German, Spanish, Italian, Portuguese, Arabic, Turkish, Russian, Chinese, Japanese, Korean
 
 The app automatically detects your location and language. You can also manually change the country and language in settings.
+
+⚠️ DISCLAIMER
+This app is not affiliated with, endorsed by, or associated with any government entity. Vehicle data is sourced from publicly available government databases.
+
+📊 DATA SOURCES
+• Israel: https://data.gov.il
+• Netherlands: https://opendata.rdw.nl
+• United Kingdom: https://driver-vehicle-licensing.api.gov.uk
 
 ### Store Metadata
 

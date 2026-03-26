@@ -115,6 +115,12 @@
     <string name="error_camera_required">الوصول للكاميرا\nمطلوب</string>
     <string name="error_camera_grant">يرجى منح إذن الوصول للكاميرا في الإعدادات</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">هذا التطبيق غير تابع أو معتمد أو مرتبط بأي جهة حكومية. بيانات المركبات مصدرها قواعد بيانات حكومية متاحة للعموم.</string>
+    <string name="label_data_source">مصدر البيانات</string>
+    <string name="disclaimer_title">إخلاء مسؤولية</string>
+    <string name="disclaimer_data_sources">مصادر البيانات:</string>
+
     <!-- Country Names -->
     <string name="country_israel">إسرائيل</string>
     <string name="country_netherlands">هولندا</string>

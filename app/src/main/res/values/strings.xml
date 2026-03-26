@@ -118,6 +118,12 @@
     <string name="error_camera_required">Camera Access\nRequired</string>
     <string name="error_camera_grant">Please grant camera access in settings</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">This app is not affiliated with, endorsed by, or associated with any government entity. Vehicle data is sourced from publicly available government databases.</string>
+    <string name="label_data_source">Data source</string>
+    <string name="disclaimer_title">Disclaimer</string>
+    <string name="disclaimer_data_sources">Data sources:</string>
+
     <!-- Country Names (CountryIndicator) -->
     <string name="country_israel">Israel</string>
     <string name="country_netherlands">Netherlands</string>

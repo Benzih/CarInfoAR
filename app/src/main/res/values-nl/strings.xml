@@ -115,6 +115,12 @@
     <string name="error_camera_required">Cameratoegang\nvereist</string>
     <string name="error_camera_grant">Geef cameratoegang in de instellingen</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Deze app is niet verbonden met, goedgekeurd door of geassocieerd met enige overheidsinstantie. Voertuiggegevens zijn afkomstig van openbaar beschikbare overheidsdatabases.</string>
+    <string name="label_data_source">Gegevensbron</string>
+    <string name="disclaimer_title">Disclaimer</string>
+    <string name="disclaimer_data_sources">Gegevensbronnen:</string>
+
     <!-- Country Names (CountryIndicator) -->
     <string name="country_israel">Isra\u00ebl</string>
     <string name="country_netherlands">Nederland</string>

@@ -115,6 +115,12 @@
     <string name="error_camera_required">Доступ к камере\nнеобходим</string>
     <string name="error_camera_grant">Пожалуйста, предоставьте доступ к камере в настройках</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Это приложение не связано, не одобрено и не ассоциировано с какой-либо государственной организацией. Данные о транспортных средствах получены из общедоступных государственных баз данных.</string>
+    <string name="label_data_source">Источник данных</string>
+    <string name="disclaimer_title">Отказ от ответственности</string>
+    <string name="disclaimer_data_sources">Источники данных:</string>
+
     <!-- Country Names -->
     <string name="country_israel">Израиль</string>
     <string name="country_netherlands">Нидерланды</string>

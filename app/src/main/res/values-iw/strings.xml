@@ -115,6 +115,12 @@
     <string name="error_camera_required">נדרשת גישה\nלמצלמה</string>
     <string name="error_camera_grant">אנא אשר גישה למצלמה בהגדרות</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">אפליקציה זו אינה קשורה, מאושרת או משויכת לכל גוף ממשלתי. נתוני הרכב מקורם ממאגרי מידע ממשלתיים פתוחים לציבור.</string>
+    <string name="label_data_source">מקור נתונים</string>
+    <string name="disclaimer_title">הצהרה</string>
+    <string name="disclaimer_data_sources">מקורות נתונים:</string>
+
     <!-- Country Names (CountryIndicator) -->
     <string name="country_israel">ישראל</string>
     <string name="country_netherlands">הולנד</string>

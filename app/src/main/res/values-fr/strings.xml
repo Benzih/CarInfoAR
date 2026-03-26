@@ -115,6 +115,12 @@
     <string name="error_camera_required">Accès à la caméra\nrequis</string>
     <string name="error_camera_grant">Veuillez autoriser l\'accès à la caméra dans les paramètres</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Cette application n\'est pas affiliée, approuvée ou associée à une entité gouvernementale. Les données des véhicules proviennent de bases de données gouvernementales accessibles au public.</string>
+    <string name="label_data_source">Source des données</string>
+    <string name="disclaimer_title">Avertissement</string>
+    <string name="disclaimer_data_sources">Sources des données :</string>
+
     <!-- Country Names -->
     <string name="country_israel">Israël</string>
     <string name="country_netherlands">Pays-Bas</string>

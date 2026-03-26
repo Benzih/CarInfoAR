@@ -115,6 +115,12 @@
     <string name="error_camera_required">Kamerazugriff\nerforderlich</string>
     <string name="error_camera_grant">Bitte gewähren Sie den Kamerazugriff in den Einstellungen</string>
 
+    <!-- Disclaimer & Data Sources -->
+    <string name="disclaimer_not_government">Diese App ist nicht mit einer Regierungsbehörde verbunden, von ihr genehmigt oder mit ihr assoziiert. Fahrzeugdaten stammen aus öffentlich zugänglichen Regierungsdatenbanken.</string>
+    <string name="label_data_source">Datenquelle</string>
+    <string name="disclaimer_title">Haftungsausschluss</string>
+    <string name="disclaimer_data_sources">Datenquellen:</string>
+
     <!-- Country Names -->
     <string name="country_israel">Israel</string>
     <string name="country_netherlands">Niederlande</string>
