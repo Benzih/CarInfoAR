@@ -1,6 +1,6 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.1.0 (versionCode 11)
+> **Version:** 1.1.1 (versionCode 12)
 > **Platform:** Android
 > **Last Updated:** 2026-03-26
 > **Package:** `com.carinfo.ar`
@@ -33,6 +33,8 @@
 19. [Testing Checklist](#19-testing-checklist)
 20. [Known Issues & Limitations](#20-known-issues--limitations)
 21. [Future Roadmap](#21-future-roadmap)
+22. [Play Store Listing](#22-play-store-listing)
+23. [Google Play Console](#23-google-play-console)
 
 ---
 
@@ -1387,8 +1389,77 @@ The app automatically detects your location and language. You can also manually 
 |-----------------------|---------------------------------------------------------|
 | Release AAB           | `app/build/outputs/bundle/release/app-release.aab`      |
 | Release APK           | `app/build/outputs/apk/release/app-release.apk`         |
-| Keystore              | `carinfo-release.keystore`                              |
-| Play Store Icon       | `ic_launcher_playstore.png` (512x512)                   |
+| Keystore              | `~/.keystores/carinfo-release.keystore` (NOT in repo)   |
+| Play Store Icon       | `app/src/main/ic_launcher_playstore.png` (512x512)      |
+
+---
+
+## 23. Google Play Console
+
+### Developer Account
+
+| Property              | Value                                              |
+|-----------------------|----------------------------------------------------|
+| Developer ID          | `7085638337730191412`                               |
+| Developer Name        | benziheler                                          |
+| App ID                | `4972478906413110413`                               |
+| Package Name          | `com.carinfo.ar`                                    |
+| Console URL           | https://play.google.com/console/u/0/developers/7085638337730191412/app/4972478906413110413 |
+
+### Release History
+
+| Version Code | Version Name | Track            | Date          | Status          | Notes                                    |
+|-------------|-------------|------------------|---------------|-----------------|------------------------------------------|
+| 1           | 1.0         | Closed testing   | Mar 26, 2026  | Superseded      | First upload, had splash crash on API 27 |
+| 4           | 1.0.3       | Internal testing | Mar 26, 2026  | Superseded      | Fixed splash crash, ConcurrentHashMap NPE |
+| 5           | 1.0.4       | Internal testing | Mar 26, 2026  | Superseded      | SSL cert fix for Android 8.x            |
+| 8           | 1.0.7       | Internal testing | Mar 26, 2026  | Superseded      | ProGuard/R8 Gson fix for history         |
+| 11          | 1.1.0       | Internal testing | Mar 26, 2026  | Active          | Analytics, save animation, sound fallback |
+| 12          | 1.1.1       | Closed testing   | Mar 26, 2026  | **In Review**   | First submission for review              |
+
+### Play Store Setup Completed
+
+| Item                        | Status | Details                                              |
+|-----------------------------|--------|------------------------------------------------------|
+| App name & descriptions     | ✅     | English (en-US) — short + full description           |
+| App icon (512x512)          | ✅     | Custom car + camera lens icon                        |
+| Feature graphic (1024x500)  | ✅     | CarInfo AR branding with tagline                     |
+| Phone screenshots (4)       | ✅     | Scan, multi-scan, history, settings                  |
+| Tablet screenshots 7" (4)   | ✅     | Same as phone screenshots                            |
+| Tablet screenshots 10" (4)  | ✅     | Same as phone screenshots                            |
+| Privacy policy URL          | ✅     | https://carinfoar.com                                |
+| Content rating              | ✅     | Completed questionnaire                              |
+| Target audience             | ✅     | Set                                                  |
+| Data safety                 | ✅     | No data collection declared                          |
+| Government apps             | ✅     | No                                                   |
+| Financial features          | ✅     | No financial features                                |
+| Health apps                 | ✅     | No health features                                   |
+| Advertising ID              | ✅     | Yes — Analytics + Advertising/marketing              |
+| App category                | ✅     | Auto & Vehicles                                      |
+| Contact email               | ✅     | Set in store listing                                 |
+| Countries/regions           | ✅     | 176 countries                                        |
+| Testers                     | ✅     | Avner + Internal Testers list                        |
+| App signing                 | ✅     | Google Play App Signing enabled                      |
+| App integrity               | ✅     | Automatic protection on                              |
+
+### What's Needed for Production Access
+
+Google requires a **Closed testing** release to be reviewed and approved before granting Production access. Once the Closed testing review passes:
+
+1. Go to Dashboard → "Apply for access to production"
+2. Answer questions about the closed test
+3. Once approved, promote the Closed testing release to Production
+
+### Domain
+
+| Property       | Value                    |
+|----------------|--------------------------|
+| Domain         | carinfoar.com            |
+| Registrar      | Namecheap                |
+| Cost           | $11.48/year              |
+| DNS            | CNAME → GitHub Pages     |
+| Privacy        | WhoisGuard (free)        |
+| Hosts          | Privacy policy via GitHub Pages (`docs/`) |
 
 ---
 
