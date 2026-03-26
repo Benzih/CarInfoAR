@@ -1,8 +1,8 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.0
+> **Version:** 1.1.0 (versionCode 11)
 > **Platform:** Android
-> **Last Updated:** 2026-03-25
+> **Last Updated:** 2026-03-26
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -72,17 +72,18 @@ com.carinfo.ar/
 |   |-- navigation/
 |   |   |-- AppNavigation.kt     # NavHost, route definitions, transitions
 |   |   |-- Screen.kt            # Sealed class of route constants
+|   |-- CameraScreen.kt          # Live preview, overlays, manual input, save animation
+|   |-- FloatingCarInfo.kt       # Glass-morphism info card with Save/Info buttons
+|   |-- LoadingPlateIndicator.kt # Pulsing plate-number animation
+|   |-- InfoRow.kt               # Reusable label-value row component
 |   |-- screens/
 |   |   |-- SplashScreen.kt      # Animated splash with car icon & scan line
 |   |   |-- OnboardingScreen.kt  # 3-page pager (Welcome, Country, Ready)
-|   |   |-- CameraScreen.kt      # Live preview, AR overlays, manual input
-|   |   |-- SettingsScreen.kt    # Language, sound, about, region
-|   |   |-- HistoryScreen.kt     # Saved scans list, swipe-to-delete
+|   |   |-- SettingsScreen.kt    # Language, sound, history, premium, about, region
+|   |   |-- HistoryScreen.kt     # Saved scans list, swipe-to-delete, expandable details
 |   |-- components/
-|   |   |-- FloatingCarInfo.kt   # Glass-morphism AR info card
-|   |   |-- LoadingPlateIndicator.kt  # Pulsing plate-number animation
-|   |   |-- PlateNotFoundIndicator.kt # Red "not found" indicator
-|   |   |-- ViewfinderOverlay.kt      # Camera viewfinder frame
+|   |   |-- ScanEffect.kt        # Camera scan line animation overlay
+|   |   |-- ViewfinderOverlay.kt  # Camera viewfinder frame
 |   |-- theme/
 |       |-- Theme.kt             # Material 3 dark theme definition
 |       |-- Color.kt             # Brand and country-accent colors
@@ -92,25 +93,24 @@ com.carinfo.ar/
 |   |   |-- IsraelApiService.kt  # Retrofit interface for data.gov.il
 |   |   |-- NetherlandsApiService.kt  # Retrofit interface for RDW
 |   |   |-- UkApiService.kt      # Retrofit interface for DVLA VES
-|   |-- models/
+|   |   |-- RetrofitClient.kt    # Shared Retrofit instances
+|   |   |-- DvlaRequest.kt       # UK DVLA request body model
+|   |-- model/
 |   |   |-- VehicleInfo.kt       # Unified vehicle data class
-|   |   |-- ScanRecord.kt        # History item data class
-|   |   |-- Country.kt           # Enum: ISRAEL, NETHERLANDS, UK
-|   |-- repository/
-|   |   |-- VehicleRepository.kt # Dispatches API calls by country
-|   |   |-- HistoryRepository.kt # JSON file read/write for scan history
-|   |-- cache/
-|       |-- VehicleCache.kt      # In-memory Map with Mutex guard
+|   |-- ScanHistory.kt           # JSON file read/write + ScanRecord data class
+|   |-- ScanRecord (in ScanHistory.kt) # History item data class
+|   |-- VehicleCache.kt          # In-memory HashMap with synchronized + Mutex guard
+|   |-- SupportedCountry.kt      # Enum: ISRAEL, NETHERLANDS, UK with plate regex
+|   |-- UserPreferences.kt       # DataStore preferences helper
 |-- camera/
-|   |-- PlateAnalyzer.kt         # ImageAnalysis.Analyzer, ML Kit OCR
-|   |-- FrameMotionTracker.kt    # Block-matching optical flow on Y plane
-|   |-- PlateOverlayState.kt     # Data class for per-plate AR state
+|   |-- PlateAnalyzer.kt         # ImageAnalysis.Analyzer, ML Kit OCR + per-country fixes
+|-- analytics/
+|   |-- AnalyticsManager.kt      # Centralized Firebase Analytics event tracking
+|-- ads/
+|   |-- AdManager.kt             # Banner + interstitial ads, detection counter
+|   |-- BillingManager.kt        # Google Play Billing for remove-ads IAP
 |-- util/
-|   |-- CountryDetector.kt       # TelephonyManager-based country detection
-|   |-- OcrCorrector.kt          # Per-country character-swap algorithms
-|   |-- SoundManager.kt          # MediaPlayer + Vibrator wrapper
-|   |-- PreferencesManager.kt    # DataStore preferences helper
-|   |-- StringResources.kt       # Programmatic string lookup utility
+|   |-- SoundManager.kt          # MediaPlayer + ToneGenerator fallback + Vibrator
 ```
 
 ### Design Patterns
@@ -119,9 +119,9 @@ com.carinfo.ar/
 |-----------------|------------------------------------|----------------------------------------------------------|
 | MVVM-lite       | CameraScreen state hoisting        | UI state is hoisted into composable scope; no ViewModel class but state is separated from UI rendering. |
 | Repository      | VehicleRepository, HistoryRepository | Abstracts data sources (network, file) behind a clean interface. |
-| Singleton       | VehicleCache, SoundManager, PreferencesManager | Single shared instance across the app lifetime.          |
-| Observer/Flow   | DataStore preferences              | Reactive preference reads via Kotlin Flow.               |
-| Strategy        | OcrCorrector per country           | Different OCR correction logic selected at runtime based on the active country. |
+| Singleton       | VehicleCache, SoundManager, AdManager, BillingManager, AnalyticsManager | Single shared instance across the app lifetime. |
+| Observer/Flow   | DataStore preferences, BillingManager.adsRemoved | Reactive preference reads via Kotlin Flow / StateFlow. |
+| Strategy        | PlateAnalyzer per-country OCR fixes | Different OCR correction logic selected at runtime based on the active country. |
 
 ---
 
@@ -192,6 +192,22 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 **CRITICAL:** If the keystore is lost, the app can never be updated on Play Store. Always back up to multiple locations. Enable Google Play App Signing as a safety net.
 
+### ProGuard / R8 Rules (`app/proguard-rules.pro`)
+
+Release builds use R8 minification (`isMinifyEnabled = true`). Key rules:
+
+| Rule                                                   | Purpose                                              |
+|--------------------------------------------------------|------------------------------------------------------|
+| `-keep class com.carinfo.ar.data.model.** { *; }`     | Keep API response model field names for Gson          |
+| `-keepclassmembers class com.carinfo.ar.data.ScanRecord { *; }` | Keep ScanRecord fields for JSON serialization |
+| `-keep class com.carinfo.ar.data.api.** { *; }`       | Keep Retrofit API interface and request/response classes |
+| `-keep class * extends com.google.gson.reflect.TypeToken { *; }` | Preserve Gson TypeToken subclasses (general safety) |
+| `-keepattributes SourceFile,LineNumberTable`           | Readable Firebase Crashlytics stack traces            |
+| `-keep class com.android.billingclient.** { *; }`     | Play Billing classes                                  |
+| `-keep class com.google.firebase.crashlytics.** { *; }` | Firebase Crashlytics                                |
+
+**Important:** `ScanHistory` uses `Array<ScanRecord>::class.java` (not `TypeToken`) for Gson deserialization specifically because R8 strips generic type info from `TypeToken` at minification time, causing silent deserialization failures in release builds.
+
 ### SDK Configuration
 
 ```
@@ -212,6 +228,13 @@ compileSdk = 35
 | `INTERNET`           | Normal    | Vehicle API calls                               |
 | `VIBRATE`            | Normal    | Haptic feedback on plate detection              |
 | `ACCESS_NETWORK_STATE` | Normal  | Network connectivity check for AdMob            |
+
+### Network Security Configuration
+
+The app uses a custom `network_security_config.xml` (referenced in `AndroidManifest.xml`):
+
+- **Cleartext traffic disabled** (`cleartextTrafficPermitted="false"`) — all network communication must use HTTPS.
+- **Custom trust anchors:** In addition to system certificates, the app bundles `res/raw/data_gov_il_chain` — a certificate chain for `data.gov.il`. This ensures the Israeli government API works even on devices where the system trust store does not include the required intermediate/root certificates.
 
 ### Permissions NOT Required
 
@@ -610,8 +633,10 @@ Settings are displayed in this order:
 |----|-----------------|----------------|------------------------------------------------------|
 | 1  | Language        | Dropdown       | 15 options (14 languages + device default)           |
 | 2  | Sound & Feedback| Toggle switch  | Enables/disables scan sounds and vibration           |
-| 3  | About           | Info section   | App version, credits                                 |
-| 4  | Region          | Selector       | Country override; placed **last** in the list        |
+| 3  | History         | Navigation row | Opens the HistoryScreen (chevron indicator)          |
+| 4  | Remove Ads      | Purchase card  | Shows price + Buy button (hidden if already purchased) |
+| 5  | About           | Info section   | App version, credits                                 |
+| 6  | Region          | Selector       | Country override; placed **last** in the list        |
 
 **Region hint text:** "Select the country you are currently in, not your home country."
 
@@ -687,9 +712,27 @@ The glass-morphism card displays:
 7. Insurance (NL) — insured status
 8. Chassis (IL) — chassisNumber
 
-### Auto-Save
+### Save Behavior
 
-Every successful vehicle detection is **automatically saved** to scan history when the API returns data. The Save button provides manual re-save with sound confirmation.
+**Camera scan:** Vehicle detections are **NOT** auto-saved. The user must tap the **Save button** on the info card to save to history. This triggers a flying animation from the save button to the history button, a sound effect, and a toast confirmation.
+
+**Manual input:** When the user types a plate number via the manual input dialog and the API returns data, the result **IS** auto-saved to history immediately (no manual save step needed).
+
+### Save Animation (Flying Badge)
+
+When the user taps Save on a camera-scanned card, a "Saved!" badge animates from the save button position to the history button in the top toolbar. The animation uses:
+
+- **`Modifier.layout`** with `placeable.place(rawPixelX, pixelY)` for absolute pixel positioning that works correctly in both LTR and RTL layouts.
+- **700ms tween** for the flight path (linear interpolation from start to end position).
+- **Scale:** Shrinks from 1.2x to 0.4x during flight.
+- **Alpha:** Fades from 1.0 to 0.7 during flight.
+- **RTL support:** The history button end position is computed differently for RTL vs LTR layouts using `LocalLayoutDirection.current`.
+
+### History Button Pulse Effect
+
+When the save animation completes, the history button in the top toolbar pulses:
+- Scales up to **1.4x** over 150ms, then back to **1.0x** over 200ms.
+- Uses a separate `Animatable` (`historyPulseScale`) applied via `Modifier.scale()`.
 
 ### Stale Overlay Removal
 
@@ -812,7 +855,9 @@ Sound and vibration are controlled by the `sound_enabled` preference in DataStor
 
 ### Implementation Detail
 
-The app uses `MediaPlayer` with the system's default notification ringtone (via `RingtoneManager.TYPE_NOTIFICATION`), **not** `ToneGenerator`. The sound enabled/disabled state is synced from DataStore preferences via `LaunchedEffect` in composables that need it.
+The app uses `MediaPlayer` with the system's default notification ringtone (via `RingtoneManager.TYPE_NOTIFICATION`) as the primary sound source. If `MediaPlayer.create()` returns `null` (which happens on some budget devices that lack a default notification sound), it falls back to `ToneGenerator` with `TONE_PROP_BEEP` (150ms duration, volume 80). The `ToneGenerator` is released after a 200ms delay via `Handler`. This two-tier fallback ensures sound works on all devices from API 24+.
+
+The sound enabled/disabled state is synced from DataStore preferences via `LaunchedEffect` in `CameraScreen`.
 
 ---
 
@@ -840,11 +885,13 @@ The app uses Jetpack DataStore (Preferences) for lightweight key-value storage.
 | Order             | Newest first                         |
 | Deduplication     | By `plateNumber` (newer replaces older) |
 
+**Gson Deserialization:** `ScanHistory.load()` uses `gson.fromJson(json, Array<ScanRecord>::class.java)` instead of `TypeToken<List<ScanRecord>>`. This avoids R8/ProGuard issues where `TypeToken` generic type information is stripped during minification, causing deserialization to fail silently in release builds.
+
 **Operations:**
 
 | Operation     | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| Load          | Read and parse JSON file on app start                         |
+| Load          | Read and parse JSON file; uses `Array<ScanRecord>::class.java` for R8 compatibility |
 | Save          | Add new record; if plate already exists, replace it; trim to 100 |
 | Delete single | Remove one record by plate number                             |
 | Clear all     | Delete all records (with user confirmation dialog)            |
@@ -853,8 +900,8 @@ The app uses Jetpack DataStore (Preferences) for lightweight key-value storage.
 
 | Property       | Value                                    |
 |----------------|------------------------------------------|
-| Type           | `MutableMap<String, VehicleInfo?>`        |
-| Thread safety  | `Mutex` guarding all read/write access   |
+| Type           | `HashMap<String, VehicleInfo?>` (allows null values) |
+| Thread safety  | `synchronized(cacheLock)` for reads/writes + `Mutex` for in-flight dedup |
 | TTL            | None (cached for the entire app session) |
 | Scope          | In-memory only; cleared on app restart   |
 
@@ -877,8 +924,19 @@ AdMob is **active** with real production ad unit IDs.
 | Banner Ad Unit ID   | `ca-app-pub-6755700667333024/9070814697`       |
 | Interstitial Ad Unit ID | `ca-app-pub-6755700667333024/6137529598`   |
 | Banner placement    | Bottom of camera screen                        |
-| Interstitial trigger| Every 3 successful plate detections            |
+| Interstitial trigger| Every 3 unique plate detections (persisted across sessions) |
+| Detection counter   | Persisted in `SharedPreferences("ad_prefs", "detection_count")` |
 | Status              | Active with real production IDs                |
+
+### Interstitial Ad Logic
+
+The interstitial ad is shown every **3 unique plate detections** (successful API lookups only). The detection counter:
+
+- Is **persisted** in `SharedPreferences("ad_prefs", "detection_count")` so it survives app restarts.
+- Is restored in `AdManager.initialize()`.
+- Is incremented in `AdManager.onNewPlateDetected()` (called from `CameraScreen` when a vehicle info result is loaded).
+- Resets to 0 after showing an interstitial, and also resets to 0 when the user purchases "remove ads" (via `AdManager.resetCount()`).
+- Premium users (`BillingManager.adsRemoved.value == true`) skip AdMob initialization entirely, and `onNewPlateDetected` returns immediately.
 
 ### How to Disable
 
@@ -963,6 +1021,25 @@ Analytics automatically tracks:
 - **User demographics** (country, device, OS version)
 - **App version** distribution
 - **Retention** metrics
+
+### Custom Analytics Events (AnalyticsManager)
+
+All custom events are sent via `AnalyticsManager` (`analytics/AnalyticsManager.kt`), a singleton initialized in `MainActivity`. Event categories:
+
+| Category           | Events                                                                                     |
+|--------------------|--------------------------------------------------------------------------------------------|
+| App Lifecycle      | `app_opened`, `app_backgrounded`, `app_resumed`                                           |
+| Onboarding         | `onboarding_started`, `onboarding_country_selected`, `onboarding_completed`                |
+| Camera / Scanning  | `camera_opened`, `camera_permission_granted`, `camera_permission_denied`, `plate_detected_ocr`, `plate_accepted`, `vehicle_info_loaded`, `vehicle_not_found`, `api_error`, `scan_reset` |
+| Zoom               | `pinch_zoom_used`, `double_tap_zoom_used`                                                  |
+| Manual Input       | `manual_input_opened`, `manual_input_searched`, `manual_input_cancelled`                   |
+| History            | `history_opened`, `history_saved_camera`, `history_item_expanded`, `history_item_collapsed`, `history_item_deleted`, `history_cleared_all`, `history_info_clicked` |
+| Settings           | `settings_opened`, `language_changed`, `country_changed`, `sound_toggled`                  |
+| Ads                | `banner_ad_loaded`, `banner_ad_failed`, `interstitial_shown`, `interstitial_dismissed`, `interstitial_failed` |
+| Premium / Billing  | `remove_ads_clicked`, `purchase_started`, `purchase_completed`, `purchase_failed`, `purchase_restored` |
+| Model Info         | `model_info_clicked`                                                                       |
+| Country Detection  | `country_auto_detected`, `country_detection_failed`                                        |
+| Errors             | `ssl_error`, `crash_recovered`                                                             |
 
 ### Gradle Plugins
 
