@@ -638,16 +638,16 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 val startY = saveAnimStartPos.y.takeIf { it > 0f } ?: (viewHeight * 0.65f)
                 val currentX = startX + (historyEndX - startX) * progress
                 val currentY = startY + (historyEndY - startY) * progress
-                Log.d("SaveAnim", "isRtl=$isRtl viewW=$viewWidth viewH=$viewHeight")
-                Log.d("SaveAnim", "startX=$startX startY=$startY")
-                Log.d("SaveAnim", "historyEndX=$historyEndX historyEndY=$historyEndY")
-                Log.d("SaveAnim", "progress=$progress currentX=$currentX currentY=$currentY")
+
+
+
+
                 val animScale = 1.2f - progress * 0.8f
                 val animAlpha = 1f - progress * 0.3f
 
                 val rawPixelX = (currentX - 40f).toInt()
                 val pixelY = (currentY - 16f).toInt()
-                Log.d("SaveAnim", "RENDER: rawPixelX=$rawPixelX pixelY=$pixelY isRtl=$isRtl")
+
 
                 // Full-screen transparent overlay so we can position the badge with absolute pixels
                 Box(modifier = Modifier.fillMaxSize()) {
