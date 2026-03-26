@@ -31,9 +31,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -92,7 +97,7 @@ fun FloatingCarInfo(
     plateNumber: String? = null,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    onSaveToHistory: (() -> Unit)? = null,
+    onSaveToHistory: ((buttonOffset: androidx.compose.ui.geometry.Offset) -> Unit)? = null,
     onOpenModelInfo: (() -> Unit)? = null
 ) {
     val countryFlag = when (vehicleInfo.country) {
@@ -149,13 +154,17 @@ fun FloatingCarInfo(
                 }
                 // Action buttons next to title
                 if (onSaveToHistory != null) {
+                    var saveBtnPos by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .clickable { onSaveToHistory() }
+                            .clickable { onSaveToHistory(saveBtnPos) }
                             .background(BrandPrimary.copy(alpha = 0.15f))
                             .padding(horizontal = 6.dp, vertical = 4.dp)
+                            .onGloballyPositioned { coords ->
+                                saveBtnPos = coords.positionInRoot()
+                            }
                     ) {
                         Icon(Icons.Default.History, "Save", tint = BrandPrimary, modifier = Modifier.size(14.dp))
                         Spacer(Modifier.width(3.dp))

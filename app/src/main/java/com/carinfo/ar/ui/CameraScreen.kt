@@ -21,6 +21,7 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -31,12 +32,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -70,8 +73,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -187,6 +197,36 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     var viewHeight by remember { mutableIntStateOf(1) }
     var showManualInput by remember { mutableStateOf(false) }
     var manualPlateText by remember { mutableStateOf("") }
+
+    // LazyColumn scroll state — auto-scroll to top on new detection
+    val listState = rememberLazyListState()
+
+    // Save-to-history flying animation
+    var historyButtonPos by remember { mutableStateOf(Offset.Zero) }
+    var saveAnimStartPos by remember { mutableStateOf(Offset.Zero) }
+    var showSaveAnimation by remember { mutableStateOf(false) }
+    // History button pulse when animation arrives
+    var historyButtonPulse by remember { mutableStateOf(false) }
+    val historyPulseScale = remember { Animatable(1f) }
+    val saveAnimProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(showSaveAnimation) {
+        if (showSaveAnimation) {
+            saveAnimProgress.snapTo(0f)
+            saveAnimProgress.animateTo(1f, animationSpec = tween(700))
+            showSaveAnimation = false
+            // Pulse the history button
+            historyButtonPulse = true
+        }
+    }
+    LaunchedEffect(historyButtonPulse) {
+        if (historyButtonPulse) {
+            historyPulseScale.snapTo(1f)
+            historyPulseScale.animateTo(1.4f, animationSpec = tween(150))
+            historyPulseScale.animateTo(1f, animationSpec = tween(200))
+            historyButtonPulse = false
+        }
+    }
     var pinchZoomLogged by remember { mutableStateOf(false) }
 
     // Sync sound setting
@@ -420,6 +460,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 Box(
                     modifier = Modifier
                         .size(40.dp)
+                        .scale(historyPulseScale.value)
                         .clip(CircleShape)
                         .background(GlassOverlay)
                         .clickable { onOpenHistory() },
@@ -528,7 +569,15 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 .toList()
 
             if (visibleStates.isNotEmpty()) {
+                // Auto-scroll to top when new items appear
+                LaunchedEffect(visibleStates.size) {
+                    if (visibleStates.isNotEmpty()) {
+                        listState.animateScrollToItem(0)
+                    }
+                }
+
                 androidx.compose.foundation.lazy.LazyColumn(
+                    state = listState,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
@@ -547,11 +596,14 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                     SoundManager.playSaved()
                                     Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
                                 },
-                                onSaveToHistory = {
+                                onSaveToHistory = { buttonOffset ->
                                     ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
                                     SoundManager.playSaved()
                                     AnalyticsManager.historySavedFromCamera(state.plateNumber, countryRef.value.code)
-                                    Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
+                                    // Trigger flying animation from save button to history button
+                                    saveAnimStartPos = buttonOffset
+                                    if (BuildConfig.DEBUG) Log.d("SaveAnim", "Save button pos: x=${buttonOffset.x}, y=${buttonOffset.y}")
+                                    showSaveAnimation = true
                                 },
                                 onOpenModelInfo = {
                                     AnalyticsManager.modelInfoClicked(state.vehicleInfo.manufacturer, state.vehicleInfo.model)
@@ -565,6 +617,65 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     }
                 }
             }
+
+            // Flying save animation: card flies from save button to history button
+            // Use computed positions instead of positionInRoot() which is unreliable on RTL + old APIs
+            val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
+            val statusBarPx = with(density) { 52.dp.toPx() }
+            // History button is 2nd from right in LTR, 2nd from left in RTL
+            // Layout: Reset | Spacer | Manual(40dp+8dp) | History(40dp+8dp) | Settings(40dp) | 16dp padding
+            // From right edge: 16 + 40 + 8 = 64dp to center of History
+            val historyEndX = if (isRtl) {
+                with(density) { (16 + 40 + 8 + 20).dp.toPx() } // 84dp from left in RTL
+            } else {
+                viewWidth - with(density) { (16 + 40 + 8 + 20).dp.toPx() } // 84dp from right in LTR
+            }
+            val historyEndY = statusBarPx + with(density) { 20.dp.toPx() }
+
+            if (showSaveAnimation) {
+                val progress = saveAnimProgress.value
+                val startX = saveAnimStartPos.x.takeIf { it > 0f } ?: (if (isRtl) viewWidth * 0.3f else viewWidth * 0.7f)
+                val startY = saveAnimStartPos.y.takeIf { it > 0f } ?: (viewHeight * 0.65f)
+                val currentX = startX + (historyEndX - startX) * progress
+                val currentY = startY + (historyEndY - startY) * progress
+                Log.d("SaveAnim", "isRtl=$isRtl viewW=$viewWidth viewH=$viewHeight")
+                Log.d("SaveAnim", "startX=$startX startY=$startY")
+                Log.d("SaveAnim", "historyEndX=$historyEndX historyEndY=$historyEndY")
+                Log.d("SaveAnim", "progress=$progress currentX=$currentX currentY=$currentY")
+                val animScale = 1.2f - progress * 0.8f
+                val animAlpha = 1f - progress * 0.3f
+
+                val rawPixelX = (currentX - 40f).toInt()
+                val pixelY = (currentY - 16f).toInt()
+                Log.d("SaveAnim", "RENDER: rawPixelX=$rawPixelX pixelY=$pixelY isRtl=$isRtl")
+
+                // Full-screen transparent overlay so we can position the badge with absolute pixels
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Box(
+                        modifier = Modifier
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(
+                                    constraints.copy(minWidth = 0, minHeight = 0)
+                                )
+                                layout(constraints.maxWidth, constraints.maxHeight) {
+                                    placeable.place(rawPixelX, pixelY)
+                                }
+                            }
+                            .scale(animScale)
+                            .alpha(animAlpha)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BrandPrimary)
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.History, null, tint = Color.White, modifier = Modifier.size(14.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Saved!", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+            // end animation
         }
     } else {
         Box(

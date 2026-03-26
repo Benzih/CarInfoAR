@@ -1,8 +1,10 @@
 package com.carinfo.ar.util
 
 import android.content.Context
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.media.RingtoneManager
+import android.media.ToneGenerator
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -22,8 +24,28 @@ object SoundManager {
         try {
             val uri = RingtoneManager.getDefaultUri(type)
             val mp = MediaPlayer.create(ctx, uri)
-            mp?.setOnCompletionListener { it.release() }
-            mp?.start()
+            if (mp != null) {
+                mp.setAudioStreamType(AudioManager.STREAM_MUSIC)
+                mp.setOnCompletionListener { it.release() }
+                mp.start()
+            } else {
+                // Fallback: ToneGenerator beep for devices without default notification sound
+                playToneBeep()
+            }
+        } catch (_: Exception) {
+            // Last resort fallback
+            try { playToneBeep() } catch (_: Exception) {}
+        }
+    }
+
+    private fun playToneBeep() {
+        try {
+            val toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 80)
+            toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+            // Release after tone finishes
+            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                try { toneGenerator.release() } catch (_: Exception) {}
+            }, 200)
         } catch (_: Exception) {}
     }
 
