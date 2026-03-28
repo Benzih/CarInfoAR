@@ -257,38 +257,7 @@ fun FloatingCarInfo(
                 }
             }
 
-            // === IMPORTER & PRICE (IL) — right after ownership ===
-            val hasImporter = vehicleInfo.importerName != null || vehicleInfo.priceAtRegistration != null
-            if (hasImporter) {
-                SectionDivider()
-                vehicleInfo.importerName?.let { InfoRow(stringResource(R.string.label_importer), it) }
-                vehicleInfo.priceAtRegistration?.let { price ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(BrandPrimary.copy(alpha = 0.1f))
-                            .padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            "${stringResource(R.string.label_price)}: ",
-                            color = Color(0xFF888888),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            formatPrice(price),
-                            color = BrandPrimary,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-                    }
-                }
-            }
-
-            // === DISABLED TAG — right after price ===
+            // === DISABLED TAG — right after ownership ===
             vehicleInfo.disabledTag?.let { hasTag ->
                 SectionDivider()
                 Row(
@@ -323,6 +292,33 @@ fun FloatingCarInfo(
                 }
             }
 
+            // === PRICE (IL) — right after disabled tag ===
+            vehicleInfo.priceAtRegistration?.let { price ->
+                SectionDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(BrandPrimary.copy(alpha = 0.1f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${stringResource(R.string.label_price)}: ",
+                        color = Color(0xFF888888),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        formatPrice(price),
+                        color = BrandPrimary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
+
             // === BASIC INFO ===
             vehicleInfo.color?.let { InfoRow(stringResource(R.string.label_color), it) }
             vehicleInfo.fuelType?.let { InfoRow(stringResource(R.string.label_fuel), it) }
@@ -330,6 +326,7 @@ fun FloatingCarInfo(
             vehicleInfo.bodyType?.let { InfoRow(stringResource(R.string.label_body), it) }
             vehicleInfo.onRoadDate?.let { InfoRow(stringResource(R.string.label_registered), it) }
             vehicleInfo.countryOfOrigin?.let { InfoRow(stringResource(R.string.label_country_origin), it) }
+            vehicleInfo.importerName?.let { InfoRow(stringResource(R.string.label_importer), it) }
             plateNumber?.let { InfoRow(stringResource(R.string.label_plate), it) }
 
             // === ENGINE ===
