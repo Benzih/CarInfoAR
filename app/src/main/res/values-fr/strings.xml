@@ -130,6 +130,7 @@
     <string name="label_odometer_year">Année compteur</string>
     <string name="label_has_recall">Rappel ouvert !</string>
     <string name="label_no_recall">Aucun rappel ouvert</string>
+<!-- UK Extended Labels -->    <string name="label_v5c_date">V5C délivré</string>    <string name="label_type_approval">Homologation</string>    <string name="label_marked_export">Marqué pour export</string>
 
     <!-- Settings -->
     <string name="settings_title">Paramètres</string>

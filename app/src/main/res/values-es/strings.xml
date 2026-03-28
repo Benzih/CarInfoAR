@@ -112,6 +112,7 @@
     <string name="label_section_internal">Detalles internos</string>
 <!-- Netherlands Extended Labels -->
     <string name="label_secondary_color">Color secundario</string>    <string name="label_owner_since">Propietario desde</string>    <string name="label_eu_category">Categoría UE</string>    <string name="label_taxi">Taxi</string>    <string name="label_exported">Exportado</string>    <string name="label_engine_power">Potencia del motor</string>    <string name="label_euro_class">Clase Euro</string>    <string name="label_efficiency_class">Clase de eficiencia</string>    <string name="label_section_fuel">Consumo de combustible</string>    <string name="label_fuel_combined">Combinado</string>    <string name="label_fuel_city">Ciudad</string>    <string name="label_fuel_highway">Autopista</string>    <string name="label_dimensions">Dimensiones</string>    <string name="label_empty_mass">Peso en vacío</string>    <string name="label_bpm_tax">Impuesto BPM</string>    <string name="label_odometer_judgment">Odómetro</string>    <string name="label_odometer_year">Año odómetro</string>    <string name="label_has_recall">¡Retiro abierto!</string>    <string name="label_no_recall">Sin retiros abiertos</string>
+<!-- UK Extended Labels -->    <string name="label_v5c_date">V5C emitido</string>    <string name="label_type_approval">Homologación</string>    <string name="label_marked_export">Marcado para exportación</string>
 
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>

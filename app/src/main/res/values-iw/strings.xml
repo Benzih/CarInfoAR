@@ -132,6 +132,11 @@
     <string name="label_has_recall">יש קריאת תיקון פתוחה!</string>
     <string name="label_no_recall">אין קריאות תיקון</string>
 
+    <!-- UK Extended Labels -->
+    <string name="label_v5c_date">תאריך V5C</string>
+    <string name="label_type_approval">אישור סוג</string>
+    <string name="label_marked_export">מסומן ליצוא</string>
+
     <!-- Settings -->
     <string name="settings_title">הגדרות</string>
     <string name="settings_region">אזור</string>

@@ -120,7 +120,12 @@ data class VehicleInfo(
     val fuelConsumptionCombined: String? = null, // brandstofverbruik_gecombineerd
     val fuelConsumptionCity: String? = null,     // brandstofverbruik_stad
     val fuelConsumptionHighway: String? = null,  // brandstofverbruik_buiten
-    val recallStatus: String? = null             // terugroepactie status
+    val recallStatus: String? = null,             // terugroepactie status
+
+    // === UK Extended (DVLA) ===
+    val markedForExport: Boolean? = null,        // markedForExport
+    val v5cDate: String? = null,                 // dateOfLastV5CIssued
+    val typeApproval: String? = null             // typeApproval
 )
 
 // ============ Israel: data.gov.il — Main registration ============
@@ -407,7 +412,10 @@ data class DvlaVehicleResponse(
         motStatus = motStatus,
         testValidUntil = motExpiryDate,
         bodyType = wheelplan,
-        onRoadDate = monthOfFirstRegistration
+        onRoadDate = monthOfFirstRegistration,
+        markedForExport = markedForExport,
+        v5cDate = dateOfLastV5CIssued,
+        typeApproval = typeApproval
     )
 }
 

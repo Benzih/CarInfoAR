@@ -112,6 +112,7 @@
     <string name="label_section_internal">تفاصيل داخلية</string>
 <!-- Netherlands Extended Labels -->
     <string name="label_secondary_color">لون ثانوي</string>    <string name="label_owner_since">مالك منذ</string>    <string name="label_eu_category">فئة أوروبية</string>    <string name="label_taxi">تاكسي</string>    <string name="label_exported">مُصدَّر</string>    <string name="label_engine_power">قوة المحرك</string>    <string name="label_euro_class">فئة يورو</string>    <string name="label_efficiency_class">فئة الكفاءة</string>    <string name="label_section_fuel">استهلاك الوقود</string>    <string name="label_fuel_combined">مختلط</string>    <string name="label_fuel_city">مدينة</string>    <string name="label_fuel_highway">طريق سريع</string>    <string name="label_dimensions">الأبعاد</string>    <string name="label_empty_mass">الوزن الفارغ</string>    <string name="label_bpm_tax">ضريبة BPM</string>    <string name="label_odometer_judgment">عداد المسافات</string>    <string name="label_odometer_year">سنة عداد المسافات</string>    <string name="label_has_recall">استدعاء مفتوح!</string>    <string name="label_no_recall">لا يوجد استدعاء</string>
+<!-- UK Extended Labels -->    <string name="label_v5c_date">تاريخ V5C</string>    <string name="label_type_approval">موافقة النوع</string>    <string name="label_marked_export">مُعلَّم للتصدير</string>
 
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>

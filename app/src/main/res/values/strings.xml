@@ -135,6 +135,11 @@
     <string name="label_has_recall">Open recall action!</string>
     <string name="label_no_recall">No open recalls</string>
 
+    <!-- UK Extended Labels -->
+    <string name="label_v5c_date">V5C Issued</string>
+    <string name="label_type_approval">Type Approval</string>
+    <string name="label_marked_export">Marked for Export</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_region">Region</string>

@@ -489,6 +489,16 @@ fun FloatingCarInfo(
                 }
             }
 
+            // === UK EXTRA ===
+            val hasUkExtra = vehicleInfo.v5cDate != null || vehicleInfo.typeApproval != null ||
+                    vehicleInfo.markedForExport != null
+            if (hasUkExtra) {
+                SectionDivider()
+                vehicleInfo.v5cDate?.let { InfoRow(stringResource(R.string.label_v5c_date), it) }
+                vehicleInfo.typeApproval?.let { InfoRow(stringResource(R.string.label_type_approval), it) }
+                vehicleInfo.markedForExport?.let { if (it) InfoRow(stringResource(R.string.label_marked_export), stringResource(R.string.label_yes)) }
+            }
+
             // === TOWING ===
             val hasTowing = vehicleInfo.towingWithBrakes != null || vehicleInfo.towingWithoutBrakes != null ||
                     vehicleInfo.towHook != null || vehicleInfo.maxTowingBraked != null

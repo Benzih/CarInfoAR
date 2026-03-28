@@ -106,7 +106,11 @@ data class ScanRecord(
     val fuelConsumptionCombined: String? = null,
     val fuelConsumptionCity: String? = null,
     val fuelConsumptionHighway: String? = null,
-    val recallStatus: String? = null
+    val recallStatus: String? = null,
+    // UK Extended
+    val markedForExport: Boolean? = null,
+    val v5cDate: String? = null,
+    val typeApproval: String? = null
 )
 
 object ScanHistory {
@@ -235,7 +239,11 @@ object ScanHistory {
             fuelConsumptionCombined = info.fuelConsumptionCombined,
             fuelConsumptionCity = info.fuelConsumptionCity,
             fuelConsumptionHighway = info.fuelConsumptionHighway,
-            recallStatus = info.recallStatus
+            recallStatus = info.recallStatus,
+            // UK Extended
+            markedForExport = info.markedForExport,
+            v5cDate = info.v5cDate,
+            typeApproval = info.typeApproval
         ))
         // Keep max 100
         val trimmed = records.take(100)
