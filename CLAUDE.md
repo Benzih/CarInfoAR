@@ -1,8 +1,8 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.1.1 (versionCode 12)
+> **Version:** 1.2.1 (versionCode 15)
 > **Platform:** Android
-> **Last Updated:** 2026-03-26
+> **Last Updated:** 2026-03-28
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -294,100 +294,77 @@ All screen transitions use a combined **slide + fade** animation with a duration
 
 ## 6. Vehicle APIs
 
-### 6.1 Israel (data.gov.il)
+### 6.1 Israel (data.gov.il) — 8 Resources
 
 | Property       | Value                                                              |
 |----------------|--------------------------------------------------------------------|
 | Base URL       | `https://data.gov.il/`                                             |
 | Endpoint       | `GET /api/3/action/datastore_search`                               |
-| Resource ID    | `053cea08-09bc-40ec-8f7a-156f0677aff3`                             |
 | Authentication | None                                                               |
-| Rate Limit     | Unknown (government open data)                                     |
-| Cost           | Free                                                               |
+| Cost           | Free, unlimited                                                    |
 
-**Query Parameters:**
+The app queries **8 data.gov.il resources** for each Israeli plate. The main resource is fetched first (to get join keys), then 6 secondary resources are fetched **in parallel**.
 
-| Parameter    | Value                                            |
-|--------------|--------------------------------------------------|
-| `resource_id`| `053cea08-09bc-40ec-8f7a-156f0677aff3`           |
-| `filters`    | `{"mispar_rechev":PLATE_NUMBER}` (integer, no quotes around number) |
+**Resource IDs:**
 
-**Response Fields:**
+| # | Resource | ID | Join Key | Data |
+|---|----------|----|----------|------|
+| 1 | Main registration | `053cea08-09bc-40ec-8f7a-156f0677aff3` | mispar_rechev | Basic vehicle info |
+| 2 | WLTP Specs | `142afde2-6228-49f9-8a29-9b6c3a0cbe40` | tozeret_cd+degem_cd+shnat_yitzur | HP, displacement, safety systems, ADAS, body type, doors, seats, weight |
+| 3 | Vehicle History | `56063a99-8a3e-4ff4-912e-5966c0279bad` | mispar_rechev | Engine number, odometer (km), color/tire/structure changes |
+| 4 | Ownership History | `bb2355dc-9ec7-4f06-9c3f-3344672171da` | mispar_rechev | Ownership dates and types |
+| 5 | Disabled Tag | `c8b9f9c8-4612-4068-934f-d4acd2e3c06e` | MISPAR RECHEV | Disabled parking permit |
+| 6 | Summary (tow hook) | `0866573c-40cd-4ca8-91d2-9dd2d7a492e5` | mispar_rechev | Tow hook, tire codes |
+| 7 | Importer & Price | `39f455bf-6db0-4926-859d-017f34eacbcb` | tozeret_cd+degem_cd+shnat_yitzur | Importer name, price |
+| 8 | Statistics | `5e87a7a1-2f6f-41c1-8aec-7216d52a6cf6` | tozeret_cd+degem_cd+shnat_yitzur | Active vehicle count |
 
-| API Field         | Description           | Maps To              |
-|-------------------|-----------------------|----------------------|
-| `mispar_rechev`   | License plate number  | `plateNumber`        |
-| `tozeret_nm`      | Manufacturer name     | `manufacturer`       |
-| `kinuy_mishari`   | Commercial model name | `model`              |
-| `shnat_yitzur`    | Year of manufacture   | `year`               |
-| `tzeva_rechev`    | Vehicle color         | `color`              |
-| `sug_delek_nm`    | Fuel type             | `fuelType`           |
-| `ramat_gimur`     | Trim level            | `trimLevel`          |
-| `baalut`          | Ownership type        | `ownership`          |
-| `mivchan_acharon_dt` | Last test date     | `lastTestDate`       |
-| `tokef_dt`        | Test valid until      | `testValidUntil`     |
-| `degem_manoa`     | Engine model          | `engineModel`        |
-| `misgeret`        | Chassis number        | `chassisNumber`      |
-| `zmig_kidmi`      | Front tires           | `frontTires`         |
-| `zmig_ahori`      | Rear tires            | `rearTires`          |
-| `moed_aliya_lakvish` | On-road date       | `onRoadDate`         |
-| `kvutzat_zihum`   | Emission group        | `emissionGroup`      |
-| `degem_nm`        | Model (fallback)      | `model` (fallback)   |
+**Fetch Flow:**
+1. Fetch main record by `mispar_rechev` → get `tozeret_cd`, `degem_cd`, `shnat_yitzur`
+2. Fetch 6 secondary resources **in parallel** (each with independent error handling)
+3. Merge all data into `VehicleInfo` via `.copy()`
 
-**Example Request:**
+**WLTP/Importer/Stats cache:** Cached by model key (`"P_735_789_2024"`) since all vehicles of same model share specs.
 
-```bash
-curl "https://data.gov.il/api/3/action/datastore_search?resource_id=053cea08-09bc-40ec-8f7a-156f0677aff3&filters={\"mispar_rechev\":1234567}"
-```
+**All Israel Fields (40+):**
+- Basic: manufacturer, model, year, color, fuel, trim, ownership, test dates, engine model, chassis, tires, on-road date, emission group
+- WLTP: horsepower, engine displacement, drive type, drive technology, standard type, transmission, body type, doors, seats, weight, country of origin, green index, licensing group, safety score
+- Equipment: sunroof, alloy wheels, electric windows, tire pressure sensors, reverse camera
+- Safety: airbag count, ABS, stability control, lane departure, distance monitoring, adaptive cruise, pedestrian detection, blind spot detection
+- History: engine number, odometer km, LPG added, color changed, tires changed, originality
+- Tow hook, towing capacity (with/without brakes)
+- Importer name, price at registration
+- Ownership history (date + type for each owner)
+- Disabled parking tag (yes/no)
+- Active vehicles count (same model)
+- Model code, manufacturer code, registration directive
 
 ---
 
-### 6.2 Netherlands (RDW Open Data)
+### 6.2 Netherlands (RDW Open Data) — 3 Resources
 
 | Property       | Value                                          |
 |----------------|-------------------------------------------------|
 | Base URL       | `https://opendata.rdw.nl/`                      |
-| Endpoint       | `GET /resource/m9d7-ebf2.json`                  |
 | Authentication | None                                            |
-| Rate Limit     | Standard Socrata limits                         |
-| Cost           | Free                                            |
+| Cost           | Free, unlimited                                 |
 
-**Query Parameters:**
+The app queries **3 RDW resources**. Main is fetched first, then fuel + recalls in parallel.
 
-| Parameter  | Value                        |
-|------------|------------------------------|
-| `kenteken` | Plate number (uppercase, no dashes) |
+**Endpoints:**
 
-**Response Fields:**
+| # | Resource | Endpoint | Data |
+|---|----------|----------|------|
+| 1 | Main registration | `GET /resource/m9d7-ebf2.json?kenteken={PLATE}` | Basic + dimensions + odometer + recall indicator |
+| 2 | Fuel/Emissions | `GET /resource/8ys7-d773.json?kenteken={PLATE}` | Power (kW), CO2, fuel consumption, Euro class |
+| 3 | Recall Status | `GET /resource/t49b-isb7.json?kenteken={PLATE}` | Open recall details |
 
-| API Field                 | Description                 | Maps To         |
-|---------------------------|-----------------------------|-----------------|
-| `kenteken`                | License plate               | `plateNumber`   |
-| `merk`                    | Brand / manufacturer        | `manufacturer`  |
-| `handelsbenaming`         | Commercial model name       | `model`         |
-| `eerste_kleur`            | Primary color               | `color`         |
-| `datum_eerste_toelating`  | First registration date (YYYYMMDD) | `year` (parsed) |
-| `brandstof_omschrijving`  | Fuel type                          | `fuelType`      |
-| `cilinderinhoud`          | Engine capacity (cc)               | `engineCapacity`|
-| `aantal_cilinders`        | Number of cylinders                | `numCylinders`  |
-| `aantal_deuren`           | Number of doors                    | `numDoors`      |
-| `aantal_zitplaatsen`      | Number of seats                    | `numSeats`      |
-| `vervaldatum_apk`         | APK expiry date                    | `testValidUntil`|
-| `catalogusprijs`          | Catalog price                      | `catalogPrice`  |
-| `massa_rijklaar`          | Vehicle weight (kg)                | `weight`        |
-| `inrichting`              | Body type                          | `bodyType`      |
-| `wam_verzekerd`           | Insurance status                   | `insured`       |
-| `wielbasis`               | Wheelbase (cm)                     | `wheelbase`     |
+**All Netherlands Fields (35+):**
+- Basic: brand, model, color, secondary color, first registration, fuel type, engine capacity, cylinders, doors, seats, APK expiry, catalog price, weight, empty mass, body type, insurance, wheelbase
+- Extended: dimensions (L x W x H), BPM tax, owner registration date, open recall indicator, odometer judgment, odometer year, fuel efficiency class (A-G), export indicator, taxi indicator, towing capacity (braked/unbraked), EU category
+- Fuel: CO2 emissions, engine power (kW), fuel consumption (city/highway/combined), Euro emission class
+- Recalls: recall reference code, status
 
-**OCR Fallback Logic:**
-
-If the initial query returns an empty result, the app applies O/0 and I/1 character swaps and retries. This handles common OCR misreads where the letter O is read as the digit 0 (and vice versa), or the letter I is read as the digit 1 (and vice versa). The retry is performed once with the swapped variant.
-
-**Example Request:**
-
-```bash
-curl "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=3XKH01"
-```
+**OCR Fallback:** O/0 and I/1 character swap retry on empty result.
 
 ---
 
@@ -433,6 +410,9 @@ curl "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=3XKH01"
 | `wheelplan`       | Body/wheel plan          | `bodyType`      |
 | `monthOfFirstRegistration` | First registration | `onRoadDate`   |
 | `taxDueDate`      | Tax due date             | `taxDueDate`    |
+| `markedForExport` | Export status             | `markedForExport` |
+| `dateOfLastV5CIssued` | V5C certificate date | `v5cDate`       |
+| `typeApproval`    | Type approval code       | `typeApproval`  |
 
 **Important Limitation:** The DVLA API does **not** return the vehicle model name. Only the manufacturer (make) is available.
 
@@ -564,7 +544,7 @@ After extensive testing on a Redmi 15C (budget device), the AR overlay approach 
 
 ### Current Approach
 
-Vehicle info cards are now displayed in a **scrollable list** at the bottom of the screen (bottom third), not anchored to plate positions. This provides a stable, readable display regardless of camera movement. See [Section 11](#11-ar-overlay-system) for details.
+Vehicle info cards are now displayed in a **scrollable list** at the bottom of the screen (bottom 45%), not anchored to plate positions. This provides a stable, readable display regardless of camera movement. See [Section 11](#11-ar-overlay-system) for details.
 
 ---
 
@@ -646,7 +626,7 @@ Settings are displayed in this order:
 | 2  | Sound & Feedback| Toggle switch  | Enables/disables scan sounds and vibration           |
 | 3  | History         | Navigation row | Opens the HistoryScreen (chevron indicator)          |
 | 4  | Remove Ads      | Purchase card  | Shows price + Buy button (hidden if already purchased) |
-| 5  | About           | Info section   | App version, credits                                 |
+| 5  | About           | Info section   | App version 1.2.1, credits                           |
 | 6  | Region          | Selector       | Country override; placed **last** in the list        |
 
 **Region hint text:** "Select the country you are currently in, not your home country."
@@ -677,7 +657,7 @@ History is capped at 100 records. Newest records appear first.
 
 ### Layout
 
-Vehicle info cards are displayed in a **scrollable `LazyColumn`** anchored to the **bottom third** of the camera screen. This replaces the earlier AR-anchored overlay approach, which was unstable on budget devices.
+Vehicle info cards are displayed in a **scrollable `LazyColumn`** anchored to the **bottom 45%** of the camera screen. This replaces the earlier AR-anchored overlay approach, which was unstable on budget devices.
 
 Cards are sorted by **most recently detected** (newest first). The list scrolls vertically if there are more cards than fit on screen.
 
@@ -711,18 +691,29 @@ The glass-morphism card displays:
 **Header:**
 - Country flag + Manufacturer + Model (title)
 - Year + Trim Level (subtitle, in brand color)
-- Save button + Info button
+- Save button (Web/Info button removed)
 
 **After accent line (sections in order):**
 1. Test/MOT/APK — motStatus, testValidUntil, lastTestDate (expired dates in red)
-2. Basic info — color, fuelType, ownership, bodyType, onRoadDate, plateNumber
-3. Engine — engineCapacity, engineModel, numCylinders, co2Emissions, emissionGroup
-4. Tax (UK) — taxStatus, taxDueDate (expired in red)
-5. Specs — numDoors, numSeats, weight, wheelbase, catalogPrice
-6. Tires (IL) — frontTires, rearTires
-7. Insurance (NL) — insured status
-8. Chassis (IL) — chassisNumber
-9. Data source — shows the government data source URL (e.g., "Data source: data.gov.il")
+2. Ownership history (IL) — table of ownership dates and types
+3. Price (IL) — highlighted card with ₪ price in brand color, bold
+4. Disabled tag (IL) — highlighted card with ♿ emoji, orange if present
+5. Basic info — color, secondaryColor, fuelType, ownership, bodyType, onRoadDate, ownerRegistrationDate, countryOfOrigin, importerName, euCategory, plateNumber
+6. Engine — horsepower, enginePowerKw, engineDisplacement, engineCapacity, engineModel, numCylinders, co2Emissions, euroEmissionClass, emissionGroup, greenIndex, fuelEfficiencyClass
+7. Fuel consumption (NL) — combined, city, highway (l/100km)
+8. Specs — driveType, driveTechnology, transmission, standardType, numDoors, numSeats, weight, emptyMass, dimensions (L×W×H), wheelbase, catalogPrice, purchaseTax (BPM), licensingGroup
+9. Odometer (NL) — odometerJudgment, odometerYear
+10. Recall (NL) — highlighted card, red if open recall ⚠️, green if none ✅
+11. Equipment (IL) — electricWindows, sunroof, alloyWheels, tirePressureSensors, reverseCamera
+12. Safety systems (IL) — airbagCount, ABS, stabilityControl, laneDeparture, forwardDistanceMonitoring, adaptiveCruise, pedestrianDetection, blindSpotDetection, safetyScore
+13. Tax (UK) — taxStatus, taxDueDate (expired in red)
+14. UK extra — v5cDate, typeApproval, markedForExport
+15. Towing — towHook, towingWithBrakes, towingWithoutBrakes, maxTowingBraked, maxTowingUnbraked
+16. Tires (IL) — frontTires, rearTires
+17. Internal details (IL) — chassisNumber, engineNumber, lastTestKm, lpgAdded, colorChanged, tiresChanged, originality, modelCode, registrationDirective
+18. Insurance (NL) — insured status
+19. Statistics (IL) — activeVehiclesCount
+20. Data source — government data source URL
 
 ### Save Behavior
 
@@ -1034,6 +1025,20 @@ Analytics automatically tracks:
 - **App version** distribution
 - **Retention** metrics
 
+### GA4 MCP Server (Claude Code Integration)
+
+A GA4 MCP server is configured in Claude Code settings to query Analytics data directly:
+
+| Property | Value |
+|----------|-------|
+| MCP Server | `google-analytics-mcp` (PyPI) |
+| Service Account | `ga4-mcp-reader@carinfo-ar.iam.gserviceaccount.com` |
+| Key File | `C:\Users\ASUS\.config\ga4-mcp\service-account.json` |
+| Property ID | `529769932` |
+| Role | Viewer on GA4 property |
+
+This allows Claude Code to answer analytics questions directly (users by version, engagement time, countries, etc.) without browser screenshots.
+
 ### Custom Analytics Events (AnalyticsManager)
 
 All custom events are sent via `AnalyticsManager` (`analytics/AnalyticsManager.kt`), a singleton initialized in `MainActivity`. Event categories:
@@ -1306,7 +1311,13 @@ curl -X POST \
 
 | Priority | Feature                        | Description                                                        |
 |----------|--------------------------------|--------------------------------------------------------------------|
-| High     | Add more countries             | Extend API support to additional countries (e.g., Germany, France, USA). |
+| ~~Done~~ | ~~Extended Israel data~~       | ~~8 data.gov.il resources: WLTP specs, history, ownership, disabled tag, importer/price, statistics~~ |
+| ~~Done~~ | ~~Extended Netherlands data~~  | ~~3 RDW resources: fuel/emissions, recalls, 20+ extra fields from main dataset~~ |
+| ~~Done~~ | ~~Extended UK data~~           | ~~V5C date, type approval, export status from existing DVLA API~~ |
+| ~~Done~~ | ~~GA4 MCP integration~~        | ~~Service account + MCP server for direct Analytics queries from Claude Code~~ |
+| ~~Done~~ | ~~History screen all fields~~  | ~~Expanded view shows all extended fields with highlighted price and disabled tag~~ |
+| Medium   | UK MOT History API             | Register for DVSA MOT History API for full test history + odometer readings. Requires separate API key from https://documentation.history.mot.api.gov.uk/mot-history-api/register |
+| Medium   | Add more countries             | USA (NHTSA VIN decode), Poland (CEPiK). See FindOut research at `C:\Users\ASUS\Desktop\FindOut\RESEARCH.md` |
 | ~~Done~~ | ~~Firebase Crashlytics~~       | ~~Integrated and active. Console: https://console.firebase.google.com/project/carinfo-ar~~ |
 | High     | Secure API key storage         | Move the DVLA API key to a backend proxy or encrypted build config. |
 | ~~Done~~ | ~~Real AdMob IDs~~             | ~~Production ad unit IDs are now active.~~                         |
@@ -1432,8 +1443,10 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 4           | 1.0.3       | Internal testing | Mar 26, 2026  | Superseded      | Fixed splash crash, ConcurrentHashMap NPE |
 | 5           | 1.0.4       | Internal testing | Mar 26, 2026  | Superseded      | SSL cert fix for Android 8.x            |
 | 8           | 1.0.7       | Internal testing | Mar 26, 2026  | Superseded      | ProGuard/R8 Gson fix for history         |
-| 11          | 1.1.0       | Internal testing | Mar 26, 2026  | Active          | Analytics, save animation, sound fallback |
-| 12          | 1.1.1       | Closed testing   | Mar 26, 2026  | **In Review**   | First submission for review              |
+| 11          | 1.1.0       | Internal testing | Mar 26, 2026  | Superseded      | Analytics, save animation, sound fallback |
+| 12          | 1.1.1       | Closed testing   | Mar 26, 2026  | Superseded      | First submission for review              |
+| 14          | 1.2.0       | Internal testing | Mar 27, 2026  | Superseded      | Disclaimer fix for Play Store            |
+| 15          | 1.2.1       | Internal testing | Mar 27, 2026  | **Active**      | Extended data: 8 IL resources, 3 NL resources, UK extra fields, history screen with all fields, 45% scroll area |
 
 ### Play Store Setup Completed
 
