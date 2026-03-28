@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">모두 삭제</string>
     <string name="history_confirm_no">취소</string>
     <string name="history_back">뒤로</string>
+<string name="history_more_details">상세 정보</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">아직 지원되지 않는 국가입니다</string>

@@ -183,6 +183,7 @@
     <string name="history_confirm_yes">מחק הכל</string>
     <string name="history_confirm_no">ביטול</string>
     <string name="history_back">חזרה</string>
+    <string name="history_more_details">עוד פרטים</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">המדינה שלך עדיין לא נתמכת</string>

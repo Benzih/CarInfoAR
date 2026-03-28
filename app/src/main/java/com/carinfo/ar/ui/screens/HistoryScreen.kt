@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -278,7 +279,7 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
                         )
                         Spacer(Modifier.width(12.dp))
                         Text(
-                            stringResource(R.string.overlay_info),
+                            stringResource(R.string.history_more_details),
                             color = BrandPrimary,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
@@ -286,8 +287,8 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(BrandPrimary.copy(alpha = 0.15f))
                                 .clickable {
-                                    AnalyticsManager.historyInfoButtonClicked()
-                                    onClick()
+                                    if (!expanded) AnalyticsManager.historyItemExpanded(record.plateNumber)
+                                    expanded = !expanded
                                 }
                                 .padding(horizontal = 8.dp, vertical = 3.dp)
                         )
@@ -330,20 +331,61 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
                     }
                 }
 
-                // Disabled tag (IL)
-                record.disabledTag?.let { hasTag ->
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        if (hasTag) stringResource(R.string.label_has_disabled_tag) else stringResource(R.string.label_no_disabled_tag),
-                        color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
-                        fontSize = 12.sp, fontWeight = FontWeight.Bold
-                    )
+                // Price (IL)
+                record.priceAtRegistration?.let { price ->
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BrandPrimary.copy(alpha = 0.1f))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "${stringResource(R.string.label_price)}: ",
+                            color = Color(0xFF888888),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            "₪${java.text.NumberFormat.getNumberInstance(Locale("he","IL")).format(price)}",
+                            color = BrandPrimary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
 
-                // Price (IL)
-                record.priceAtRegistration?.let {
-                    Spacer(Modifier.height(4.dp))
-                    InfoRow(stringResource(R.string.label_price), "₪${java.text.NumberFormat.getNumberInstance(Locale("he","IL")).format(it)}")
+                // Disabled tag (IL)
+                record.disabledTag?.let { hasTag ->
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.15f)
+                                else Color.White.copy(alpha = 0.05f)
+                            )
+                            .border(
+                                1.dp,
+                                if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.4f)
+                                else Color(0xFF333333),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = "♿", fontSize = 16.sp)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = if (hasTag) stringResource(R.string.label_has_disabled_tag)
+                                   else stringResource(R.string.label_no_disabled_tag),
+                            color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
+                            fontSize = 13.sp, fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
 
                 // Basic

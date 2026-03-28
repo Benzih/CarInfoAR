@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">حذف الكل</string>
     <string name="history_confirm_no">إلغاء</string>
     <string name="history_back">رجوع</string>
+<string name="history_more_details">مزيد من التفاصيل</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">بلدك غير مدعوم بعد</string>

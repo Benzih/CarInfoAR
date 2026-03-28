@@ -201,21 +201,7 @@ fun FloatingCarInfo(
                         Text(stringResource(R.string.overlay_save), color = BrandPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-                if (onOpenModelInfo != null) {
-                    Spacer(Modifier.width(4.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
-                            .clickable { onOpenModelInfo() }
-                            .background(Color.White.copy(alpha = 0.1f))
-                            .padding(horizontal = 6.dp, vertical = 4.dp)
-                    ) {
-                        Icon(Icons.Default.OpenInNew, "Info", tint = Color.White, modifier = Modifier.size(14.dp))
-                        Spacer(Modifier.width(3.dp))
-                        Text(stringResource(R.string.overlay_info), color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
+                // Web button removed
             }
 
             // Accent line
@@ -257,7 +243,34 @@ fun FloatingCarInfo(
                 }
             }
 
-            // === DISABLED TAG — right after ownership ===
+            // === PRICE (IL) — right after ownership ===
+            vehicleInfo.priceAtRegistration?.let { price ->
+                SectionDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(BrandPrimary.copy(alpha = 0.1f))
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${stringResource(R.string.label_price)}: ",
+                        color = Color(0xFF888888),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        formatPrice(price),
+                        color = BrandPrimary,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
+
+            // === DISABLED TAG — right after price ===
             vehicleInfo.disabledTag?.let { hasTag ->
                 SectionDivider()
                 Row(
@@ -288,33 +301,6 @@ fun FloatingCarInfo(
                         color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-
-            // === PRICE (IL) — right after disabled tag ===
-            vehicleInfo.priceAtRegistration?.let { price ->
-                SectionDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(BrandPrimary.copy(alpha = 0.1f))
-                        .padding(horizontal = 10.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        "${stringResource(R.string.label_price)}: ",
-                        color = Color(0xFF888888),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        formatPrice(price),
-                        color = BrandPrimary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }

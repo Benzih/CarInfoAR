@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">すべて削除</string>
     <string name="history_confirm_no">キャンセル</string>
     <string name="history_back">戻る</string>
+<string name="history_more_details">詳細</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">お住まいの国はまだサポートされていません</string>

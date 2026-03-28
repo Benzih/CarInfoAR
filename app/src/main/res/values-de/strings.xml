@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">Alle löschen</string>
     <string name="history_confirm_no">Abbrechen</string>
     <string name="history_back">Zurück</string>
+<string name="history_more_details">Mehr Details</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">Ihr Land wird noch nicht unterstützt</string>

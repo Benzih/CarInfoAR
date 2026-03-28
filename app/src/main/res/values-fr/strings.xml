@@ -178,6 +178,7 @@
     <string name="history_confirm_yes">Tout supprimer</string>
     <string name="history_confirm_no">Annuler</string>
     <string name="history_back">Retour</string>
+<string name="history_more_details">Plus de détails</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">Votre pays n\'est pas encore pris en charge</string>

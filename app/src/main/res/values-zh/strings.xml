@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">全部删除</string>
     <string name="history_confirm_no">取消</string>
     <string name="history_back">返回</string>
+<string name="history_more_details">更多详情</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">您的国家暂不支持</string>

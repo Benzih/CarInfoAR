@@ -160,6 +160,7 @@
     <string name="history_confirm_yes">Tümünü sil</string>
     <string name="history_confirm_no">İptal</string>
     <string name="history_back">Geri</string>
+<string name="history_more_details">Daha fazla detay</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">Ülkeniz henüz desteklenmiyor</string>

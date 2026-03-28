@@ -507,41 +507,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 }
             }
 
-            // DEBUG: Fake scan button (only in debug builds)
-            if (BuildConfig.DEBUG && overlayStates.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 120.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF6200EA))
-                        .clickable {
-                            val fakePlate = "7037303"
-                            overlayStates[fakePlate] = PlateOverlayState(
-                                plateNumber = fakePlate,
-                                isLoading = true
-                            )
-                            scope.launch {
-                                val info = VehicleCache.fetchIfNeeded(fakePlate, countryRef.value)
-                                overlayStates[fakePlate] = PlateOverlayState(
-                                    plateNumber = fakePlate,
-                                    vehicleInfo = info,
-                                    isLoading = false,
-                                    lastSeenTime = System.currentTimeMillis()
-                                )
-                                if (info != null) {
-                                    SoundManager.playInfoLoaded()
-                                    ScanHistory.save(context, fakePlate, info)
-                                }
-                            }
-                        }
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("🔍 Fake Scan (DEBUG)", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            }
-
             // Banner Ad (hidden if premium purchased)
             if (!adsRemoved) {
                 Box(

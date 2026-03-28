@@ -186,6 +186,7 @@
     <string name="history_confirm_yes">Delete All</string>
     <string name="history_confirm_no">Cancel</string>
     <string name="history_back">Back</string>
+    <string name="history_more_details">More details</string>
 
     <!-- Errors -->
     <string name="error_country_not_supported">Your country is not supported yet</string>
