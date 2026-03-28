@@ -112,6 +112,7 @@
     <string name="label_section_equipment">Equipment</string>
     <string name="label_section_safety">Safety Systems</string>
     <string name="label_section_history">History</string>
+    <string name="label_section_internal">Internal Details</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

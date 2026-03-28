@@ -261,7 +261,30 @@ fun FloatingCarInfo(
             if (hasImporter) {
                 SectionDivider()
                 vehicleInfo.importerName?.let { InfoRow(stringResource(R.string.label_importer), it) }
-                vehicleInfo.priceAtRegistration?.let { InfoRow(stringResource(R.string.label_price), formatPrice(it)) }
+                vehicleInfo.priceAtRegistration?.let { price ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(BrandPrimary.copy(alpha = 0.1f))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "${stringResource(R.string.label_price)}: ",
+                            color = Color(0xFF888888),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            formatPrice(price),
+                            color = BrandPrimary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
             }
 
             // === ENGINE ===
@@ -363,13 +386,14 @@ fun FloatingCarInfo(
                 vehicleInfo.rearTires?.let { InfoRow(stringResource(R.string.label_rear_tires), it) }
             }
 
-            // === HISTORY (IL) ===
+            // === HISTORY & INTERNAL DETAILS (IL) ===
             val hasHistory = vehicleInfo.engineNumber != null || vehicleInfo.lastTestKm != null ||
                     vehicleInfo.lpgAdded != null || vehicleInfo.colorChanged != null ||
-                    vehicleInfo.originality != null
+                    vehicleInfo.originality != null || vehicleInfo.chassisNumber != null
             if (hasHistory) {
                 SectionDivider()
-                SectionHeader(stringResource(R.string.label_section_history))
+                SectionHeader(stringResource(R.string.label_section_internal))
+                vehicleInfo.chassisNumber?.let { InfoRow(stringResource(R.string.label_chassis), it) }
                 vehicleInfo.engineNumber?.let { InfoRow(stringResource(R.string.label_engine_number), it) }
                 vehicleInfo.lastTestKm?.let { InfoRow(stringResource(R.string.label_last_test_km), "${NumberFormat.getNumberInstance().format(it)} km") }
                 vehicleInfo.lpgAdded?.let { InfoRow(stringResource(R.string.label_lpg_added), boolToYesNo(it)) }
@@ -391,13 +415,36 @@ fun FloatingCarInfo(
             // === DISABLED TAG ===
             vehicleInfo.disabledTag?.let { hasTag ->
                 SectionDivider()
-                Text(
-                    text = if (hasTag) stringResource(R.string.label_has_disabled_tag)
-                           else stringResource(R.string.label_no_disabled_tag),
-                    color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.15f)
+                            else Color.White.copy(alpha = 0.05f)
+                        )
+                        .border(
+                            1.dp,
+                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.4f)
+                            else Color(0xFF333333),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (hasTag) "♿" else "♿",
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = if (hasTag) stringResource(R.string.label_has_disabled_tag)
+                               else stringResource(R.string.label_no_disabled_tag),
+                        color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             // === STATISTICS ===
@@ -410,12 +457,6 @@ fun FloatingCarInfo(
             vehicleInfo.insured?.let {
                 SectionDivider()
                 InfoRow(stringResource(R.string.label_insured), it)
-            }
-
-            // === CHASSIS (IL) ===
-            vehicleInfo.chassisNumber?.let {
-                SectionDivider()
-                InfoRow(stringResource(R.string.label_chassis), it)
             }
 
             // === EXTRA CODES (IL) ===

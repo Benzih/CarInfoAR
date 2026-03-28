@@ -109,6 +109,7 @@
     <string name="label_section_equipment">Donanım</string>
     <string name="label_section_safety">Güvenlik sistemleri</string>
     <string name="label_section_history">Geçmiş</string>
+    <string name="label_section_internal">Dahili detaylar</string>
 
     <!-- Settings -->
     <string name="settings_title">Ayarlar</string>

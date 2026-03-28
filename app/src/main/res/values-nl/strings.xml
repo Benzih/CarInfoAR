@@ -109,6 +109,7 @@
     <string name="label_section_equipment">Uitrusting</string>
     <string name="label_section_safety">Veiligheidssystemen</string>
     <string name="label_section_history">Geschiedenis</string>
+    <string name="label_section_internal">Interne details</string>
 
     <!-- Settings -->
     <string name="settings_title">Instellingen</string>

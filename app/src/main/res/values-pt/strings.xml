@@ -109,6 +109,7 @@
     <string name="label_section_equipment">Equipamento</string>
     <string name="label_section_safety">Sistemas de segurança</string>
     <string name="label_section_history">Histórico</string>
+    <string name="label_section_internal">Detalhes internos</string>
 
     <!-- Settings -->
     <string name="settings_title">Definições</string>

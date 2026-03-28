@@ -109,6 +109,7 @@
     <string name="label_section_equipment">Équipement</string>
     <string name="label_section_safety">Systèmes de sécurité</string>
     <string name="label_section_history">Historique</string>
+    <string name="label_section_internal">Détails internes</string>
 
     <!-- Settings -->
     <string name="settings_title">Paramètres</string>
