@@ -83,7 +83,30 @@ data class ScanRecord(
     val activeVehiclesCount: Int? = null,
     val modelCode: String? = null,
     val manufacturerCode: Int? = null,
-    val registrationDirective: Int? = null
+    val registrationDirective: Int? = null,
+    // Netherlands Extended
+    val secondaryColor: String? = null,
+    val vehicleLength: Int? = null,
+    val vehicleWidth: Int? = null,
+    val vehicleHeight: Int? = null,
+    val purchaseTax: Int? = null,
+    val ownerRegistrationDate: String? = null,
+    val hasOpenRecall: Boolean? = null,
+    val odometerJudgment: String? = null,
+    val odometerYear: Int? = null,
+    val fuelEfficiencyClass: String? = null,
+    val isExported: Boolean? = null,
+    val isTaxi: Boolean? = null,
+    val maxTowingBraked: Int? = null,
+    val maxTowingUnbraked: Int? = null,
+    val euCategory: String? = null,
+    val emptyMass: Int? = null,
+    val enginePowerKw: Double? = null,
+    val euroEmissionClass: String? = null,
+    val fuelConsumptionCombined: String? = null,
+    val fuelConsumptionCity: String? = null,
+    val fuelConsumptionHighway: String? = null,
+    val recallStatus: String? = null
 )
 
 object ScanHistory {
@@ -189,7 +212,30 @@ object ScanHistory {
             activeVehiclesCount = info.activeVehiclesCount,
             modelCode = info.modelCode,
             manufacturerCode = info.manufacturerCode,
-            registrationDirective = info.registrationDirective
+            registrationDirective = info.registrationDirective,
+            // Netherlands Extended
+            secondaryColor = info.secondaryColor,
+            vehicleLength = info.vehicleLength,
+            vehicleWidth = info.vehicleWidth,
+            vehicleHeight = info.vehicleHeight,
+            purchaseTax = info.purchaseTax,
+            ownerRegistrationDate = info.ownerRegistrationDate,
+            hasOpenRecall = info.hasOpenRecall,
+            odometerJudgment = info.odometerJudgment,
+            odometerYear = info.odometerYear,
+            fuelEfficiencyClass = info.fuelEfficiencyClass,
+            isExported = info.isExported,
+            isTaxi = info.isTaxi,
+            maxTowingBraked = info.maxTowingBraked,
+            maxTowingUnbraked = info.maxTowingUnbraked,
+            euCategory = info.euCategory,
+            emptyMass = info.emptyMass,
+            enginePowerKw = info.enginePowerKw,
+            euroEmissionClass = info.euroEmissionClass,
+            fuelConsumptionCombined = info.fuelConsumptionCombined,
+            fuelConsumptionCity = info.fuelConsumptionCity,
+            fuelConsumptionHighway = info.fuelConsumptionHighway,
+            recallStatus = info.recallStatus
         ))
         // Keep max 100
         val trimmed = records.take(100)

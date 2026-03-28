@@ -321,21 +321,34 @@ fun FloatingCarInfo(
 
             // === BASIC INFO ===
             vehicleInfo.color?.let { InfoRow(stringResource(R.string.label_color), it) }
+            vehicleInfo.secondaryColor?.let { InfoRow(stringResource(R.string.label_secondary_color), it) }
             vehicleInfo.fuelType?.let { InfoRow(stringResource(R.string.label_fuel), it) }
             vehicleInfo.ownership?.let { InfoRow(stringResource(R.string.label_ownership), it) }
             vehicleInfo.bodyType?.let { InfoRow(stringResource(R.string.label_body), it) }
             vehicleInfo.onRoadDate?.let { InfoRow(stringResource(R.string.label_registered), it) }
+            vehicleInfo.ownerRegistrationDate?.let { InfoRow(stringResource(R.string.label_owner_since), it) }
             vehicleInfo.countryOfOrigin?.let { InfoRow(stringResource(R.string.label_country_origin), it) }
             vehicleInfo.importerName?.let { InfoRow(stringResource(R.string.label_importer), it) }
+            vehicleInfo.euCategory?.let { InfoRow(stringResource(R.string.label_eu_category), it) }
+            vehicleInfo.isTaxi?.let { if (it) InfoRow(stringResource(R.string.label_taxi), stringResource(R.string.label_yes)) }
+            vehicleInfo.isExported?.let { if (it) InfoRow(stringResource(R.string.label_exported), stringResource(R.string.label_yes)) }
             plateNumber?.let { InfoRow(stringResource(R.string.label_plate), it) }
 
             // === ENGINE ===
             val hasEngine = vehicleInfo.engineCapacity != null || vehicleInfo.engineModel != null ||
                     vehicleInfo.numCylinders != null || vehicleInfo.co2Emissions != null ||
-                    vehicleInfo.horsepower != null || vehicleInfo.engineDisplacement != null
+                    vehicleInfo.horsepower != null || vehicleInfo.engineDisplacement != null ||
+                    vehicleInfo.enginePowerKw != null
             if (hasEngine) {
                 SectionDivider()
                 vehicleInfo.horsepower?.let { InfoRow(stringResource(R.string.label_horsepower), "$it HP") }
+                vehicleInfo.enginePowerKw?.let { kw ->
+                    if (vehicleInfo.horsepower == null) {
+                        InfoRow(stringResource(R.string.label_engine_power), "${kw.toInt()} kW (${(kw * 1.36).toInt()} HP)")
+                    } else {
+                        InfoRow(stringResource(R.string.label_engine_power), "${kw.toInt()} kW")
+                    }
+                }
                 vehicleInfo.engineDisplacement?.let { InfoRow(stringResource(R.string.label_displacement), "${NumberFormat.getNumberInstance().format(it)} cc") }
                 vehicleInfo.engineCapacity?.let {
                     if (vehicleInfo.engineDisplacement == null) InfoRow(stringResource(R.string.label_engine), "${it}cc")
@@ -343,15 +356,27 @@ fun FloatingCarInfo(
                 vehicleInfo.engineModel?.let { InfoRow(stringResource(R.string.label_engine_model), it) }
                 vehicleInfo.numCylinders?.let { InfoRow(stringResource(R.string.label_cylinders), "$it") }
                 vehicleInfo.co2Emissions?.let { InfoRow(stringResource(R.string.label_co2), "${it} g/km") }
+                vehicleInfo.euroEmissionClass?.let { InfoRow(stringResource(R.string.label_euro_class), it) }
                 vehicleInfo.emissionGroup?.let { InfoRow(stringResource(R.string.label_emission_group), "$it") }
                 vehicleInfo.greenIndex?.let { InfoRow(stringResource(R.string.label_green_index), "$it") }
+                vehicleInfo.fuelEfficiencyClass?.let { InfoRow(stringResource(R.string.label_efficiency_class), it) }
+            }
+
+            // === FUEL CONSUMPTION (NL) ===
+            val hasFuelConsumption = vehicleInfo.fuelConsumptionCombined != null
+            if (hasFuelConsumption) {
+                SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_fuel))
+                vehicleInfo.fuelConsumptionCombined?.let { InfoRow(stringResource(R.string.label_fuel_combined), "$it l/100km") }
+                vehicleInfo.fuelConsumptionCity?.let { InfoRow(stringResource(R.string.label_fuel_city), "$it l/100km") }
+                vehicleInfo.fuelConsumptionHighway?.let { InfoRow(stringResource(R.string.label_fuel_highway), "$it l/100km") }
             }
 
             // === SPECS ===
             val hasSpecs = vehicleInfo.numDoors != null || vehicleInfo.numSeats != null ||
                     vehicleInfo.weight != null || vehicleInfo.wheelbase != null ||
                     vehicleInfo.catalogPrice != null || vehicleInfo.driveType != null ||
-                    vehicleInfo.transmission != null
+                    vehicleInfo.transmission != null || vehicleInfo.vehicleLength != null
             if (hasSpecs) {
                 SectionDivider()
                 vehicleInfo.driveType?.let { InfoRow(stringResource(R.string.label_drive), it) }
@@ -361,9 +386,63 @@ fun FloatingCarInfo(
                 vehicleInfo.numDoors?.let { InfoRow(stringResource(R.string.label_doors), "$it") }
                 vehicleInfo.numSeats?.let { InfoRow(stringResource(R.string.label_seats), "$it") }
                 vehicleInfo.weight?.let { InfoRow(stringResource(R.string.label_weight), "${NumberFormat.getNumberInstance().format(it)} kg") }
+                vehicleInfo.emptyMass?.let { InfoRow(stringResource(R.string.label_empty_mass), "${NumberFormat.getNumberInstance().format(it)} kg") }
+                // Dimensions (NL)
+                if (vehicleInfo.vehicleLength != null && vehicleInfo.vehicleWidth != null) {
+                    val dims = buildString {
+                        append("${vehicleInfo.vehicleLength} × ${vehicleInfo.vehicleWidth}")
+                        vehicleInfo.vehicleHeight?.let { append(" × $it") }
+                        append(" cm")
+                    }
+                    InfoRow(stringResource(R.string.label_dimensions), dims)
+                }
                 vehicleInfo.wheelbase?.let { InfoRow(stringResource(R.string.label_wheelbase), "${it} cm") }
-                vehicleInfo.catalogPrice?.let { InfoRow(stringResource(R.string.label_catalog_price), "€$it") }
+                vehicleInfo.catalogPrice?.let { InfoRow(stringResource(R.string.label_catalog_price), "€${NumberFormat.getNumberInstance().format(it)}") }
+                vehicleInfo.purchaseTax?.let { InfoRow(stringResource(R.string.label_bpm_tax), "€${NumberFormat.getNumberInstance().format(it)}") }
                 vehicleInfo.licensingGroup?.let { InfoRow(stringResource(R.string.label_licensing_group), "$it") }
+            }
+
+            // === ODOMETER (NL) ===
+            val hasOdometer = vehicleInfo.odometerJudgment != null
+            if (hasOdometer) {
+                SectionDivider()
+                vehicleInfo.odometerJudgment?.let { InfoRow(stringResource(R.string.label_odometer_judgment), it) }
+                vehicleInfo.odometerYear?.let { InfoRow(stringResource(R.string.label_odometer_year), "$it") }
+            }
+
+            // === RECALL (NL) ===
+            vehicleInfo.hasOpenRecall?.let { hasRecall ->
+                SectionDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (hasRecall) Color(0xFFFF4444).copy(alpha = 0.15f)
+                            else Color.White.copy(alpha = 0.05f)
+                        )
+                        .border(
+                            1.dp,
+                            if (hasRecall) Color(0xFFFF4444).copy(alpha = 0.4f)
+                            else Color(0xFF333333),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (hasRecall) "⚠️" else "✅",
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = if (hasRecall) stringResource(R.string.label_has_recall)
+                               else stringResource(R.string.label_no_recall),
+                        color = if (hasRecall) Color(0xFFFF4444) else Color(0xFF888888),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
 
             // === EQUIPMENT (IL) ===
@@ -410,14 +489,20 @@ fun FloatingCarInfo(
                 }
             }
 
-            // === TOWING (IL) ===
+            // === TOWING ===
             val hasTowing = vehicleInfo.towingWithBrakes != null || vehicleInfo.towingWithoutBrakes != null ||
-                    vehicleInfo.towHook != null
+                    vehicleInfo.towHook != null || vehicleInfo.maxTowingBraked != null
             if (hasTowing) {
                 SectionDivider()
                 vehicleInfo.towHook?.let { InfoRow(stringResource(R.string.label_tow_hook), it) }
                 vehicleInfo.towingWithBrakes?.let { InfoRow(stringResource(R.string.label_towing_brakes), "$it kg") }
                 vehicleInfo.towingWithoutBrakes?.let { InfoRow(stringResource(R.string.label_towing_no_brakes), "$it kg") }
+                vehicleInfo.maxTowingBraked?.let {
+                    if (vehicleInfo.towingWithBrakes == null) InfoRow(stringResource(R.string.label_towing_brakes), "$it kg")
+                }
+                vehicleInfo.maxTowingUnbraked?.let {
+                    if (vehicleInfo.towingWithoutBrakes == null) InfoRow(stringResource(R.string.label_towing_no_brakes), "$it kg")
+                }
             }
 
             // === TIRES (IL) ===

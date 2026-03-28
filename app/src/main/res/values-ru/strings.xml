@@ -110,6 +110,8 @@
     <string name="label_section_safety">Системы безопасности</string>
     <string name="label_section_history">История</string>
     <string name="label_section_internal">Внутренние данные</string>
+<!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">Второй цвет</string>    <string name="label_owner_since">Владелец с</string>    <string name="label_eu_category">Категория ЕС</string>    <string name="label_taxi">Такси</string>    <string name="label_exported">Экспортировано</string>    <string name="label_engine_power">Мощность двигателя</string>    <string name="label_euro_class">Класс Евро</string>    <string name="label_efficiency_class">Класс эффективности</string>    <string name="label_section_fuel">Расход топлива</string>    <string name="label_fuel_combined">Смешанный</string>    <string name="label_fuel_city">Город</string>    <string name="label_fuel_highway">Трасса</string>    <string name="label_dimensions">Размеры</string>    <string name="label_empty_mass">Снаряжённая масса</string>    <string name="label_bpm_tax">Налог BPM</string>    <string name="label_odometer_judgment">Одометр</string>    <string name="label_odometer_year">Год одометра</string>    <string name="label_has_recall">Открытый отзыв!</string>    <string name="label_no_recall">Нет открытых отзывов</string>
 
     <!-- Settings -->
     <string name="settings_title">Настройки</string>

@@ -110,6 +110,26 @@
     <string name="label_section_safety">Systèmes de sécurité</string>
     <string name="label_section_history">Historique</string>
     <string name="label_section_internal">Détails internes</string>
+<!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">Couleur secondaire</string>
+    <string name="label_owner_since">Propriétaire depuis</string>
+    <string name="label_eu_category">Catégorie UE</string>
+    <string name="label_taxi">Taxi</string>
+    <string name="label_exported">Exporté</string>
+    <string name="label_engine_power">Puissance moteur</string>
+    <string name="label_euro_class">Classe Euro</string>
+    <string name="label_efficiency_class">Classe d\'efficacité</string>
+    <string name="label_section_fuel">Consommation</string>
+    <string name="label_fuel_combined">Combiné</string>
+    <string name="label_fuel_city">Ville</string>
+    <string name="label_fuel_highway">Autoroute</string>
+    <string name="label_dimensions">Dimensions</string>
+    <string name="label_empty_mass">Masse à vide</string>
+    <string name="label_bpm_tax">Taxe BPM</string>
+    <string name="label_odometer_judgment">Compteur</string>
+    <string name="label_odometer_year">Année compteur</string>
+    <string name="label_has_recall">Rappel ouvert !</string>
+    <string name="label_no_recall">Aucun rappel ouvert</string>
 
     <!-- Settings -->
     <string name="settings_title">Paramètres</string>

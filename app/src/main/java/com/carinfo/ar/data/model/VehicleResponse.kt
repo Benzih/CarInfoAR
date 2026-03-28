@@ -96,7 +96,31 @@ data class VehicleInfo(
     // === Israel Extended: Extra codes from main resource ===
     val modelCode: String? = null,         // degem_cd
     val manufacturerCode: Int? = null,     // tozeret_cd
-    val registrationDirective: Int? = null  // horaat_rishum
+    val registrationDirective: Int? = null, // horaat_rishum
+
+    // === Netherlands Extended (RDW) ===
+    val secondaryColor: String? = null,         // tweede_kleur
+    val vehicleLength: Int? = null,             // lengte (cm)
+    val vehicleWidth: Int? = null,              // breedte (cm)
+    val vehicleHeight: Int? = null,             // hoogte_voertuig (cm)
+    val purchaseTax: Int? = null,               // bruto_bpm (BPM)
+    val ownerRegistrationDate: String? = null,  // datum_tenaamstelling
+    val hasOpenRecall: Boolean? = null,         // openstaande_terugroepactie_indicator
+    val odometerJudgment: String? = null,       // tellerstandoordeel
+    val odometerYear: Int? = null,              // jaar_laatste_registratie_tellerstand
+    val fuelEfficiencyClass: String? = null,    // zuinigheidsclassificatie (A-G)
+    val isExported: Boolean? = null,            // export_indicator
+    val isTaxi: Boolean? = null,                // taxi_indicator
+    val maxTowingBraked: Int? = null,           // maximum_trekken_massa_geremd
+    val maxTowingUnbraked: Int? = null,         // maximum_massa_trekken_ongeremd
+    val euCategory: String? = null,             // europese_voertuigcategorie
+    val emptyMass: Int? = null,                 // massa_ledig_voertuig
+    val enginePowerKw: Double? = null,          // nettomaximumvermogen
+    val euroEmissionClass: String? = null,      // uitlaatemissieniveau
+    val fuelConsumptionCombined: String? = null, // brandstofverbruik_gecombineerd
+    val fuelConsumptionCity: String? = null,     // brandstofverbruik_stad
+    val fuelConsumptionHighway: String? = null,  // brandstofverbruik_buiten
+    val recallStatus: String? = null             // terugroepactie status
 )
 
 // ============ Israel: data.gov.il — Main registration ============
@@ -264,8 +288,31 @@ data class RdwVehicleRecord(
     val massa_rijklaar: Int? = null,
     val inrichting: String? = null,
     val wam_verzekerd: String? = null,
-    val wielbasis: Int? = null
+    val wielbasis: Int? = null,
+    // Extended fields from same dataset
+    val tweede_kleur: String? = null,
+    val lengte: Int? = null,
+    val breedte: Int? = null,
+    val hoogte_voertuig: Int? = null,
+    val bruto_bpm: Int? = null,
+    val datum_tenaamstelling: String? = null,
+    val openstaande_terugroepactie_indicator: String? = null,
+    val tellerstandoordeel: String? = null,
+    val jaar_laatste_registratie_tellerstand: Int? = null,
+    val zuinigheidsclassificatie: String? = null,
+    val export_indicator: String? = null,
+    val taxi_indicator: String? = null,
+    val maximum_trekken_massa_geremd: Int? = null,
+    val maximum_massa_trekken_ongeremd: Int? = null,
+    val europese_voertuigcategorie: String? = null,
+    val massa_ledig_voertuig: Int? = null,
+    val aantal_wielen: Int? = null,
+    val voertuigsoort: String? = null
 ) {
+    private fun formatRdwDate(d: String?): String? = d?.let {
+        if (it.length == 8) "${it.substring(0,4)}-${it.substring(4,6)}-${it.substring(6,8)}" else it
+    }
+
     fun toVehicleInfo() = VehicleInfo(
         manufacturer = merk,
         model = handelsbenaming,
@@ -277,19 +324,54 @@ data class RdwVehicleRecord(
         numCylinders = aantal_cilinders,
         numDoors = aantal_deuren,
         numSeats = aantal_zitplaatsen,
-        testValidUntil = vervaldatum_apk?.let {
-            if (it.length == 8) "${it.substring(0,4)}-${it.substring(4,6)}-${it.substring(6,8)}" else it
-        },
+        testValidUntil = formatRdwDate(vervaldatum_apk),
         catalogPrice = catalogusprijs,
         weight = massa_rijklaar,
         bodyType = inrichting,
         insured = wam_verzekerd,
         wheelbase = wielbasis,
-        onRoadDate = datum_eerste_toelating?.let {
-            if (it.length == 8) "${it.substring(0,4)}-${it.substring(4,6)}-${it.substring(6,8)}" else it
-        }
+        onRoadDate = formatRdwDate(datum_eerste_toelating),
+        // Extended NL fields
+        secondaryColor = tweede_kleur,
+        vehicleLength = lengte,
+        vehicleWidth = breedte,
+        vehicleHeight = hoogte_voertuig,
+        purchaseTax = bruto_bpm,
+        ownerRegistrationDate = formatRdwDate(datum_tenaamstelling),
+        hasOpenRecall = openstaande_terugroepactie_indicator?.lowercase() == "ja",
+        odometerJudgment = tellerstandoordeel,
+        odometerYear = jaar_laatste_registratie_tellerstand,
+        fuelEfficiencyClass = zuinigheidsclassificatie,
+        isExported = export_indicator?.lowercase() == "ja",
+        isTaxi = taxi_indicator?.lowercase() == "ja",
+        maxTowingBraked = maximum_trekken_massa_geremd,
+        maxTowingUnbraked = maximum_massa_trekken_ongeremd,
+        euCategory = europese_voertuigcategorie,
+        emptyMass = massa_ledig_voertuig
     )
 }
+
+// ============ Netherlands: RDW Fuel/Emissions (resource 8ys7-d773) ============
+
+data class RdwFuelRecord(
+    val kenteken: String? = null,
+    val brandstof_omschrijving: String? = null,
+    val co2_uitstoot_gecombineerd: Int? = null,
+    val brandstofverbruik_gecombineerd: String? = null,
+    val brandstofverbruik_stad: String? = null,
+    val brandstofverbruik_buiten: String? = null,
+    val nettomaximumvermogen: String? = null,
+    val uitlaatemissieniveau: String? = null,
+    val geluidsniveau_stationair: String? = null
+)
+
+// ============ Netherlands: RDW Recall Status (resource t49b-isb7) ============
+
+data class RdwRecallRecord(
+    val kenteken: String? = null,
+    val referentiecode_rdw: String? = null,
+    val status: String? = null
+)
 
 // ============ UK: DVLA VES ============
 

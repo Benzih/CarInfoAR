@@ -318,19 +318,82 @@ object VehicleCache {
     private suspend fun fetchNetherlands(plateNumber: String): VehicleInfo? {
         // RDW expects plate without dashes, uppercase
         val kenteken = plateNumber.uppercase()
-        val records = RetrofitClient.rdwApi.searchVehicle(kenteken = kenteken)
-        if (records.isNotEmpty()) return records.first().toVehicleInfo()
+        var mainRecord: com.carinfo.ar.data.model.RdwVehicleRecord? = null
+        var usedKenteken = kenteken
 
-        // OCR confuses O/0, I/1 — try variants
-        val swaps = mapOf('O' to '0', '0' to 'O', 'I' to '1', '1' to 'I')
-        for (i in kenteken.indices) {
-            val swap = swaps[kenteken[i]] ?: continue
-            val variant = kenteken.substring(0, i) + swap + kenteken.substring(i + 1)
-            if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL: trying variant $variant")
-            val variantRecords = RetrofitClient.rdwApi.searchVehicle(kenteken = variant)
-            if (variantRecords.isNotEmpty()) return variantRecords.first().toVehicleInfo()
+        // Try main plate first
+        val records = RetrofitClient.rdwApi.searchVehicle(kenteken = kenteken)
+        if (records.isNotEmpty()) {
+            mainRecord = records.first()
+        } else {
+            // OCR confuses O/0, I/1 — try variants
+            val swaps = mapOf('O' to '0', '0' to 'O', 'I' to '1', '1' to 'I')
+            for (i in kenteken.indices) {
+                val swap = swaps[kenteken[i]] ?: continue
+                val variant = kenteken.substring(0, i) + swap + kenteken.substring(i + 1)
+                if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL: trying variant $variant")
+                val variantRecords = RetrofitClient.rdwApi.searchVehicle(kenteken = variant)
+                if (variantRecords.isNotEmpty()) {
+                    mainRecord = variantRecords.first()
+                    usedKenteken = variant
+                    break
+                }
+            }
         }
-        return null
+
+        if (mainRecord == null) return null
+        val baseInfo = mainRecord.toVehicleInfo()
+
+        // Fetch secondary resources in parallel
+        return coroutineScope {
+            val fuelDeferred = async { fetchNlFuelSafe(usedKenteken) }
+            val recallDeferred = async { fetchNlRecallsSafe(usedKenteken) }
+
+            val fuel = fuelDeferred.await()
+            val recalls = recallDeferred.await()
+
+            baseInfo.copy(
+                // Fuel/emissions data
+                co2Emissions = fuel?.co2_uitstoot_gecombineerd ?: baseInfo.co2Emissions,
+                enginePowerKw = fuel?.nettomaximumvermogen?.toDoubleOrNull(),
+                horsepower = fuel?.nettomaximumvermogen?.toDoubleOrNull()?.let { (it * 1.36).toInt() },
+                euroEmissionClass = fuel?.uitlaatemissieniveau,
+                fuelConsumptionCombined = fuel?.brandstofverbruik_gecombineerd,
+                fuelConsumptionCity = fuel?.brandstofverbruik_stad,
+                fuelConsumptionHighway = fuel?.brandstofverbruik_buiten,
+                // Recall status
+                recallStatus = recalls
+            )
+        }
+    }
+
+    private suspend fun fetchNlFuelSafe(kenteken: String): com.carinfo.ar.data.model.RdwFuelRecord? {
+        return try {
+            val records = RetrofitClient.rdwApi.searchFuel(kenteken = kenteken)
+            val record = records.firstOrNull()
+            if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL Fuel: ${if (record != null) "found" else "empty"}")
+            record
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.w("VehicleCache", "NL Fuel fetch failed: ${e.message}")
+            null
+        }
+    }
+
+    private suspend fun fetchNlRecallsSafe(kenteken: String): String? {
+        return try {
+            val records = RetrofitClient.rdwApi.searchRecalls(kenteken = kenteken)
+            if (records.isEmpty()) {
+                if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL Recalls: none")
+                null
+            } else {
+                val status = records.joinToString("; ") { it.status ?: "Unknown" }
+                if (BuildConfig.DEBUG) Log.d("VehicleCache", "NL Recalls: ${records.size} found")
+                status
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) Log.w("VehicleCache", "NL Recalls fetch failed: ${e.message}")
+            null
+        }
     }
 
     private suspend fun fetchUk(plateNumber: String): VehicleInfo? {

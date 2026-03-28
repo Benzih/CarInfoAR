@@ -111,6 +111,27 @@
     <string name="label_section_history">היסטוריה</string>
     <string name="label_section_internal">פרטים פנימיים</string>
 
+    <!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">צבע משני</string>
+    <string name="label_owner_since">בעלות מ-</string>
+    <string name="label_eu_category">קטגוריה אירופית</string>
+    <string name="label_taxi">מונית</string>
+    <string name="label_exported">יוצא לחו"ל</string>
+    <string name="label_engine_power">הספק מנוע</string>
+    <string name="label_euro_class">תקן פליטה</string>
+    <string name="label_efficiency_class">דירוג יעילות</string>
+    <string name="label_section_fuel">צריכת דלק</string>
+    <string name="label_fuel_combined">משולב</string>
+    <string name="label_fuel_city">עירוני</string>
+    <string name="label_fuel_highway">בינעירוני</string>
+    <string name="label_dimensions">מידות</string>
+    <string name="label_empty_mass">משקל ריק</string>
+    <string name="label_bpm_tax">מס BPM</string>
+    <string name="label_odometer_judgment">מד אוץ</string>
+    <string name="label_odometer_year">שנת קריאת מד אוץ</string>
+    <string name="label_has_recall">יש קריאת תיקון פתוחה!</string>
+    <string name="label_no_recall">אין קריאות תיקון</string>
+
     <!-- Settings -->
     <string name="settings_title">הגדרות</string>
     <string name="settings_region">אזור</string>

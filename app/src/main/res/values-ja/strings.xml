@@ -110,6 +110,8 @@
     <string name="label_section_safety">安全システム</string>
     <string name="label_section_history">履歴</string>
     <string name="label_section_internal">内部詳細</string>
+<!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">第二色</string>    <string name="label_owner_since">所有者登録日</string>    <string name="label_eu_category">EU区分</string>    <string name="label_taxi">タクシー</string>    <string name="label_exported">輸出済み</string>    <string name="label_engine_power">エンジン出力</string>    <string name="label_euro_class">ユーロクラス</string>    <string name="label_efficiency_class">燃費等級</string>    <string name="label_section_fuel">燃費</string>    <string name="label_fuel_combined">複合</string>    <string name="label_fuel_city">市街地</string>    <string name="label_fuel_highway">高速道路</string>    <string name="label_dimensions">寸法</string>    <string name="label_empty_mass">空車重量</string>    <string name="label_bpm_tax">BPM税</string>    <string name="label_odometer_judgment">走行距離計</string>    <string name="label_odometer_year">走行距離記録年</string>    <string name="label_has_recall">未対応リコール！</string>    <string name="label_no_recall">未対応リコールなし</string>
 
     <!-- Settings -->
     <string name="settings_title">設定</string>

@@ -114,6 +114,27 @@
     <string name="label_section_history">History</string>
     <string name="label_section_internal">Internal Details</string>
 
+    <!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">Secondary Color</string>
+    <string name="label_owner_since">Owner Since</string>
+    <string name="label_eu_category">EU Category</string>
+    <string name="label_taxi">Taxi</string>
+    <string name="label_exported">Exported</string>
+    <string name="label_engine_power">Engine Power</string>
+    <string name="label_euro_class">Euro Class</string>
+    <string name="label_efficiency_class">Efficiency Class</string>
+    <string name="label_section_fuel">Fuel Consumption</string>
+    <string name="label_fuel_combined">Combined</string>
+    <string name="label_fuel_city">City</string>
+    <string name="label_fuel_highway">Highway</string>
+    <string name="label_dimensions">Dimensions</string>
+    <string name="label_empty_mass">Empty Mass</string>
+    <string name="label_bpm_tax">BPM Tax</string>
+    <string name="label_odometer_judgment">Odometer</string>
+    <string name="label_odometer_year">Odometer Year</string>
+    <string name="label_has_recall">Open recall action!</string>
+    <string name="label_no_recall">No open recalls</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_region">Region</string>

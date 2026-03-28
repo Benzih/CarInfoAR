@@ -110,6 +110,8 @@
     <string name="label_section_safety">Güvenlik sistemleri</string>
     <string name="label_section_history">Geçmiş</string>
     <string name="label_section_internal">Dahili detaylar</string>
+<!-- Netherlands Extended Labels -->
+    <string name="label_secondary_color">İkinci renk</string>    <string name="label_owner_since">Sahip olma tarihi</string>    <string name="label_eu_category">AB kategorisi</string>    <string name="label_taxi">Taksi</string>    <string name="label_exported">İhraç edildi</string>    <string name="label_engine_power">Motor gücü</string>    <string name="label_euro_class">Euro sınıfı</string>    <string name="label_efficiency_class">Verimlilik sınıfı</string>    <string name="label_section_fuel">Yakıt tüketimi</string>    <string name="label_fuel_combined">Birleşik</string>    <string name="label_fuel_city">Şehir</string>    <string name="label_fuel_highway">Otoyol</string>    <string name="label_dimensions">Boyutlar</string>    <string name="label_empty_mass">Boş ağırlık</string>    <string name="label_bpm_tax">BPM vergisi</string>    <string name="label_odometer_judgment">Kilometre sayacı</string>    <string name="label_odometer_year">Kilometre yılı</string>    <string name="label_has_recall">Açık geri çağırma!</string>    <string name="label_no_recall">Açık geri çağırma yok</string>
 
     <!-- Settings -->
     <string name="settings_title">Ayarlar</string>
