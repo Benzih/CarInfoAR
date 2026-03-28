@@ -31,7 +31,7 @@
     <!-- Overlay -->
     <string name="overlay_unknown">לא ידוע</string>
     <string name="overlay_save">שמור</string>
-    <string name="overlay_info">לאינטרנט</string>
+    <string name="overlay_info">אינטרנט</string>
     <string name="overlay_not_found">לא נמצא</string>
 
     <!-- Vehicle Info Labels -->
