@@ -31,7 +31,7 @@
     <!-- Overlay -->
     <string name="overlay_unknown">Bilinmiyor</string>
     <string name="overlay_save">Kaydet</string>
-    <string name="overlay_info">Bilgi</string>
+    <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Bulunamadı</string>
 
     <!-- Vehicle Info Labels -->

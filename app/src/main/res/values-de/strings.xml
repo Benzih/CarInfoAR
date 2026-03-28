@@ -31,7 +31,7 @@
     <!-- Overlay -->
     <string name="overlay_unknown">Unbekannt</string>
     <string name="overlay_save">Speichern</string>
-    <string name="overlay_info">Info</string>
+    <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Nicht gefunden</string>
 
     <!-- Vehicle Info Labels -->

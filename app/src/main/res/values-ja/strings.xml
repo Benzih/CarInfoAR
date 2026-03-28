@@ -31,7 +31,7 @@
     <!-- Overlay -->
     <string name="overlay_unknown">不明</string>
     <string name="overlay_save">保存</string>
-    <string name="overlay_info">情報</string>
+    <string name="overlay_info">Web</string>
     <string name="overlay_not_found">見つかりません</string>
 
     <!-- Vehicle Info Labels -->

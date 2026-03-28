@@ -31,7 +31,7 @@
     <!-- Overlay -->
     <string name="overlay_unknown">未知</string>
     <string name="overlay_save">保存</string>
-    <string name="overlay_info">信息</string>
+    <string name="overlay_info">网页</string>
     <string name="overlay_not_found">未找到</string>
 
     <!-- Vehicle Info Labels -->
