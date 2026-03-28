@@ -62,6 +62,54 @@
     <string name="label_insured">Verzekerd</string>
     <string name="label_chassis">Chassis</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Paardenkracht</string>
+    <string name="label_displacement">Motorinhoud</string>
+    <string name="label_drive">Aandrijving</string>
+    <string name="label_drive_tech">Aandrijftechnologie</string>
+    <string name="label_transmission">Transmissie</string>
+    <string name="label_standard">Normtype</string>
+    <string name="label_sunroof">Schuifdak</string>
+    <string name="label_alloy_wheels">Lichtmetalen velgen</string>
+    <string name="label_electric_windows">Elektrische ramen</string>
+    <string name="label_tire_pressure">Bandenspanningssensoren</string>
+    <string name="label_reverse_camera">Achteruitrijcamera</string>
+    <string name="label_towing_brakes">Trekgewicht (met remmen)</string>
+    <string name="label_towing_no_brakes">Trekgewicht (zonder remmen)</string>
+    <string name="label_licensing_group">Licentiegroep</string>
+    <string name="label_airbags">Airbags</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Stabiliteitscontrole</string>
+    <string name="label_lane_departure">Rijstrookassistent</string>
+    <string name="label_distance_monitor">Afstandsbewaking</string>
+    <string name="label_adaptive_cruise">Adaptieve cruisecontrol</string>
+    <string name="label_pedestrian">Voetgangersdetectie</string>
+    <string name="label_blind_spot">Dodehoekdetectie</string>
+    <string name="label_engine_number">Motornummer</string>
+    <string name="label_last_test_km">Laatste test KM</string>
+    <string name="label_lpg_added">LPG toegevoegd</string>
+    <string name="label_color_changed">Kleur gewijzigd</string>
+    <string name="label_tires_changed">Banden gewijzigd</string>
+    <string name="label_originality">Originaliteit</string>
+    <string name="label_tow_hook">Trekhaak</string>
+    <string name="label_importer">Importeur</string>
+    <string name="label_price">Prijs bij registratie</string>
+    <string name="label_disabled_tag">Gehandicaptenparkeerkaart</string>
+    <string name="label_active_vehicles">Actieve voertuigen (zelfde model)</string>
+    <string name="label_safety_score">Veiligheidsscore</string>
+    <string name="label_country_origin">Land van herkomst</string>
+    <string name="label_green_index">Groene index</string>
+    <string name="label_model_code">Modelcode</string>
+    <string name="label_registration_directive">Registratierichtlijn</string>
+    <string name="label_yes">Ja</string>
+    <string name="label_no">Nee</string>
+    <string name="label_ownership_history">Eigendomsgeschiedenis</string>
+    <string name="label_no_disabled_tag">Geen gehandicaptenparkeerkaart</string>
+    <string name="label_has_disabled_tag">Heeft gehandicaptenparkeerkaart</string>
+    <string name="label_section_equipment">Uitrusting</string>
+    <string name="label_section_safety">Veiligheidssystemen</string>
+    <string name="label_section_history">Geschiedenis</string>
+
     <!-- Settings -->
     <string name="settings_title">Instellingen</string>
     <string name="settings_region">Regio</string>

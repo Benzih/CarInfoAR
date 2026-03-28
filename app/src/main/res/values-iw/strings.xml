@@ -62,6 +62,54 @@
     <string name="label_insured">ביטוח</string>
     <string name="label_chassis">מספר שלדה</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">כוח סוס</string>
+    <string name="label_displacement">נפח מנוע</string>
+    <string name="label_drive">הנעה</string>
+    <string name="label_drive_tech">טכנולוגיית הנעה</string>
+    <string name="label_transmission">תיבת הילוכים</string>
+    <string name="label_standard">סוג תקינה</string>
+    <string name="label_sunroof">חלון שמש</string>
+    <string name="label_alloy_wheels">חישוקי סגסוגת קלה</string>
+    <string name="label_electric_windows">חלונות חשמל</string>
+    <string name="label_tire_pressure">חיישני לחץ אוויר</string>
+    <string name="label_reverse_camera">מצלמת רוורס</string>
+    <string name="label_towing_brakes">גרירה עם בלמים</string>
+    <string name="label_towing_no_brakes">גרירה בלי בלמים</string>
+    <string name="label_licensing_group">קבוצת רישוי</string>
+    <string name="label_airbags">כריות אוויר</string>
+    <string name="label_abs">מערכת ABS</string>
+    <string name="label_stability">בקרת יציבות</string>
+    <string name="label_lane_departure">בקרת סטיה מנתיב</string>
+    <string name="label_distance_monitor">ניטור מרחק מלפנים</string>
+    <string name="label_adaptive_cruise">בקרת שיוט אדפטיבית</string>
+    <string name="label_pedestrian">זיהוי הולכי רגל</string>
+    <string name="label_blind_spot">זיהוי שטח מת</string>
+    <string name="label_engine_number">מספר מנוע</string>
+    <string name="label_last_test_km">ק"מ בטסט אחרון</string>
+    <string name="label_lpg_added">התווסף גפ"מ</string>
+    <string name="label_color_changed">שינוי צבע</string>
+    <string name="label_tires_changed">שינוי צמיגים</string>
+    <string name="label_originality">מקוריות</string>
+    <string name="label_tow_hook">וו גרירה</string>
+    <string name="label_importer">שם היבואן</string>
+    <string name="label_price">מחיר במועד עליה לכביש</string>
+    <string name="label_disabled_tag">תג נכה</string>
+    <string name="label_active_vehicles">רכבים פעילים באותו דגם</string>
+    <string name="label_safety_score">ניקוד בטיחות</string>
+    <string name="label_country_origin">ארץ ייצור</string>
+    <string name="label_green_index">מדד ירוק</string>
+    <string name="label_model_code">קוד דגם</string>
+    <string name="label_registration_directive">הוראת רישום</string>
+    <string name="label_yes">יש</string>
+    <string name="label_no">אין</string>
+    <string name="label_ownership_history">היסטוריית בעלויות</string>
+    <string name="label_no_disabled_tag">לרכב זה אין תג חניה לנכה</string>
+    <string name="label_has_disabled_tag">לרכב זה יש תג חניה לנכה</string>
+    <string name="label_section_equipment">אבזור</string>
+    <string name="label_section_safety">מערכות בטיחות</string>
+    <string name="label_section_history">היסטוריה</string>
+
     <!-- Settings -->
     <string name="settings_title">הגדרות</string>
     <string name="settings_region">אזור</string>

@@ -62,6 +62,54 @@
     <string name="label_insured">보험</string>
     <string name="label_chassis">차대번호</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">마력</string>
+    <string name="label_displacement">배기량</string>
+    <string name="label_drive">구동</string>
+    <string name="label_drive_tech">구동 기술</string>
+    <string name="label_transmission">변속기</string>
+    <string name="label_standard">표준 유형</string>
+    <string name="label_sunroof">선루프</string>
+    <string name="label_alloy_wheels">합금 휠</string>
+    <string name="label_electric_windows">전동 창문</string>
+    <string name="label_tire_pressure">타이어 압력 센서</string>
+    <string name="label_reverse_camera">후방 카메라</string>
+    <string name="label_towing_brakes">견인(브레이크 포함)</string>
+    <string name="label_towing_no_brakes">견인(브레이크 없음)</string>
+    <string name="label_licensing_group">라이선스 그룹</string>
+    <string name="label_airbags">에어백</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">안정성 제어</string>
+    <string name="label_lane_departure">차선 이탈</string>
+    <string name="label_distance_monitor">거리 모니터링</string>
+    <string name="label_adaptive_cruise">적응형 크루즈</string>
+    <string name="label_pedestrian">보행자 감지</string>
+    <string name="label_blind_spot">사각지대 감지</string>
+    <string name="label_engine_number">엔진 번호</string>
+    <string name="label_last_test_km">최근 검사 km</string>
+    <string name="label_lpg_added">LPG 추가됨</string>
+    <string name="label_color_changed">색상 변경됨</string>
+    <string name="label_tires_changed">타이어 변경됨</string>
+    <string name="label_originality">원본성</string>
+    <string name="label_tow_hook">견인 후크</string>
+    <string name="label_importer">수입업체</string>
+    <string name="label_price">등록 시 가격</string>
+    <string name="label_disabled_tag">장애인 태그</string>
+    <string name="label_active_vehicles">동일 모델 운행 차량</string>
+    <string name="label_safety_score">안전 점수</string>
+    <string name="label_country_origin">원산지</string>
+    <string name="label_green_index">녹색 지수</string>
+    <string name="label_model_code">모델 코드</string>
+    <string name="label_registration_directive">등록 지침</string>
+    <string name="label_yes">예</string>
+    <string name="label_no">아니오</string>
+    <string name="label_ownership_history">소유 이력</string>
+    <string name="label_no_disabled_tag">장애인 주차 태그 없음</string>
+    <string name="label_has_disabled_tag">장애인 주차 태그 있음</string>
+    <string name="label_section_equipment">장비</string>
+    <string name="label_section_safety">안전 시스템</string>
+    <string name="label_section_history">이력</string>
+
     <!-- Settings -->
     <string name="settings_title">설정</string>
     <string name="settings_region">지역</string>

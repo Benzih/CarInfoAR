@@ -62,6 +62,54 @@
     <string name="label_insured">Asegurado</string>
     <string name="label_chassis">Chasis</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Caballos de fuerza</string>
+    <string name="label_displacement">Cilindrada</string>
+    <string name="label_drive">Tracción</string>
+    <string name="label_drive_tech">Tecnología de tracción</string>
+    <string name="label_transmission">Transmisión</string>
+    <string name="label_standard">Tipo de norma</string>
+    <string name="label_sunroof">Techo solar</string>
+    <string name="label_alloy_wheels">Llantas de aleación</string>
+    <string name="label_electric_windows">Ventanas eléctricas</string>
+    <string name="label_tire_pressure">Sensores de presión de neumáticos</string>
+    <string name="label_reverse_camera">Cámara trasera</string>
+    <string name="label_towing_brakes">Remolque (con frenos)</string>
+    <string name="label_towing_no_brakes">Remolque (sin frenos)</string>
+    <string name="label_licensing_group">Grupo de licencia</string>
+    <string name="label_airbags">Airbags</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Control de estabilidad</string>
+    <string name="label_lane_departure">Alerta de carril</string>
+    <string name="label_distance_monitor">Monitoreo de distancia</string>
+    <string name="label_adaptive_cruise">Crucero adaptativo</string>
+    <string name="label_pedestrian">Detección de peatones</string>
+    <string name="label_blind_spot">Detección de punto ciego</string>
+    <string name="label_engine_number">Número de motor</string>
+    <string name="label_last_test_km">Último test KM</string>
+    <string name="label_lpg_added">GLP añadido</string>
+    <string name="label_color_changed">Color cambiado</string>
+    <string name="label_tires_changed">Neumáticos cambiados</string>
+    <string name="label_originality">Originalidad</string>
+    <string name="label_tow_hook">Gancho de remolque</string>
+    <string name="label_importer">Importador</string>
+    <string name="label_price">Precio al registrar</string>
+    <string name="label_disabled_tag">Tarjeta de discapacidad</string>
+    <string name="label_active_vehicles">Vehículos activos (mismo modelo)</string>
+    <string name="label_safety_score">Puntuación de seguridad</string>
+    <string name="label_country_origin">País de origen</string>
+    <string name="label_green_index">Índice verde</string>
+    <string name="label_model_code">Código de modelo</string>
+    <string name="label_registration_directive">Directiva de registro</string>
+    <string name="label_yes">Sí</string>
+    <string name="label_no">No</string>
+    <string name="label_ownership_history">Historial de propiedad</string>
+    <string name="label_no_disabled_tag">Sin tarjeta de discapacidad</string>
+    <string name="label_has_disabled_tag">Tiene tarjeta de discapacidad</string>
+    <string name="label_section_equipment">Equipamiento</string>
+    <string name="label_section_safety">Sistemas de seguridad</string>
+    <string name="label_section_history">Historial</string>
+
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>
     <string name="settings_region">Región</string>

@@ -65,6 +65,54 @@
     <string name="label_insured">Insured</string>
     <string name="label_chassis">Chassis</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Horsepower</string>
+    <string name="label_displacement">Engine Displacement</string>
+    <string name="label_drive">Drive</string>
+    <string name="label_drive_tech">Drive Technology</string>
+    <string name="label_transmission">Transmission</string>
+    <string name="label_standard">Standard Type</string>
+    <string name="label_sunroof">Sunroof</string>
+    <string name="label_alloy_wheels">Alloy Wheels</string>
+    <string name="label_electric_windows">Electric Windows</string>
+    <string name="label_tire_pressure">Tire Pressure Sensors</string>
+    <string name="label_reverse_camera">Reverse Camera</string>
+    <string name="label_towing_brakes">Towing (with brakes)</string>
+    <string name="label_towing_no_brakes">Towing (no brakes)</string>
+    <string name="label_licensing_group">Licensing Group</string>
+    <string name="label_airbags">Airbags</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Stability Control</string>
+    <string name="label_lane_departure">Lane Departure</string>
+    <string name="label_distance_monitor">Distance Monitoring</string>
+    <string name="label_adaptive_cruise">Adaptive Cruise</string>
+    <string name="label_pedestrian">Pedestrian Detection</string>
+    <string name="label_blind_spot">Blind Spot Detection</string>
+    <string name="label_engine_number">Engine Number</string>
+    <string name="label_last_test_km">Last Test KM</string>
+    <string name="label_lpg_added">LPG Added</string>
+    <string name="label_color_changed">Color Changed</string>
+    <string name="label_tires_changed">Tires Changed</string>
+    <string name="label_originality">Originality</string>
+    <string name="label_tow_hook">Tow Hook</string>
+    <string name="label_importer">Importer</string>
+    <string name="label_price">Price at Registration</string>
+    <string name="label_disabled_tag">Disabled Tag</string>
+    <string name="label_active_vehicles">Active Vehicles (same model)</string>
+    <string name="label_safety_score">Safety Score</string>
+    <string name="label_country_origin">Country of Origin</string>
+    <string name="label_green_index">Green Index</string>
+    <string name="label_model_code">Model Code</string>
+    <string name="label_registration_directive">Registration Directive</string>
+    <string name="label_yes">Yes</string>
+    <string name="label_no">No</string>
+    <string name="label_ownership_history">Ownership History</string>
+    <string name="label_no_disabled_tag">No disabled parking tag</string>
+    <string name="label_has_disabled_tag">Has disabled parking tag</string>
+    <string name="label_section_equipment">Equipment</string>
+    <string name="label_section_safety">Safety Systems</string>
+    <string name="label_section_history">History</string>
+
     <!-- Settings -->
     <string name="settings_title">Settings</string>
     <string name="settings_region">Region</string>

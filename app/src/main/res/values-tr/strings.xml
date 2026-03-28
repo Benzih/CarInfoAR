@@ -62,6 +62,54 @@
     <string name="label_insured">Sigortalı</string>
     <string name="label_chassis">Şasi</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Beygir gücü</string>
+    <string name="label_displacement">Motor hacmi</string>
+    <string name="label_drive">Tahrik</string>
+    <string name="label_drive_tech">Tahrik teknolojisi</string>
+    <string name="label_transmission">Şanzıman</string>
+    <string name="label_standard">Standart tipi</string>
+    <string name="label_sunroof">Açılır tavan</string>
+    <string name="label_alloy_wheels">Alaşım jantlar</string>
+    <string name="label_electric_windows">Elektrikli camlar</string>
+    <string name="label_tire_pressure">Lastik basınç sensörleri</string>
+    <string name="label_reverse_camera">Geri görüş kamerası</string>
+    <string name="label_towing_brakes">Çekme (frenli)</string>
+    <string name="label_towing_no_brakes">Çekme (frensiz)</string>
+    <string name="label_licensing_group">Lisans grubu</string>
+    <string name="label_airbags">Hava yastıkları</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Denge kontrolü</string>
+    <string name="label_lane_departure">Şerit takip</string>
+    <string name="label_distance_monitor">Mesafe izleme</string>
+    <string name="label_adaptive_cruise">Adaptif hız sabitleyici</string>
+    <string name="label_pedestrian">Yaya algılama</string>
+    <string name="label_blind_spot">Kör nokta algılama</string>
+    <string name="label_engine_number">Motor numarası</string>
+    <string name="label_last_test_km">Son test KM</string>
+    <string name="label_lpg_added">LPG eklendi</string>
+    <string name="label_color_changed">Renk değişti</string>
+    <string name="label_tires_changed">Lastikler değişti</string>
+    <string name="label_originality">Orijinallik</string>
+    <string name="label_tow_hook">Çeki kancası</string>
+    <string name="label_importer">İthalatçı</string>
+    <string name="label_price">Tescil fiyatı</string>
+    <string name="label_disabled_tag">Engelli kartı</string>
+    <string name="label_active_vehicles">Aktif araçlar (aynı model)</string>
+    <string name="label_safety_score">Güvenlik puanı</string>
+    <string name="label_country_origin">Menşe ülke</string>
+    <string name="label_green_index">Yeşil endeks</string>
+    <string name="label_model_code">Model kodu</string>
+    <string name="label_registration_directive">Tescil yönergesi</string>
+    <string name="label_yes">Evet</string>
+    <string name="label_no">Hayır</string>
+    <string name="label_ownership_history">Mülkiyet geçmişi</string>
+    <string name="label_no_disabled_tag">Engelli kartı yok</string>
+    <string name="label_has_disabled_tag">Engelli kartı var</string>
+    <string name="label_section_equipment">Donanım</string>
+    <string name="label_section_safety">Güvenlik sistemleri</string>
+    <string name="label_section_history">Geçmiş</string>
+
     <!-- Settings -->
     <string name="settings_title">Ayarlar</string>
     <string name="settings_region">Bölge</string>

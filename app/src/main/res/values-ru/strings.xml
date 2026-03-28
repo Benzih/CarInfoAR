@@ -62,6 +62,54 @@
     <string name="label_insured">Застрахован</string>
     <string name="label_chassis">Шасси</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Лошадиные силы</string>
+    <string name="label_displacement">Объём двигателя</string>
+    <string name="label_drive">Привод</string>
+    <string name="label_drive_tech">Технология привода</string>
+    <string name="label_transmission">Коробка передач</string>
+    <string name="label_standard">Тип стандарта</string>
+    <string name="label_sunroof">Люк</string>
+    <string name="label_alloy_wheels">Легкосплавные диски</string>
+    <string name="label_electric_windows">Электрические стеклоподъёмники</string>
+    <string name="label_tire_pressure">Датчики давления шин</string>
+    <string name="label_reverse_camera">Камера заднего вида</string>
+    <string name="label_towing_brakes">Буксировка (с тормозами)</string>
+    <string name="label_towing_no_brakes">Буксировка (без тормозов)</string>
+    <string name="label_licensing_group">Лицензионная группа</string>
+    <string name="label_airbags">Подушки безопасности</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Контроль устойчивости</string>
+    <string name="label_lane_departure">Контроль полосы</string>
+    <string name="label_distance_monitor">Мониторинг дистанции</string>
+    <string name="label_adaptive_cruise">Адаптивный круиз</string>
+    <string name="label_pedestrian">Обнаружение пешеходов</string>
+    <string name="label_blind_spot">Обнаружение слепых зон</string>
+    <string name="label_engine_number">Номер двигателя</string>
+    <string name="label_last_test_km">Последний тест КМ</string>
+    <string name="label_lpg_added">ГБО добавлено</string>
+    <string name="label_color_changed">Цвет изменён</string>
+    <string name="label_tires_changed">Шины изменены</string>
+    <string name="label_originality">Оригинальность</string>
+    <string name="label_tow_hook">Фаркоп</string>
+    <string name="label_importer">Импортёр</string>
+    <string name="label_price">Цена при регистрации</string>
+    <string name="label_disabled_tag">Парковочный знак инвалида</string>
+    <string name="label_active_vehicles">Активные ТС (та же модель)</string>
+    <string name="label_safety_score">Оценка безопасности</string>
+    <string name="label_country_origin">Страна производства</string>
+    <string name="label_green_index">Зелёный индекс</string>
+    <string name="label_model_code">Код модели</string>
+    <string name="label_registration_directive">Директива регистрации</string>
+    <string name="label_yes">Да</string>
+    <string name="label_no">Нет</string>
+    <string name="label_ownership_history">История владения</string>
+    <string name="label_no_disabled_tag">Нет парковочного знака инвалида</string>
+    <string name="label_has_disabled_tag">Есть парковочный знак инвалида</string>
+    <string name="label_section_equipment">Оснащение</string>
+    <string name="label_section_safety">Системы безопасности</string>
+    <string name="label_section_history">История</string>
+
     <!-- Settings -->
     <string name="settings_title">Настройки</string>
     <string name="settings_region">Регион</string>

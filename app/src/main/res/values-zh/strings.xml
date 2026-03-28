@@ -62,6 +62,54 @@
     <string name="label_insured">已投保</string>
     <string name="label_chassis">底盘号</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">马力</string>
+    <string name="label_displacement">排量</string>
+    <string name="label_drive">驱动</string>
+    <string name="label_drive_tech">驱动技术</string>
+    <string name="label_transmission">变速箱</string>
+    <string name="label_standard">标准类型</string>
+    <string name="label_sunroof">天窗</string>
+    <string name="label_alloy_wheels">合金轮毂</string>
+    <string name="label_electric_windows">电动车窗</string>
+    <string name="label_tire_pressure">胎压传感器</string>
+    <string name="label_reverse_camera">倒车摄像头</string>
+    <string name="label_towing_brakes">拖拽(带刹车)</string>
+    <string name="label_towing_no_brakes">拖拽(无刹车)</string>
+    <string name="label_licensing_group">许可组</string>
+    <string name="label_airbags">安全气囊</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">稳定控制</string>
+    <string name="label_lane_departure">车道偏离</string>
+    <string name="label_distance_monitor">距离监测</string>
+    <string name="label_adaptive_cruise">自适应巡航</string>
+    <string name="label_pedestrian">行人检测</string>
+    <string name="label_blind_spot">盲区检测</string>
+    <string name="label_engine_number">发动机号</string>
+    <string name="label_last_test_km">最近检测公里</string>
+    <string name="label_lpg_added">已加装LPG</string>
+    <string name="label_color_changed">颜色变更</string>
+    <string name="label_tires_changed">轮胎变更</string>
+    <string name="label_originality">原始性</string>
+    <string name="label_tow_hook">拖车钩</string>
+    <string name="label_importer">进口商</string>
+    <string name="label_price">注册价格</string>
+    <string name="label_disabled_tag">残疾人标签</string>
+    <string name="label_active_vehicles">同型号在用车辆</string>
+    <string name="label_safety_score">安全评分</string>
+    <string name="label_country_origin">原产国</string>
+    <string name="label_green_index">绿色指数</string>
+    <string name="label_model_code">型号代码</string>
+    <string name="label_registration_directive">注册指令</string>
+    <string name="label_yes">是</string>
+    <string name="label_no">否</string>
+    <string name="label_ownership_history">所有权历史</string>
+    <string name="label_no_disabled_tag">无残疾人停车标签</string>
+    <string name="label_has_disabled_tag">有残疾人停车标签</string>
+    <string name="label_section_equipment">装备</string>
+    <string name="label_section_safety">安全系统</string>
+    <string name="label_section_history">历史记录</string>
+
     <!-- Settings -->
     <string name="settings_title">设置</string>
     <string name="settings_region">地区</string>

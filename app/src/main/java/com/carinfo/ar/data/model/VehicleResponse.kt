@@ -2,6 +2,11 @@ package com.carinfo.ar.data.model
 
 // ============ Universal vehicle info (used by UI) ============
 
+data class OwnershipRecord(
+    val date: String,    // formatted date (e.g. "08/2024")
+    val type: String     // ownership type (פרטי, ליסינג, etc.)
+)
+
 data class VehicleInfo(
     val manufacturer: String?,
     val model: String?,
@@ -30,12 +35,71 @@ data class VehicleInfo(
     val numSeats: Int? = null,             // aantal_zitplaatsen (NL)
     val catalogPrice: Int? = null,         // catalogusprijs (NL)
     val weight: Int? = null,               // massa_rijklaar (NL)
-    val bodyType: String? = null,          // inrichting (NL), wheelplan (GB)
+    val bodyType: String? = null,          // inrichting (NL), wheelplan (GB), merkav (IL WLTP)
     val insured: String? = null,           // wam_verzekerd (NL)
-    val wheelbase: Int? = null             // wielbasis (NL)
+    val wheelbase: Int? = null,            // wielbasis (NL)
+
+    // === Israel Extended: WLTP Specs (resource 142afde2) ===
+    val horsepower: Int? = null,           // koah_sus
+    val engineDisplacement: Int? = null,   // nefah_manoa
+    val driveType: String? = null,         // hanaa_nm (4X2, 4X4)
+    val driveTechnology: String? = null,   // technologiat_hanaa_nm
+    val standardType: String? = null,      // sug_tkina_nm (אירופאית)
+    val transmission: String? = null,      // automatic_ind → "אוטומטית"/"ידנית"
+    val sunroof: Boolean? = null,          // halon_bagg_ind
+    val alloyWheels: Boolean? = null,      // galgaley_sagsoget_kala_ind
+    val electricWindows: Int? = null,      // mispar_halonot_hashmal
+    val tirePressureSensors: Boolean? = null, // hayshaney_lahatz_avir
+    val reverseCamera: Boolean? = null,    // matzlemat_reverse_ind
+    val towingWithBrakes: Int? = null,     // kosher_grira_im_blamim
+    val towingWithoutBrakes: Int? = null,  // kosher_grira_bli_blamim
+    val licensingGroup: Int? = null,       // kvuzat_agra_cd
+    val safetyScore: Int? = null,          // nikud_betihut
+    val safetyRating: Int? = null,         // ramat_eivzur_betihuty
+    val countryOfOrigin: String? = null,   // tozeret_eretz_nm
+    val greenIndex: Int? = null,           // madad_yarok
+
+    // === Israel Extended: Safety systems (WLTP) ===
+    val airbagCount: Int? = null,          // mispar_kariot_avir
+    val abs: Boolean? = null,              // abs_ind
+    val laneDeparture: Boolean? = null,    // bakarat_stiya_menativ_ind
+    val stabilityControl: Boolean? = null, // bakarat_yatzivut_ind
+    val forwardDistanceMonitoring: Boolean? = null, // nitur_merhak_milfanim_ind
+    val adaptiveCruise: Boolean? = null,   // bakarat_shyut_adaptivit_ind
+    val pedestrianDetection: Boolean? = null, // zihuy_holchey_regel_ind
+    val blindSpotDetection: Boolean? = null, // zihuy_beshetah_nistar_ind
+
+    // === Israel Extended: History (resource 56063a99) ===
+    val engineNumber: String? = null,      // mispar_manoa
+    val lastTestKm: Int? = null,           // kilometer_test_aharon
+    val lpgAdded: Boolean? = null,         // gapam_ind
+    val colorChanged: Boolean? = null,     // shnui_zeva_ind
+    val tiresChanged: Boolean? = null,     // shinui_zmig_ind
+    val originality: String? = null,       // mkoriut_nm
+
+    // === Israel Extended: Tow hook (resource 0866573c) ===
+    val towHook: String? = null,           // grira_nm
+
+    // === Israel Extended: Importer & Price (resource 39f455bf) ===
+    val importerName: String? = null,      // shem_yevuan
+    val priceAtRegistration: Int? = null,  // mehir
+
+    // === Israel Extended: Ownership history (resource bb2355dc) ===
+    val ownershipHistory: List<OwnershipRecord>? = null,
+
+    // === Israel Extended: Disabled tag (resource c8b9f9c8) ===
+    val disabledTag: Boolean? = null,
+
+    // === Israel Extended: Statistics (resource 5e87a7a1) ===
+    val activeVehiclesCount: Int? = null,   // mispar_rechavim_pailim
+
+    // === Israel Extended: Extra codes from main resource ===
+    val modelCode: String? = null,         // degem_cd
+    val manufacturerCode: Int? = null,     // tozeret_cd
+    val registrationDirective: Int? = null  // horaat_rishum
 )
 
-// ============ Israel: data.gov.il ============
+// ============ Israel: data.gov.il — Main registration ============
 
 data class DataStoreResponse(
     val success: Boolean,
@@ -63,7 +127,13 @@ data class VehicleRecord(
     val zmig_kidmi: String? = null,
     val zmig_ahori: String? = null,
     val moed_aliya_lakvish: String? = null,
-    val kvutzat_zihum: Int? = null
+    val kvutzat_zihum: Int? = null,
+    // Join keys for secondary resources
+    val tozeret_cd: Int? = null,
+    val degem_cd: Int? = null,
+    val sug_degem: String? = null,
+    val horaat_rishum: Int? = null,
+    val ramat_eivzur_betihuty: Int? = null
 ) {
     fun toVehicleInfo() = VehicleInfo(
         manufacturer = tozeret_nm,
@@ -81,9 +151,100 @@ data class VehicleRecord(
         frontTires = zmig_kidmi,
         rearTires = zmig_ahori,
         onRoadDate = moed_aliya_lakvish,
-        emissionGroup = kvutzat_zihum
+        emissionGroup = kvutzat_zihum,
+        safetyRating = ramat_eivzur_betihuty,
+        modelCode = degem_cd?.toString(),
+        manufacturerCode = tozeret_cd,
+        registrationDirective = horaat_rishum
     )
 }
+
+// ============ Israel: WLTP Specs (resource 142afde2) ============
+
+data class WltpRecord(
+    val koah_sus: Int? = null,
+    val nefah_manoa: Int? = null,
+    val hanaa_nm: String? = null,
+    val technologiat_hanaa_nm: String? = null,
+    val sug_tkina_nm: String? = null,
+    val automatic_ind: Int? = null,
+    val halon_bagg_ind: Int? = null,
+    val galgaley_sagsoget_kala_ind: Int? = null,
+    val mispar_halonot_hashmal: Int? = null,
+    val hayshaney_lahatz_avir_batzmigim_ind: Int? = null,
+    val matzlemat_reverse_ind: Int? = null,
+    val kosher_grira_im_blamim: Int? = null,
+    val kosher_grira_bli_blamim: Int? = null,
+    val kvuzat_agra_cd: Int? = null,
+    val nikud_betihut: Int? = null,
+    val ramat_eivzur_betihuty: Int? = null,
+    val tozeret_eretz_nm: String? = null,
+    val madad_yarok: Int? = null,
+    val merkav: String? = null,
+    val mispar_dlatot: Int? = null,
+    val mispar_moshavim: Int? = null,
+    val mishkal_kolel: Int? = null,
+    // Safety systems
+    val mispar_kariot_avir: Int? = null,
+    val abs_ind: Int? = null,
+    val bakarat_stiya_menativ_ind: Int? = null,
+    val bakarat_yatzivut_ind: Int? = null,
+    val nitur_merhak_milfanim_ind: Int? = null,
+    val bakarat_shyut_adaptivit_ind: Int? = null,
+    val zihuy_holchey_regel_ind: Int? = null,
+    val zihuy_beshetah_nistar_ind: Int? = null
+)
+
+// ============ Israel: Vehicle History (resource 56063a99) ============
+
+data class VehicleHistoryRecord(
+    val mispar_rechev: Long? = null,
+    val mispar_manoa: String? = null,
+    val kilometer_test_aharon: Int? = null,
+    val shinui_mivne_ind: Int? = null,
+    val gapam_ind: Int? = null,
+    val shnui_zeva_ind: Int? = null,
+    val shinui_zmig_ind: Int? = null,
+    val rishum_rishon_dt: String? = null,
+    val mkoriut_nm: String? = null
+)
+
+// ============ Israel: Ownership History (resource bb2355dc) ============
+
+data class OwnershipHistoryRecord(
+    val mispar_rechev: Long? = null,
+    val baalut_dt: Long? = null,   // YYYYMM format
+    val baalut: String? = null
+)
+
+// ============ Israel: Disabled Tag (resource c8b9f9c8) ============
+
+data class DisabledTagRecord(
+    val MISPAR_RECHEV: Long? = null,
+    val TAARICH_HAFAKAT_TAG: Long? = null,
+    val SUG_TAV: Int? = null
+)
+
+// ============ Israel: Vehicle Summary — tow hook (resource 0866573c) ============
+
+data class VehicleSummaryRecord(
+    val mispar_rechev: Long? = null,
+    val grira_nm: String? = null
+)
+
+// ============ Israel: Importer & Price (resource 39f455bf) ============
+
+data class ImporterPriceRecord(
+    val shem_yevuan: String? = null,
+    val mehir: Int? = null
+)
+
+// ============ Israel: Vehicle Statistics (resource 5e87a7a1) ============
+
+data class VehicleStatsRecord(
+    val mispar_rechavim_pailim: Int? = null,
+    val mispar_rechavim_le_pailim: Int? = null
+)
 
 // ============ Netherlands: RDW Open Data ============
 

@@ -62,6 +62,54 @@
     <string name="label_insured">保険加入</string>
     <string name="label_chassis">車台番号</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">馬力</string>
+    <string name="label_displacement">排気量</string>
+    <string name="label_drive">駆動</string>
+    <string name="label_drive_tech">駆動技術</string>
+    <string name="label_transmission">トランスミッション</string>
+    <string name="label_standard">規格タイプ</string>
+    <string name="label_sunroof">サンルーフ</string>
+    <string name="label_alloy_wheels">アロイホイール</string>
+    <string name="label_electric_windows">パワーウィンドウ</string>
+    <string name="label_tire_pressure">タイヤ空気圧センサー</string>
+    <string name="label_reverse_camera">バックカメラ</string>
+    <string name="label_towing_brakes">牽引(ブレーキ付)</string>
+    <string name="label_towing_no_brakes">牽引(ブレーキなし)</string>
+    <string name="label_licensing_group">ライセンスグループ</string>
+    <string name="label_airbags">エアバッグ</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">横滑り防止</string>
+    <string name="label_lane_departure">車線逸脱警報</string>
+    <string name="label_distance_monitor">距離モニタリング</string>
+    <string name="label_adaptive_cruise">アダプティブクルーズ</string>
+    <string name="label_pedestrian">歩行者検知</string>
+    <string name="label_blind_spot">死角検知</string>
+    <string name="label_engine_number">エンジン番号</string>
+    <string name="label_last_test_km">最終検査km</string>
+    <string name="label_lpg_added">LPG追加</string>
+    <string name="label_color_changed">色変更</string>
+    <string name="label_tires_changed">タイヤ変更</string>
+    <string name="label_originality">オリジナリティ</string>
+    <string name="label_tow_hook">牽引フック</string>
+    <string name="label_importer">輸入業者</string>
+    <string name="label_price">登録時価格</string>
+    <string name="label_disabled_tag">障害者マーク</string>
+    <string name="label_active_vehicles">同モデル稼働車両数</string>
+    <string name="label_safety_score">安全スコア</string>
+    <string name="label_country_origin">原産国</string>
+    <string name="label_green_index">グリーン指数</string>
+    <string name="label_model_code">モデルコード</string>
+    <string name="label_registration_directive">登録指令</string>
+    <string name="label_yes">はい</string>
+    <string name="label_no">いいえ</string>
+    <string name="label_ownership_history">所有履歴</string>
+    <string name="label_no_disabled_tag">障害者駐車タグなし</string>
+    <string name="label_has_disabled_tag">障害者駐車タグあり</string>
+    <string name="label_section_equipment">装備</string>
+    <string name="label_section_safety">安全システム</string>
+    <string name="label_section_history">履歴</string>
+
     <!-- Settings -->
     <string name="settings_title">設定</string>
     <string name="settings_region">地域</string>

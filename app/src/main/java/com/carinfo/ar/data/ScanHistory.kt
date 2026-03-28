@@ -2,6 +2,7 @@ package com.carinfo.ar.data
 
 import android.content.Context
 import android.util.Log
+import com.carinfo.ar.data.model.OwnershipRecord
 import com.carinfo.ar.data.model.VehicleInfo
 import com.google.gson.Gson
 import java.io.File
@@ -40,7 +41,49 @@ data class ScanRecord(
     val weight: Int? = null,
     val bodyType: String? = null,
     val insured: String? = null,
-    val wheelbase: Int? = null
+    val wheelbase: Int? = null,
+    // Israel Extended fields
+    val horsepower: Int? = null,
+    val engineDisplacement: Int? = null,
+    val driveType: String? = null,
+    val driveTechnology: String? = null,
+    val standardType: String? = null,
+    val transmission: String? = null,
+    val sunroof: Boolean? = null,
+    val alloyWheels: Boolean? = null,
+    val electricWindows: Int? = null,
+    val tirePressureSensors: Boolean? = null,
+    val reverseCamera: Boolean? = null,
+    val towingWithBrakes: Int? = null,
+    val towingWithoutBrakes: Int? = null,
+    val licensingGroup: Int? = null,
+    val safetyScore: Int? = null,
+    val safetyRating: Int? = null,
+    val countryOfOrigin: String? = null,
+    val greenIndex: Int? = null,
+    val airbagCount: Int? = null,
+    val abs: Boolean? = null,
+    val laneDeparture: Boolean? = null,
+    val stabilityControl: Boolean? = null,
+    val forwardDistanceMonitoring: Boolean? = null,
+    val adaptiveCruise: Boolean? = null,
+    val pedestrianDetection: Boolean? = null,
+    val blindSpotDetection: Boolean? = null,
+    val engineNumber: String? = null,
+    val lastTestKm: Int? = null,
+    val lpgAdded: Boolean? = null,
+    val colorChanged: Boolean? = null,
+    val tiresChanged: Boolean? = null,
+    val originality: String? = null,
+    val towHook: String? = null,
+    val importerName: String? = null,
+    val priceAtRegistration: Int? = null,
+    val ownershipHistory: List<OwnershipRecord>? = null,
+    val disabledTag: Boolean? = null,
+    val activeVehiclesCount: Int? = null,
+    val modelCode: String? = null,
+    val manufacturerCode: Int? = null,
+    val registrationDirective: Int? = null
 )
 
 object ScanHistory {
@@ -104,7 +147,49 @@ object ScanHistory {
             weight = info.weight,
             bodyType = info.bodyType,
             insured = info.insured,
-            wheelbase = info.wheelbase
+            wheelbase = info.wheelbase,
+            // Israel Extended
+            horsepower = info.horsepower,
+            engineDisplacement = info.engineDisplacement,
+            driveType = info.driveType,
+            driveTechnology = info.driveTechnology,
+            standardType = info.standardType,
+            transmission = info.transmission,
+            sunroof = info.sunroof,
+            alloyWheels = info.alloyWheels,
+            electricWindows = info.electricWindows,
+            tirePressureSensors = info.tirePressureSensors,
+            reverseCamera = info.reverseCamera,
+            towingWithBrakes = info.towingWithBrakes,
+            towingWithoutBrakes = info.towingWithoutBrakes,
+            licensingGroup = info.licensingGroup,
+            safetyScore = info.safetyScore,
+            safetyRating = info.safetyRating,
+            countryOfOrigin = info.countryOfOrigin,
+            greenIndex = info.greenIndex,
+            airbagCount = info.airbagCount,
+            abs = info.abs,
+            laneDeparture = info.laneDeparture,
+            stabilityControl = info.stabilityControl,
+            forwardDistanceMonitoring = info.forwardDistanceMonitoring,
+            adaptiveCruise = info.adaptiveCruise,
+            pedestrianDetection = info.pedestrianDetection,
+            blindSpotDetection = info.blindSpotDetection,
+            engineNumber = info.engineNumber,
+            lastTestKm = info.lastTestKm,
+            lpgAdded = info.lpgAdded,
+            colorChanged = info.colorChanged,
+            tiresChanged = info.tiresChanged,
+            originality = info.originality,
+            towHook = info.towHook,
+            importerName = info.importerName,
+            priceAtRegistration = info.priceAtRegistration,
+            ownershipHistory = info.ownershipHistory,
+            disabledTag = info.disabledTag,
+            activeVehiclesCount = info.activeVehiclesCount,
+            modelCode = info.modelCode,
+            manufacturerCode = info.manufacturerCode,
+            registrationDirective = info.registrationDirective
         ))
         // Keep max 100
         val trimmed = records.take(100)

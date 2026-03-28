@@ -62,6 +62,54 @@
     <string name="label_insured">مؤمن</string>
     <string name="label_chassis">رقم الهيكل</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">حصان</string>
+    <string name="label_displacement">سعة المحرك</string>
+    <string name="label_drive">الدفع</string>
+    <string name="label_drive_tech">تقنية الدفع</string>
+    <string name="label_transmission">ناقل الحركة</string>
+    <string name="label_standard">نوع المعيار</string>
+    <string name="label_sunroof">فتحة سقف</string>
+    <string name="label_alloy_wheels">جنوط سبائك</string>
+    <string name="label_electric_windows">نوافذ كهربائية</string>
+    <string name="label_tire_pressure">حساسات ضغط الإطارات</string>
+    <string name="label_reverse_camera">كاميرا خلفية</string>
+    <string name="label_towing_brakes">سحب (مع فرامل)</string>
+    <string name="label_towing_no_brakes">سحب (بدون فرامل)</string>
+    <string name="label_licensing_group">مجموعة الترخيص</string>
+    <string name="label_airbags">وسائد هوائية</string>
+    <string name="label_abs">نظام ABS</string>
+    <string name="label_stability">التحكم بالثبات</string>
+    <string name="label_lane_departure">تنبيه مغادرة المسار</string>
+    <string name="label_distance_monitor">مراقبة المسافة</string>
+    <string name="label_adaptive_cruise">تثبيت سرعة تكيفي</string>
+    <string name="label_pedestrian">كشف المشاة</string>
+    <string name="label_blind_spot">كشف النقطة العمياء</string>
+    <string name="label_engine_number">رقم المحرك</string>
+    <string name="label_last_test_km">آخر فحص كم</string>
+    <string name="label_lpg_added">غاز مضاف</string>
+    <string name="label_color_changed">تغيير لون</string>
+    <string name="label_tires_changed">تغيير إطارات</string>
+    <string name="label_originality">أصالة</string>
+    <string name="label_tow_hook">خطاف سحب</string>
+    <string name="label_importer">المستورد</string>
+    <string name="label_price">السعر عند التسجيل</string>
+    <string name="label_disabled_tag">بطاقة إعاقة</string>
+    <string name="label_active_vehicles">مركبات نشطة (نفس الطراز)</string>
+    <string name="label_safety_score">تقييم السلامة</string>
+    <string name="label_country_origin">بلد المنشأ</string>
+    <string name="label_green_index">المؤشر الأخضر</string>
+    <string name="label_model_code">رمز الطراز</string>
+    <string name="label_registration_directive">توجيه التسجيل</string>
+    <string name="label_yes">نعم</string>
+    <string name="label_no">لا</string>
+    <string name="label_ownership_history">تاريخ الملكية</string>
+    <string name="label_no_disabled_tag">لا يوجد بطاقة إعاقة</string>
+    <string name="label_has_disabled_tag">يوجد بطاقة إعاقة</string>
+    <string name="label_section_equipment">التجهيزات</string>
+    <string name="label_section_safety">أنظمة السلامة</string>
+    <string name="label_section_history">السجل</string>
+
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_region">المنطقة</string>

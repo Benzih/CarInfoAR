@@ -62,6 +62,54 @@
     <string name="label_insured">Versichert</string>
     <string name="label_chassis">Fahrgestell</string>
 
+    <!-- Israel Extended Labels -->
+    <string name="label_horsepower">Pferdestärken</string>
+    <string name="label_displacement">Hubraum</string>
+    <string name="label_drive">Antrieb</string>
+    <string name="label_drive_tech">Antriebstechnologie</string>
+    <string name="label_transmission">Getriebe</string>
+    <string name="label_standard">Normtyp</string>
+    <string name="label_sunroof">Schiebedach</string>
+    <string name="label_alloy_wheels">Leichtmetallfelgen</string>
+    <string name="label_electric_windows">Elektrische Fensterheber</string>
+    <string name="label_tire_pressure">Reifendrucksensoren</string>
+    <string name="label_reverse_camera">Rückfahrkamera</string>
+    <string name="label_towing_brakes">Anhängelast (mit Bremsen)</string>
+    <string name="label_towing_no_brakes">Anhängelast (ohne Bremsen)</string>
+    <string name="label_licensing_group">Lizenzgruppe</string>
+    <string name="label_airbags">Airbags</string>
+    <string name="label_abs">ABS</string>
+    <string name="label_stability">Stabilitätskontrolle</string>
+    <string name="label_lane_departure">Spurhalteassistent</string>
+    <string name="label_distance_monitor">Abstandsüberwachung</string>
+    <string name="label_adaptive_cruise">Adaptiver Tempomat</string>
+    <string name="label_pedestrian">Fußgängererkennung</string>
+    <string name="label_blind_spot">Toter-Winkel-Erkennung</string>
+    <string name="label_engine_number">Motornummer</string>
+    <string name="label_last_test_km">Letzter Test KM</string>
+    <string name="label_lpg_added">LPG hinzugefügt</string>
+    <string name="label_color_changed">Farbe geändert</string>
+    <string name="label_tires_changed">Reifen geändert</string>
+    <string name="label_originality">Originalität</string>
+    <string name="label_tow_hook">Anhängerkupplung</string>
+    <string name="label_importer">Importeur</string>
+    <string name="label_price">Preis bei Zulassung</string>
+    <string name="label_disabled_tag">Behindertenausweis</string>
+    <string name="label_active_vehicles">Aktive Fahrzeuge (gleiches Modell)</string>
+    <string name="label_safety_score">Sicherheitsbewertung</string>
+    <string name="label_country_origin">Herkunftsland</string>
+    <string name="label_green_index">Grüner Index</string>
+    <string name="label_model_code">Modellcode</string>
+    <string name="label_registration_directive">Zulassungsrichtlinie</string>
+    <string name="label_yes">Ja</string>
+    <string name="label_no">Nein</string>
+    <string name="label_ownership_history">Eigentumshistorie</string>
+    <string name="label_no_disabled_tag">Kein Behindertenausweis</string>
+    <string name="label_has_disabled_tag">Hat Behindertenausweis</string>
+    <string name="label_section_equipment">Ausstattung</string>
+    <string name="label_section_safety">Sicherheitssysteme</string>
+    <string name="label_section_history">Geschichte</string>
+
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
     <string name="settings_region">Region</string>
