@@ -247,16 +247,17 @@ fun FloatingCarInfo(
                 vehicleInfo.lastTestDate?.let { InfoRow(stringResource(R.string.label_last_test), it) }
             }
 
-            // === BASIC INFO ===
-            vehicleInfo.color?.let { InfoRow(stringResource(R.string.label_color), it) }
-            vehicleInfo.fuelType?.let { InfoRow(stringResource(R.string.label_fuel), it) }
-            vehicleInfo.ownership?.let { InfoRow(stringResource(R.string.label_ownership), it) }
-            vehicleInfo.bodyType?.let { InfoRow(stringResource(R.string.label_body), it) }
-            vehicleInfo.onRoadDate?.let { InfoRow(stringResource(R.string.label_registered), it) }
-            vehicleInfo.countryOfOrigin?.let { InfoRow(stringResource(R.string.label_country_origin), it) }
-            plateNumber?.let { InfoRow(stringResource(R.string.label_plate), it) }
+            // === OWNERSHIP HISTORY (IL) — right after test ===
+            val hasOwnership = !vehicleInfo.ownershipHistory.isNullOrEmpty()
+            if (hasOwnership) {
+                SectionDivider()
+                SectionHeader(stringResource(R.string.label_ownership_history))
+                vehicleInfo.ownershipHistory?.forEach { record ->
+                    InfoRow(record.date, record.type)
+                }
+            }
 
-            // === IMPORTER & PRICE (IL) ===
+            // === IMPORTER & PRICE (IL) — right after ownership ===
             val hasImporter = vehicleInfo.importerName != null || vehicleInfo.priceAtRegistration != null
             if (hasImporter) {
                 SectionDivider()
@@ -286,6 +287,50 @@ fun FloatingCarInfo(
                     }
                 }
             }
+
+            // === DISABLED TAG — right after price ===
+            vehicleInfo.disabledTag?.let { hasTag ->
+                SectionDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.15f)
+                            else Color.White.copy(alpha = 0.05f)
+                        )
+                        .border(
+                            1.dp,
+                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.4f)
+                            else Color(0xFF333333),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "♿",
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = if (hasTag) stringResource(R.string.label_has_disabled_tag)
+                               else stringResource(R.string.label_no_disabled_tag),
+                        color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+
+            // === BASIC INFO ===
+            vehicleInfo.color?.let { InfoRow(stringResource(R.string.label_color), it) }
+            vehicleInfo.fuelType?.let { InfoRow(stringResource(R.string.label_fuel), it) }
+            vehicleInfo.ownership?.let { InfoRow(stringResource(R.string.label_ownership), it) }
+            vehicleInfo.bodyType?.let { InfoRow(stringResource(R.string.label_body), it) }
+            vehicleInfo.onRoadDate?.let { InfoRow(stringResource(R.string.label_registered), it) }
+            vehicleInfo.countryOfOrigin?.let { InfoRow(stringResource(R.string.label_country_origin), it) }
+            plateNumber?.let { InfoRow(stringResource(R.string.label_plate), it) }
 
             // === ENGINE ===
             val hasEngine = vehicleInfo.engineCapacity != null || vehicleInfo.engineModel != null ||
@@ -400,51 +445,6 @@ fun FloatingCarInfo(
                 vehicleInfo.colorChanged?.let { InfoRow(stringResource(R.string.label_color_changed), boolToYesNo(it)) }
                 vehicleInfo.tiresChanged?.let { InfoRow(stringResource(R.string.label_tires_changed), boolToYesNo(it)) }
                 vehicleInfo.originality?.let { InfoRow(stringResource(R.string.label_originality), it) }
-            }
-
-            // === OWNERSHIP HISTORY (IL) ===
-            val hasOwnership = !vehicleInfo.ownershipHistory.isNullOrEmpty()
-            if (hasOwnership) {
-                SectionDivider()
-                SectionHeader(stringResource(R.string.label_ownership_history))
-                vehicleInfo.ownershipHistory?.forEach { record ->
-                    InfoRow(record.date, record.type)
-                }
-            }
-
-            // === DISABLED TAG ===
-            vehicleInfo.disabledTag?.let { hasTag ->
-                SectionDivider()
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.15f)
-                            else Color.White.copy(alpha = 0.05f)
-                        )
-                        .border(
-                            1.dp,
-                            if (hasTag) Color(0xFFFFAA00).copy(alpha = 0.4f)
-                            else Color(0xFF333333),
-                            RoundedCornerShape(8.dp)
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (hasTag) "♿" else "♿",
-                        fontSize = 16.sp
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = if (hasTag) stringResource(R.string.label_has_disabled_tag)
-                               else stringResource(R.string.label_no_disabled_tag),
-                        color = if (hasTag) Color(0xFFFFAA00) else Color(0xFF888888),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
             }
 
             // === STATISTICS ===
