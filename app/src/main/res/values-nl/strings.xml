@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">bijv. 12345678</string>
     <string name="camera_saved_to_history">Opgeslagen in geschiedenis</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Scannen uit afbeelding</string>
+    <string name="image_picker_subtitle">Kies een foto of maak een nieuwe</string>
+    <string name="image_picker_gallery">Galerij</string>
+    <string name="image_picker_camera">Foto maken</string>
+    <string name="image_picker_analyzing">Kenteken uit afbeelding lezen…</string>
+    <string name="image_picker_no_plate">Geen kenteken gevonden in deze afbeelding</string>
+    <string name="image_picker_error">Kan afbeelding niet lezen</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Onbekend</string>
     <string name="overlay_save">Opslaan</string>

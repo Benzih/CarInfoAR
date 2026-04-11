@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">ex. 12345678</string>
     <string name="camera_saved_to_history">Enregistré dans l\'historique</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Scanner depuis une image</string>
+    <string name="image_picker_subtitle">Choisis une photo ou prends-en une nouvelle</string>
+    <string name="image_picker_gallery">Galerie</string>
+    <string name="image_picker_camera">Prendre une photo</string>
+    <string name="image_picker_analyzing">Lecture de la plaque depuis l\'image…</string>
+    <string name="image_picker_no_plate">Aucune plaque trouvée dans cette image</string>
+    <string name="image_picker_error">Échec de la lecture de l\'image</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Inconnu</string>
     <string name="overlay_save">Enregistrer</string>

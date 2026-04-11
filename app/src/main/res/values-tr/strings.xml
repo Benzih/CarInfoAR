@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">ör. 12345678</string>
     <string name="camera_saved_to_history">Geçmişe kaydedildi</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Görüntüden Tara</string>
+    <string name="image_picker_subtitle">Bir fotoğraf seç veya yeni bir tane çek</string>
+    <string name="image_picker_gallery">Galeri</string>
+    <string name="image_picker_camera">Fotoğraf Çek</string>
+    <string name="image_picker_analyzing">Görüntüden plaka okunuyor…</string>
+    <string name="image_picker_no_plate">Bu görüntüde plaka bulunamadı</string>
+    <string name="image_picker_error">Görüntü okunamadı</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Bilinmiyor</string>
     <string name="overlay_save">Kaydet</string>

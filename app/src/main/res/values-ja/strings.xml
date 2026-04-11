@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">例: 12345678</string>
     <string name="camera_saved_to_history">履歴に保存しました</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">画像からスキャン</string>
+    <string name="image_picker_subtitle">写真を選ぶか、新しく撮影します</string>
+    <string name="image_picker_gallery">ギャラリー</string>
+    <string name="image_picker_camera">写真を撮る</string>
+    <string name="image_picker_analyzing">画像からナンバープレートを読み取っています…</string>
+    <string name="image_picker_no_plate">この画像にナンバープレートが見つかりません</string>
+    <string name="image_picker_error">画像の読み込みに失敗しました</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">不明</string>
     <string name="overlay_save">保存</string>

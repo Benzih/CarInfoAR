@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">לדוגמה 12345678</string>
     <string name="camera_saved_to_history">נשמר בהיסטוריה</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">סריקה מתמונה</string>
+    <string name="image_picker_subtitle">בחר תמונה קיימת או צלם חדשה</string>
+    <string name="image_picker_gallery">גלריה</string>
+    <string name="image_picker_camera">צלם תמונה</string>
+    <string name="image_picker_analyzing">קורא מספר לוחית מהתמונה…</string>
+    <string name="image_picker_no_plate">לא נמצאה לוחית רישוי בתמונה</string>
+    <string name="image_picker_error">שגיאה בקריאת התמונה</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">לא ידוע</string>
     <string name="overlay_save">שמור</string>

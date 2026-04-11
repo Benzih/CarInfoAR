@@ -146,30 +146,61 @@ object BillingManager {
         val client = billingClient
         if (client == null || !client.isReady) {
             Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_store_unavailable), Toast.LENGTH_SHORT).show()
-            // Try to reconnect
-            connectBillingClient(activity)
+            // Try to reconnect — use application context to avoid leaking the activity
+            appContext?.let { connectBillingClient(it) }
             return false
         }
 
         val details = productDetails
-        if (details == null) {
+        // Guard against null product OR product with no offer details (stale cache)
+        if (details == null || details.oneTimePurchaseOfferDetails == null) {
             Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_loading_price), Toast.LENGTH_SHORT).show()
+            // Force re-query to get fresh product details
+            productDetails = null
             queryProduct()
             return false
         }
 
-        val params = BillingFlowParams.newBuilder()
-            .setProductDetailsParamsList(
-                listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(details)
-                        .build()
+        val params = try {
+            BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(
+                    listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(details)
+                            .build()
+                    )
                 )
-            )
-            .build()
+                .build()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to build BillingFlowParams", e)
+            Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_store_unavailable), Toast.LENGTH_SHORT).show()
+            productDetails = null
+            queryProduct()
+            return false
+        }
 
-        client.launchBillingFlow(activity, params)
-        return true
+        // Wrap launchBillingFlow in try-catch — Google's ProxyBillingActivity can throw
+        // NullPointerException on PendingIntent.getIntentSender() when the product is
+        // stale or the Play Store returns a null intent.
+        return try {
+            val result = client.launchBillingFlow(activity, params)
+            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
+                Log.e(TAG, "launchBillingFlow failed: ${result.responseCode} - ${result.debugMessage}")
+                Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_store_unavailable), Toast.LENGTH_SHORT).show()
+                // Refresh product details for next attempt
+                productDetails = null
+                queryProduct()
+                false
+            } else {
+                true
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "launchBillingFlow crashed", e)
+            Toast.makeText(activity, activity.getString(com.carinfo.ar.R.string.billing_store_unavailable), Toast.LENGTH_SHORT).show()
+            productDetails = null
+            queryProduct()
+            false
+        }
     }
 
     private fun handlePurchase(context: Context, purchase: Purchase) {

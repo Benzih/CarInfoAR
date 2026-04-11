@@ -4,9 +4,17 @@ import android.app.Activity
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.graphics.Matrix
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import android.util.Size
+import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
+import java.io.File
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -49,11 +57,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PhotoLibrary
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -97,6 +109,9 @@ import com.carinfo.ar.BuildConfig
 import com.carinfo.ar.R
 import com.carinfo.ar.ads.AdManager
 import com.carinfo.ar.camera.PlateAnalyzer
+import com.carinfo.ar.camera.StaticImageOcr
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.carinfo.ar.data.ScanHistory
 import com.carinfo.ar.data.SupportedCountry
 import com.carinfo.ar.data.UserPreferences
@@ -197,6 +212,78 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     var viewHeight by remember { mutableIntStateOf(1) }
     var showManualInput by remember { mutableStateOf(false) }
     var manualPlateText by remember { mutableStateOf("") }
+
+    // Image-based plate scan state
+    var showImagePicker by remember { mutableStateOf(false) }
+    var isAnalyzingImage by remember { mutableStateOf(false) }
+    var pendingCameraUri by remember { mutableStateOf<Uri?>(null) }
+
+    // Shared handler: given a Uri, load the bitmap and run OCR
+    fun processImageUri(uri: Uri) {
+        isAnalyzingImage = true
+        scope.launch {
+            try {
+                val bitmap = withContext(Dispatchers.IO) { loadBitmapFromUri(context, uri) }
+                if (bitmap == null) {
+                    Toast.makeText(context, context.getString(R.string.image_picker_error), Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                val plate = withContext(Dispatchers.Default) {
+                    StaticImageOcr.extractPlate(bitmap, country ?: SupportedCountry.ISRAEL)
+                }
+                try { bitmap.recycle() } catch (_: Exception) {}
+
+                if (plate == null) {
+                    Toast.makeText(context, context.getString(R.string.image_picker_no_plate), Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+
+                // Found a plate — run the same lookup flow as manual input
+                AnalyticsManager.manualInputSearched(plate, (country ?: SupportedCountry.ISRAEL).code)
+                overlayStates[plate] = PlateOverlayState(
+                    plateNumber = plate,
+                    screenX = viewWidth / 2f,
+                    screenY = viewHeight / 2f,
+                    isLoading = true
+                )
+                val info = VehicleCache.fetchIfNeeded(plate, country ?: SupportedCountry.ISRAEL)
+                overlayStates[plate]?.let { current ->
+                    overlayStates[plate] = current.copy(
+                        vehicleInfo = info,
+                        isLoading = false,
+                        lastSeenTime = System.currentTimeMillis()
+                    )
+                }
+                if (info != null) {
+                    SoundManager.playInfoLoaded()
+                    ScanHistory.save(context, plate, info)
+                    AnalyticsManager.vehicleInfoLoaded(plate, info.manufacturer, info.model, (country ?: SupportedCountry.ISRAEL).code)
+                } else {
+                    AnalyticsManager.vehicleNotFound(plate, (country ?: SupportedCountry.ISRAEL).code)
+                    Toast.makeText(context, context.getString(R.string.image_picker_no_plate), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("CameraScreen", "Image OCR failed", e)
+                Toast.makeText(context, context.getString(R.string.image_picker_error), Toast.LENGTH_SHORT).show()
+            } finally {
+                isAnalyzingImage = false
+            }
+        }
+    }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) processImageUri(uri)
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        val uri = pendingCameraUri
+        pendingCameraUri = null
+        if (success && uri != null) processImageUri(uri)
+    }
 
     // LazyColumn scroll state — auto-scroll to top on new detection
     val listState = rememberLazyListState()
@@ -446,6 +533,18 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     }
                 }
                 Spacer(Modifier.weight(1f))
+                // Image picker button (gallery + camera)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(GlassOverlay)
+                        .clickable { showImagePicker = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Default.Image, stringResource(R.string.image_picker_title), tint = Color.White, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -588,8 +687,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
             val statusBarPx = with(density) { 52.dp.toPx() }
             // History button is 2nd from right in LTR, 2nd from left in RTL
-            // Layout: Reset | Spacer | Manual(40dp+8dp) | History(40dp+8dp) | Settings(40dp) | 16dp padding
-            // From right edge: 16 + 40 + 8 = 64dp to center of History
+            // Layout (LTR): Reset | Spacer | Image(40+8) | Manual(40+8) | History(40+8) | Settings(40) | 16dp padding
+            // From right edge to center of History: 16 + 40 + 8 + 20 = 84dp
             val historyEndX = if (isRtl) {
                 with(density) { (16 + 40 + 8 + 20).dp.toPx() } // 84dp from left in RTL
             } else {
@@ -654,6 +753,52 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 Spacer(Modifier.height(8.dp))
                 Text(stringResource(R.string.error_camera_grant), style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+            }
+        }
+    }
+
+    // Image picker choice dialog (Gallery / Camera)
+    if (showImagePicker) {
+        ImagePickerDialog(
+            onGallery = {
+                showImagePicker = false
+                galleryLauncher.launch(
+                    androidx.activity.result.PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            },
+            onCamera = {
+                showImagePicker = false
+                val uri = createCameraCaptureUri(context)
+                if (uri != null) {
+                    pendingCameraUri = uri
+                    cameraLauncher.launch(uri)
+                } else {
+                    Toast.makeText(context, context.getString(R.string.image_picker_error), Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDismiss = { showImagePicker = false }
+        )
+    }
+
+    // Full-screen analyzing overlay while OCR runs
+    if (isAnalyzingImage) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xCC000000)),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator(color = BrandPrimary)
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    stringResource(R.string.image_picker_analyzing),
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }
@@ -777,5 +922,146 @@ private fun ManualPlateDialog(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ImagePickerDialog(
+    onGallery: () -> Unit,
+    onCamera: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    BasicAlertDialog(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color(0xFF1A1A2E))
+                .border(1.dp, Color(0xFF2A2A4A), RoundedCornerShape(20.dp))
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                stringResource(R.string.image_picker_title),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.image_picker_subtitle),
+                color = Color(0xFF9A9AB5),
+                fontSize = 13.sp
+            )
+            Spacer(Modifier.height(20.dp))
+            // Gallery option
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(BrandPrimary)
+                    .clickable { onGallery() }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.PhotoLibrary, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(stringResource(R.string.image_picker_gallery), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+            // Camera option
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFF2A2A4A))
+                    .clickable { onCamera() }
+                    .padding(vertical = 14.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.CameraAlt, null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Spacer(Modifier.width(10.dp))
+                    Text(stringResource(R.string.image_picker_camera), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.camera_cancel),
+                color = Color.Gray,
+                fontSize = 14.sp,
+                modifier = Modifier.clickable { onDismiss() }
+            )
+        }
+    }
+}
+
+// ===== Image loading helpers =====
+
+/**
+ * Load a bitmap from a content:// or file:// uri, correctly oriented per EXIF.
+ * Returns null if decoding fails.
+ */
+private fun loadBitmapFromUri(context: android.content.Context, uri: Uri): Bitmap? {
+    return try {
+        // On API 28+ ImageDecoder handles EXIF orientation automatically
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val source = ImageDecoder.createSource(context.contentResolver, uri)
+            ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                decoder.isMutableRequired = true
+                decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+            }
+        } else {
+            // Pre-API 28: decode via BitmapFactory + rotate per EXIF
+            val raw = context.contentResolver.openInputStream(uri)?.use {
+                BitmapFactory.decodeStream(it)
+            } ?: return null
+
+            val rotation = context.contentResolver.openInputStream(uri)?.use { stream ->
+                try {
+                    val exif = ExifInterface(stream)
+                    when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                        else -> 0f
+                    }
+                } catch (e: Exception) {
+                    0f
+                }
+            } ?: 0f
+
+            if (rotation != 0f) {
+                val matrix = Matrix().apply { postRotate(rotation) }
+                val rotated = Bitmap.createBitmap(raw, 0, 0, raw.width, raw.height, matrix, true)
+                if (rotated !== raw) raw.recycle()
+                rotated
+            } else {
+                raw
+            }
+        }
+    } catch (e: Exception) {
+        Log.e("CameraScreen", "Failed to load bitmap from uri", e)
+        null
+    }
+}
+
+/**
+ * Create a temp file in the app cache and return a content:// uri for camera capture.
+ */
+private fun createCameraCaptureUri(context: android.content.Context): Uri? {
+    return try {
+        val dir = File(context.cacheDir, "camera_captures").apply { mkdirs() }
+        val file = File(dir, "capture_${System.currentTimeMillis()}.jpg")
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+    } catch (e: Exception) {
+        Log.e("CameraScreen", "Failed to create camera capture uri", e)
+        null
     }
 }

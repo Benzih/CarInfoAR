@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">es. 12345678</string>
     <string name="camera_saved_to_history">Salvato nella cronologia</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Scansiona da immagine</string>
+    <string name="image_picker_subtitle">Scegli una foto o scattane una nuova</string>
+    <string name="image_picker_gallery">Galleria</string>
+    <string name="image_picker_camera">Scatta foto</string>
+    <string name="image_picker_analyzing">Lettura targa dall\'immagine…</string>
+    <string name="image_picker_no_plate">Nessuna targa trovata in questa immagine</string>
+    <string name="image_picker_error">Impossibile leggere l\'immagine</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Sconosciuto</string>
     <string name="overlay_save">Salva</string>

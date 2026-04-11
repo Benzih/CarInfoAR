@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">مثال 12345678</string>
     <string name="camera_saved_to_history">تم الحفظ في السجل</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">مسح من صورة</string>
+    <string name="image_picker_subtitle">اختر صورة أو التقط صورة جديدة</string>
+    <string name="image_picker_gallery">المعرض</string>
+    <string name="image_picker_camera">التقاط صورة</string>
+    <string name="image_picker_analyzing">قراءة اللوحة من الصورة…</string>
+    <string name="image_picker_no_plate">لم يتم العثور على لوحة ترخيص في هذه الصورة</string>
+    <string name="image_picker_error">فشل في قراءة الصورة</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">غير معروف</string>
     <string name="overlay_save">حفظ</string>

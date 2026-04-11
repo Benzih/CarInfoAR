@@ -31,6 +31,15 @@
     <string name="camera_plate_placeholder">e.g. 12345678</string>
     <string name="camera_saved_to_history">Saved to history</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Scan from Image</string>
+    <string name="image_picker_subtitle">Pick a photo or take a new one</string>
+    <string name="image_picker_gallery">Gallery</string>
+    <string name="image_picker_camera">Take Photo</string>
+    <string name="image_picker_analyzing">Reading plate from image…</string>
+    <string name="image_picker_no_plate">No license plate found in this image</string>
+    <string name="image_picker_error">Failed to read image</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Unknown</string>
     <string name="overlay_save">Save</string>

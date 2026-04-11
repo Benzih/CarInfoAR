@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">z.B. 12345678</string>
     <string name="camera_saved_to_history">Im Verlauf gespeichert</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Aus Bild scannen</string>
+    <string name="image_picker_subtitle">Wähle ein Foto aus oder mache ein neues</string>
+    <string name="image_picker_gallery">Galerie</string>
+    <string name="image_picker_camera">Foto aufnehmen</string>
+    <string name="image_picker_analyzing">Kennzeichen aus Bild lesen…</string>
+    <string name="image_picker_no_plate">Kein Kennzeichen im Bild gefunden</string>
+    <string name="image_picker_error">Bild konnte nicht gelesen werden</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Unbekannt</string>
     <string name="overlay_save">Speichern</string>

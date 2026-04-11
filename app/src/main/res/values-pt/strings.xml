@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">ex. 12345678</string>
     <string name="camera_saved_to_history">Guardado no histórico</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Digitalizar da imagem</string>
+    <string name="image_picker_subtitle">Escolhe uma foto ou tira uma nova</string>
+    <string name="image_picker_gallery">Galeria</string>
+    <string name="image_picker_camera">Tirar foto</string>
+    <string name="image_picker_analyzing">A ler matrícula da imagem…</string>
+    <string name="image_picker_no_plate">Nenhuma matrícula encontrada nesta imagem</string>
+    <string name="image_picker_error">Falha ao ler a imagem</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Desconhecido</string>
     <string name="overlay_save">Guardar</string>

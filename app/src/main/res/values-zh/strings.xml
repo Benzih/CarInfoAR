@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">例如 12345678</string>
     <string name="camera_saved_to_history">已保存到历史记录</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">从图片扫描</string>
+    <string name="image_picker_subtitle">选择照片或拍摄新照片</string>
+    <string name="image_picker_gallery">相册</string>
+    <string name="image_picker_camera">拍照</string>
+    <string name="image_picker_analyzing">正在从图片读取车牌…</string>
+    <string name="image_picker_no_plate">此图片中未找到车牌</string>
+    <string name="image_picker_error">读取图片失败</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">未知</string>
     <string name="overlay_save">保存</string>

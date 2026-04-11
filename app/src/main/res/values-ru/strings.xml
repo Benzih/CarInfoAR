@@ -28,6 +28,15 @@
     <string name="camera_plate_placeholder">напр. 12345678</string>
     <string name="camera_saved_to_history">Сохранено в историю</string>
 
+    <!-- Image picker / photo scan -->
+    <string name="image_picker_title">Сканировать из изображения</string>
+    <string name="image_picker_subtitle">Выберите фото или сделайте новое</string>
+    <string name="image_picker_gallery">Галерея</string>
+    <string name="image_picker_camera">Сделать фото</string>
+    <string name="image_picker_analyzing">Распознавание номера из изображения…</string>
+    <string name="image_picker_no_plate">Номерной знак на изображении не найден</string>
+    <string name="image_picker_error">Не удалось прочитать изображение</string>
+
     <!-- Overlay -->
     <string name="overlay_unknown">Неизвестно</string>
     <string name="overlay_save">Сохранить</string>
