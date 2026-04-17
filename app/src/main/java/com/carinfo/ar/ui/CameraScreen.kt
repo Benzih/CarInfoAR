@@ -476,10 +476,11 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                 }
                                             }
 
-                                            // Only remove loading overlays that timed out (no data after 10s)
+                                            // Remove not-found indicators after 3s so the reset button
+                                            // and scan hint don't stay stuck while nothing is visible.
                                             val toRemove = overlayStates.keys.filter { key ->
                                                 val state = overlayStates[key] ?: return@filter true
-                                                state.vehicleInfo == null && !state.isLoading && (now - state.lastSeenTime) > 5000
+                                                state.vehicleInfo == null && !state.isLoading && (now - state.lastSeenTime) > 3000
                                             }
                                             toRemove.forEach { overlayStates.remove(it) }
                                         }
@@ -508,6 +509,13 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             ScanEffect()
             ViewfinderOverlay()
 
+            // All overlays are visible: found cards, loading spinners, and short-lived
+            // not-found indicators. The cleanup in onPlatesDetected removes stale
+            // not-found entries after 3s, so reset button and scan hint stay in sync.
+            val visibleStates = overlayStates.values
+                .sortedByDescending { it.lastSeenTime }
+                .toList()
+
             // Top HUD bar
             Row(
                 modifier = Modifier
@@ -515,7 +523,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     .padding(top = 52.dp, start = 16.dp, end = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (overlayStates.isNotEmpty()) {
+                if (visibleStates.isNotEmpty()) {
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
@@ -581,7 +589,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             }
 
             // Bottom hint/reset
-            if (overlayStates.isEmpty()) {
+            if (visibleStates.isEmpty()) {
                 val infiniteTransition = rememberInfiniteTransition(label = "blink")
                 val alpha by infiniteTransition.animateFloat(
                     initialValue = 1f,
@@ -627,11 +635,6 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
             }
 
             // Vehicle info cards — scrollable list in top third of screen
-            val visibleStates = overlayStates.values
-                .filter { it.vehicleInfo != null || it.isLoading }
-                .sortedByDescending { it.lastSeenTime }
-                .toList()
-
             if (visibleStates.isNotEmpty()) {
                 // Auto-scroll to top when new items appear
                 LaunchedEffect(visibleStates.size) {
@@ -677,6 +680,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                             )
                         } else if (state.isLoading) {
                             LoadingPlateIndicator(plateNumber = state.plateNumber)
+                        } else {
+                            PlateNotFoundIndicator(plateNumber = state.plateNumber)
                         }
                     }
                 }

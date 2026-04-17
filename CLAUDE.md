@@ -1,8 +1,8 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.2.1 (versionCode 15)
+> **Version:** 1.2.3 (versionCode 17)
 > **Platform:** Android
-> **Last Updated:** 2026-03-28
+> **Last Updated:** 2026-04-17
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -1446,7 +1446,9 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 11          | 1.1.0       | Internal testing | Mar 26, 2026  | Superseded      | Analytics, save animation, sound fallback |
 | 12          | 1.1.1       | Closed testing   | Mar 26, 2026  | Superseded      | First submission for review              |
 | 14          | 1.2.0       | Internal testing | Mar 27, 2026  | Superseded      | Disclaimer fix for Play Store            |
-| 15          | 1.2.1       | Internal testing | Mar 27, 2026  | **Active**      | Extended data: 8 IL resources, 3 NL resources, UK extra fields, history screen with all fields, 45% scroll area |
+| 15          | 1.2.1       | Internal testing | Mar 27, 2026  | Superseded      | Extended data: 8 IL resources, 3 NL resources, UK extra fields, history screen with all fields, 45% scroll area |
+| 16          | 1.2.2       | Production       | Mar 28, 2026  | Superseded      | Image-based plate scanning, Billing PendingIntent NPE guard |
+| 17          | 1.2.3       | Production       | Apr 17, 2026  | **Active**      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
 
 ### Play Store Setup Completed
 
