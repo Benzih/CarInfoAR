@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">Inquadra una targa</string>
     <string name="camera_scan_plate_title">Scansiona Targa</string>
     <string name="camera_reset">Reimposta</string>
+    <string name="toolbar_settings">Impostazioni</string>
+    <string name="toolbar_history">Cronologia</string>
+    <string name="toolbar_manual">Manuale</string>
+    <string name="toolbar_image">Immagine</string>
+    <string name="overlay_dismiss">Chiudi</string>
     <string name="camera_enter_plate">Inserisci il numero di targa</string>
     <string name="camera_search">Cerca</string>
     <string name="camera_cancel">Annulla</string>

@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">Visez une plaque d\'immatriculation</string>
     <string name="camera_scan_plate_title">Scanner la Plaque</string>
     <string name="camera_reset">Réinitialiser</string>
+    <string name="toolbar_settings">Réglages</string>
+    <string name="toolbar_history">Historique</string>
+    <string name="toolbar_manual">Manuel</string>
+    <string name="toolbar_image">Photo</string>
+    <string name="overlay_dismiss">Fermer</string>
     <string name="camera_enter_plate">Entrez le numéro de plaque</string>
     <string name="camera_search">Rechercher</string>
     <string name="camera_cancel">Annuler</string>

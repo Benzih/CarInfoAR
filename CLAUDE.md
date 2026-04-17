@@ -1,6 +1,6 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.2.3 (versionCode 17)
+> **Version:** 1.2.4 (versionCode 18)
 > **Platform:** Android
 > **Last Updated:** 2026-04-17
 > **Package:** `com.carinfo.ar`
@@ -182,6 +182,31 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - Custom launcher icon provided at all standard densities: **mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi**.
 - Play Store icon: **512x512** (`ic_launcher_playstore.png`).
 - Adaptive icon XML has been removed; the app uses **PNG directly** for the launcher icon.
+
+### Camera Screen Top Toolbar (v1.2.4+)
+
+The 4 primary actions on CameraScreen use labeled pill buttons:
+- **Image** (🖼️), **Manual** (✏️), **History** (🕐), **Settings** (⚙️)
+
+Design details:
+- **Layout:** `Row` with `fillMaxWidth()` + `Arrangement.SpaceBetween` — pills span the full screen width
+- **Pill styling:** `GlassOverlay` background, `RoundedCornerShape(100.dp)`, 0.5dp white-14%-alpha border, 9dp padding, 16dp icon, 4dp gap, 13sp SemiBold white text, `maxLines=1` + Ellipsis
+- **Localization:** `toolbar_image`, `toolbar_manual`, `toolbar_history`, `toolbar_settings` in all 14 languages
+- **History pulse:** the History pill scales 1.0→1.4→1.0 when a "Saved!" flying-badge lands on it
+- **Dynamic save-target position:** the flying-save animation captures the History pill's center via `onGloballyPositioned` instead of hardcoded coordinates — correct for any translation length and RTL/LTR
+
+### Per-Card Dismiss & Exit Animation (v1.2.4+)
+
+The global "Reset" button was removed. Each overlay (info card, loading indicator, not-found indicator) has its own small X dismiss button in its header.
+
+Tap flow:
+1. User taps X → plate added to `exitingPlates: SnapshotStateList<String>`
+2. `LaunchedEffect(shouldExit)` flips the card's `MutableTransitionState.targetState` to `false`
+3. `AnimatedVisibility` plays exit: `fadeOut(200ms) + scaleOut(target=0.6, origin=center, 260ms) + shrinkVertically(top, 280ms) + slideOutHorizontally(±width/4, 280ms)`
+4. When `visibleState.currentState == false && targetState == false`, the state is removed from `overlayStates` and `plateExactCounts`
+5. LazyColumn's `Modifier.animateItem(placementSpec=tween(320))` smoothly reflows remaining cards upward
+
+Enter animation for new cards: `fadeIn(220ms) + scaleIn(initialScale=0.92f, 260ms) + slideInVertically(fromBottom=1/6, 280ms)`.
 
 ### Release Signing
 
@@ -1448,7 +1473,8 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 14          | 1.2.0       | Internal testing | Mar 27, 2026  | Superseded      | Disclaimer fix for Play Store            |
 | 15          | 1.2.1       | Internal testing | Mar 27, 2026  | Superseded      | Extended data: 8 IL resources, 3 NL resources, UK extra fields, history screen with all fields, 45% scroll area |
 | 16          | 1.2.2       | Production       | Mar 28, 2026  | Superseded      | Image-based plate scanning, Billing PendingIntent NPE guard |
-| 17          | 1.2.3       | Production       | Apr 17, 2026  | **Active**      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
+| 17          | 1.2.3       | Production       | Apr 17, 2026  | Superseded      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
+| 18          | 1.2.4       | Internal testing | Apr 17, 2026  | **Active**      | Camera toolbar redesign: labeled pill buttons (Image/Manual/History/Settings) in all 14 languages, SpaceBetween full-width layout, larger text. Removed global Reset button — each car card has its own X dismiss with scale+fade+shrink exit animation and LazyColumn animateItem for smooth reflow |
 
 ### Play Store Setup Completed
 

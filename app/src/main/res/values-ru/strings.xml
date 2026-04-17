@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">Наведите на номерной знак</string>
     <string name="camera_scan_plate_title">Сканировать Номер</string>
     <string name="camera_reset">Сбросить</string>
+    <string name="toolbar_settings">Настройки</string>
+    <string name="toolbar_history">История</string>
+    <string name="toolbar_manual">Ручной</string>
+    <string name="toolbar_image">Фото</string>
+    <string name="overlay_dismiss">Закрыть</string>
     <string name="camera_enter_plate">Введите номер</string>
     <string name="camera_search">Поиск</string>
     <string name="camera_cancel">Отмена</string>

@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">Bir plakaya doğrultun</string>
     <string name="camera_scan_plate_title">Plaka Tara</string>
     <string name="camera_reset">Sıfırla</string>
+    <string name="toolbar_settings">Ayarlar</string>
+    <string name="toolbar_history">Geçmiş</string>
+    <string name="toolbar_manual">Manuel</string>
+    <string name="toolbar_image">Görüntü</string>
+    <string name="overlay_dismiss">Kapat</string>
     <string name="camera_enter_plate">Plaka numarasını girin</string>
     <string name="camera_search">Ara</string>
     <string name="camera_cancel">İptal</string>

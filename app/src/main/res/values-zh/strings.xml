@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">对准车牌</string>
     <string name="camera_scan_plate_title">扫描车牌</string>
     <string name="camera_reset">重置</string>
+    <string name="toolbar_settings">设置</string>
+    <string name="toolbar_history">历史</string>
+    <string name="toolbar_manual">手动</string>
+    <string name="toolbar_image">图片</string>
+    <string name="overlay_dismiss">关闭</string>
     <string name="camera_enter_plate">输入车牌号</string>
     <string name="camera_search">搜索</string>
     <string name="camera_cancel">取消</string>

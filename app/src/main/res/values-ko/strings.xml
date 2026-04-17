@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">번호판을 향해 주세요</string>
     <string name="camera_scan_plate_title">번호판 스캔</string>
     <string name="camera_reset">초기화</string>
+    <string name="toolbar_settings">설정</string>
+    <string name="toolbar_history">기록</string>
+    <string name="toolbar_manual">수동</string>
+    <string name="toolbar_image">사진</string>
+    <string name="overlay_dismiss">닫기</string>
     <string name="camera_enter_plate">번호판 번호 입력</string>
     <string name="camera_search">검색</string>
     <string name="camera_cancel">취소</string>

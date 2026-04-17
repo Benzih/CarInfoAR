@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">כוון אל לוחית רישוי</string>
     <string name="camera_scan_plate_title">סרוק לוחית רישוי</string>
     <string name="camera_reset">איפוס</string>
+    <string name="toolbar_settings">הגדרות</string>
+    <string name="toolbar_history">היסטוריה</string>
+    <string name="toolbar_manual">ידני</string>
+    <string name="toolbar_image">תמונה</string>
+    <string name="overlay_dismiss">סגור</string>
     <string name="camera_enter_plate">הזן מספר לוחית</string>
     <string name="camera_search">חיפוש</string>
     <string name="camera_cancel">ביטול</string>

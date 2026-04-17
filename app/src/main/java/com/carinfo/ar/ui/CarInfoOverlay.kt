@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.HorizontalDivider
@@ -128,7 +129,8 @@ fun FloatingCarInfo(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
     onSaveToHistory: ((buttonOffset: androidx.compose.ui.geometry.Offset) -> Unit)? = null,
-    onOpenModelInfo: (() -> Unit)? = null
+    onOpenModelInfo: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null
 ) {
     val countryFlag = when (vehicleInfo.country) {
         "IL" -> "\uD83C\uDDEE\uD83C\uDDF1"
@@ -201,7 +203,25 @@ fun FloatingCarInfo(
                         Text(stringResource(R.string.overlay_save), color = BrandPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-                // Web button removed
+                // Dismiss (X) button
+                if (onDelete != null) {
+                    Spacer(Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(26.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(Color.White.copy(alpha = 0.06f))
+                            .clickable { onDelete() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            stringResource(R.string.overlay_dismiss),
+                            tint = Color(0xFFBBBBBB),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
             }
 
             // Accent line
@@ -570,7 +590,8 @@ fun FloatingCarInfo(
 @Composable
 fun LoadingPlateIndicator(
     plateNumber: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDelete: (() -> Unit)? = null
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val alpha by infiniteTransition.animateFloat(
@@ -601,25 +622,68 @@ fun LoadingPlateIndicator(
             text = plateNumber,
             color = BrandPrimary.copy(alpha = alpha),
             fontSize = 13.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f, fill = false)
         )
+        if (onDelete != null) {
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .clickable { onDelete() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    stringResource(R.string.overlay_dismiss),
+                    tint = Color(0xFFBBBBBB),
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun PlateNotFoundIndicator(
     plateNumber: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDelete: (() -> Unit)? = null
 ) {
-    Text(
-        text = "$plateNumber — ${stringResource(R.string.overlay_not_found)}",
-        color = Color(0xFFFF6B6B),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(RoundedCornerShape(10.dp))
             .background(GlassOverlay)
             .border(1.dp, Color(0xFFFF6B6B).copy(alpha = 0.3f), RoundedCornerShape(10.dp))
             .padding(horizontal = 12.dp, vertical = 6.dp)
-    )
+    ) {
+        Text(
+            text = "$plateNumber — ${stringResource(R.string.overlay_not_found)}",
+            color = Color(0xFFFF6B6B),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f, fill = false)
+        )
+        if (onDelete != null) {
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(Color.White.copy(alpha = 0.06f))
+                    .clickable { onDelete() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    stringResource(R.string.overlay_dismiss),
+                    tint = Color(0xFFBBBBBB),
+                    modifier = Modifier.size(12.dp)
+                )
+            }
+        }
+    }
 }

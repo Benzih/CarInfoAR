@@ -29,15 +29,28 @@ import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -62,7 +75,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
@@ -290,6 +302,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
 
     // Save-to-history flying animation
     var historyButtonPos by remember { mutableStateOf(Offset.Zero) }
+    var historyBtnCenter by remember { mutableStateOf(Offset.Zero) }
     var saveAnimStartPos by remember { mutableStateOf(Offset.Zero) }
     var showSaveAnimation by remember { mutableStateOf(false) }
     // History button pulse when animation arrives
@@ -315,6 +328,9 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
         }
     }
     var pinchZoomLogged by remember { mutableStateOf(false) }
+
+    // Plates scheduled for exit animation before removal from overlayStates
+    val exitingPlates = remember { androidx.compose.runtime.mutableStateListOf<String>() }
 
     // Sync sound setting
     val soundEnabled by UserPreferences.isSoundEnabled(context).collectAsState(initial = true)
@@ -516,76 +532,41 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 .sortedByDescending { it.lastSeenTime }
                 .toList()
 
-            // Top HUD bar
+            // Top HUD bar — labeled pill buttons spread across full width
             Row(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
-                    .padding(top = 52.dp, start = 16.dp, end = 16.dp),
+                    .fillMaxWidth()
+                    .padding(top = 52.dp, start = 4.dp, end = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (visibleStates.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(Color(0x99FF4444))
-                            .clickable { overlayStates.clear(); plateExactCounts.clear(); AnalyticsManager.scanReset() }
-                            .padding(horizontal = 14.dp, vertical = 10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Refresh, "Reset", tint = Color.White, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(4.dp))
-                            Text(stringResource(R.string.camera_reset), color = Color.White, fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold)
-                        }
+                ToolbarPillButton(
+                    icon = Icons.Default.Image,
+                    label = stringResource(R.string.toolbar_image),
+                    onClick = { showImagePicker = true }
+                )
+                ToolbarPillButton(
+                    icon = Icons.Default.Edit,
+                    label = stringResource(R.string.toolbar_manual),
+                    onClick = { showManualInput = true; AnalyticsManager.manualInputOpened() }
+                )
+                ToolbarPillButton(
+                    icon = Icons.Default.History,
+                    label = stringResource(R.string.toolbar_history),
+                    onClick = { onOpenHistory() },
+                    scale = historyPulseScale.value,
+                    modifier = Modifier.onGloballyPositioned { coords ->
+                        val pos = coords.positionInRoot()
+                        val size = coords.size
+                        historyBtnCenter = Offset(pos.x + size.width / 2f, pos.y + size.height / 2f)
                     }
-                }
-                Spacer(Modifier.weight(1f))
-                // Image picker button (gallery + camera)
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(GlassOverlay)
-                        .clickable { showImagePicker = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Image, stringResource(R.string.image_picker_title), tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(GlassOverlay)
-                        .clickable { showManualInput = true; AnalyticsManager.manualInputOpened() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Edit, "Manual", tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .scale(historyPulseScale.value)
-                        .clip(CircleShape)
-                        .background(GlassOverlay)
-                        .clickable { onOpenHistory() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.History, "History", tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-                Spacer(Modifier.width(8.dp))
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(GlassOverlay)
-                        .clickable { onOpenSettings() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Settings, "Settings", tint = Color.White, modifier = Modifier.size(20.dp))
-                }
+                )
+                ToolbarPillButton(
+                    icon = Icons.Default.Settings,
+                    label = stringResource(R.string.toolbar_settings),
+                    onClick = { onOpenSettings() }
+                )
             }
 
             // Bottom hint/reset
@@ -643,6 +624,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     }
                 }
 
+                val isRtlList = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
                 androidx.compose.foundation.lazy.LazyColumn(
                     state = listState,
                     modifier = Modifier
@@ -652,54 +634,96 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                         .padding(bottom = 56.dp, start = 8.dp, end = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(visibleStates.size) { index ->
+                    items(
+                        count = visibleStates.size,
+                        key = { index -> visibleStates[index].plateNumber }
+                    ) { index ->
                         val state = visibleStates[index]
-                        if (state.vehicleInfo != null) {
-                            FloatingCarInfo(
-                                vehicleInfo = state.vehicleInfo,
-                                plateNumber = state.plateNumber,
-                                onClick = {
-                                    ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
-                                    SoundManager.playSaved()
-                                    Toast.makeText(context, context.getString(R.string.camera_saved_to_history), Toast.LENGTH_SHORT).show()
-                                },
-                                onSaveToHistory = { buttonOffset ->
-                                    ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
-                                    SoundManager.playSaved()
-                                    AnalyticsManager.historySavedFromCamera(state.plateNumber, countryRef.value.code)
-                                    // Trigger flying animation from save button to history button
-                                    saveAnimStartPos = buttonOffset
-                                    if (BuildConfig.DEBUG) Log.d("SaveAnim", "Save button pos: x=${buttonOffset.x}, y=${buttonOffset.y}")
-                                    showSaveAnimation = true
-                                },
-                                onOpenModelInfo = {
-                                    AnalyticsManager.modelInfoClicked(state.vehicleInfo.manufacturer, state.vehicleInfo.model)
-                                    val url = ScanHistory.buildSearchUrl(state.vehicleInfo)
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                                }
-                            )
-                        } else if (state.isLoading) {
-                            LoadingPlateIndicator(plateNumber = state.plateNumber)
-                        } else {
-                            PlateNotFoundIndicator(plateNumber = state.plateNumber)
+                        val visibleState = remember(state.plateNumber) {
+                            MutableTransitionState(initialState = false).apply { targetState = true }
+                        }
+                        val shouldExit = state.plateNumber in exitingPlates
+                        LaunchedEffect(shouldExit) {
+                            if (shouldExit) visibleState.targetState = false
+                        }
+                        LaunchedEffect(visibleState.currentState, visibleState.targetState) {
+                            if (!visibleState.targetState && !visibleState.currentState) {
+                                overlayStates.remove(state.plateNumber)
+                                exitingPlates.remove(state.plateNumber)
+                                plateExactCounts.remove(state.plateNumber)
+                            }
+                        }
+
+                        AnimatedVisibility(
+                            visibleState = visibleState,
+                            modifier = Modifier.animateItem(
+                                placementSpec = tween(durationMillis = 320)
+                            ),
+                            enter = fadeIn(animationSpec = tween(220)) +
+                                scaleIn(initialScale = 0.92f, animationSpec = tween(260)) +
+                                slideInVertically(
+                                    initialOffsetY = { it / 6 },
+                                    animationSpec = tween(280)
+                                ),
+                            exit = fadeOut(animationSpec = tween(200)) +
+                                scaleOut(
+                                    targetScale = 0.6f,
+                                    transformOrigin = TransformOrigin(0.5f, 0.5f),
+                                    animationSpec = tween(260)
+                                ) +
+                                shrinkVertically(
+                                    shrinkTowards = Alignment.Top,
+                                    animationSpec = tween(280)
+                                ) +
+                                slideOutHorizontally(
+                                    targetOffsetX = { if (isRtlList) -it / 4 else it / 4 },
+                                    animationSpec = tween(280)
+                                )
+                        ) {
+                            when {
+                                state.vehicleInfo != null -> FloatingCarInfo(
+                                    vehicleInfo = state.vehicleInfo,
+                                    plateNumber = state.plateNumber,
+                                    onSaveToHistory = { buttonOffset ->
+                                        ScanHistory.save(context, state.plateNumber, state.vehicleInfo)
+                                        SoundManager.playSaved()
+                                        AnalyticsManager.historySavedFromCamera(state.plateNumber, countryRef.value.code)
+                                        saveAnimStartPos = buttonOffset
+                                        if (BuildConfig.DEBUG) Log.d("SaveAnim", "Save button pos: x=${buttonOffset.x}, y=${buttonOffset.y}")
+                                        showSaveAnimation = true
+                                    },
+                                    onDelete = {
+                                        SoundManager.playSaved()
+                                        exitingPlates.add(state.plateNumber)
+                                    },
+                                    onOpenModelInfo = {
+                                        AnalyticsManager.modelInfoClicked(state.vehicleInfo.manufacturer, state.vehicleInfo.model)
+                                        val url = ScanHistory.buildSearchUrl(state.vehicleInfo)
+                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                                    }
+                                )
+                                state.isLoading -> LoadingPlateIndicator(
+                                    plateNumber = state.plateNumber,
+                                    onDelete = { exitingPlates.add(state.plateNumber) }
+                                )
+                                else -> PlateNotFoundIndicator(
+                                    plateNumber = state.plateNumber,
+                                    onDelete = { exitingPlates.add(state.plateNumber) }
+                                )
+                            }
                         }
                     }
                 }
             }
 
             // Flying save animation: card flies from save button to history button
-            // Use computed positions instead of positionInRoot() which is unreliable on RTL + old APIs
+            // Target position is captured dynamically from the history pill via onGloballyPositioned.
             val isRtl = androidx.compose.ui.platform.LocalLayoutDirection.current == androidx.compose.ui.unit.LayoutDirection.Rtl
             val statusBarPx = with(density) { 52.dp.toPx() }
-            // History button is 2nd from right in LTR, 2nd from left in RTL
-            // Layout (LTR): Reset | Spacer | Image(40+8) | Manual(40+8) | History(40+8) | Settings(40) | 16dp padding
-            // From right edge to center of History: 16 + 40 + 8 + 20 = 84dp
-            val historyEndX = if (isRtl) {
-                with(density) { (16 + 40 + 8 + 20).dp.toPx() } // 84dp from left in RTL
-            } else {
-                viewWidth - with(density) { (16 + 40 + 8 + 20).dp.toPx() } // 84dp from right in LTR
-            }
-            val historyEndY = statusBarPx + with(density) { 20.dp.toPx() }
+            val historyEndX = if (historyBtnCenter.x > 0f) historyBtnCenter.x
+                else if (isRtl) with(density) { 84.dp.toPx() } else viewWidth - with(density) { 84.dp.toPx() }
+            val historyEndY = if (historyBtnCenter.y > 0f) historyBtnCenter.y
+                else statusBarPx + with(density) { 20.dp.toPx() }
 
             if (showSaveAnimation) {
                 val progress = saveAnimProgress.value
@@ -845,6 +869,37 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 showManualInput = false
                 manualPlateText = ""
             }
+        )
+    }
+}
+
+@Composable
+private fun ToolbarPillButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    scale: Float = 1f
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .scale(scale)
+            .clip(RoundedCornerShape(100.dp))
+            .background(GlassOverlay)
+            .border(0.5.dp, Color.White.copy(alpha = 0.14f), RoundedCornerShape(100.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 9.dp, vertical = 9.dp)
+    ) {
+        Icon(icon, label, tint = Color.White, modifier = Modifier.size(16.dp))
+        Spacer(Modifier.width(4.dp))
+        Text(
+            label,
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }

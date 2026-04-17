@@ -22,6 +22,11 @@
     <string name="camera_point_at_plate">Richt op een kenteken</string>
     <string name="camera_scan_plate_title">Scan Kenteken</string>
     <string name="camera_reset">Opnieuw</string>
+    <string name="toolbar_settings">Instellingen</string>
+    <string name="toolbar_history">Geschiedenis</string>
+    <string name="toolbar_manual">Handmatig</string>
+    <string name="toolbar_image">Foto</string>
+    <string name="overlay_dismiss">Sluiten</string>
     <string name="camera_enter_plate">Voer kenteken in</string>
     <string name="camera_search">Zoeken</string>
     <string name="camera_cancel">Annuleren</string>
