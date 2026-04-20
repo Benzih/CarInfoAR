@@ -26,6 +26,7 @@
     <string name="toolbar_history">Histórico</string>
     <string name="toolbar_manual">Manual</string>
     <string name="toolbar_image">Imagem</string>
+    <string name="toolbar_scan_options">Mais opções de digitalização</string>
     <string name="overlay_dismiss">Fechar</string>
     <string name="camera_enter_plate">Insira o número da matrícula</string>
     <string name="camera_search">Pesquisar</string>

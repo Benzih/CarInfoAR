@@ -26,6 +26,7 @@
     <string name="toolbar_history">История</string>
     <string name="toolbar_manual">Ручной</string>
     <string name="toolbar_image">Фото</string>
+    <string name="toolbar_scan_options">Ещё варианты сканирования</string>
     <string name="overlay_dismiss">Закрыть</string>
     <string name="camera_enter_plate">Введите номер</string>
     <string name="camera_search">Поиск</string>

@@ -26,6 +26,7 @@
     <string name="toolbar_history">기록</string>
     <string name="toolbar_manual">수동</string>
     <string name="toolbar_image">사진</string>
+    <string name="toolbar_scan_options">추가 스캔 옵션</string>
     <string name="overlay_dismiss">닫기</string>
     <string name="camera_enter_plate">번호판 번호 입력</string>
     <string name="camera_search">검색</string>

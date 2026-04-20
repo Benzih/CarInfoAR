@@ -29,6 +29,7 @@
     <string name="toolbar_history">History</string>
     <string name="toolbar_manual">Manual</string>
     <string name="toolbar_image">Image</string>
+    <string name="toolbar_scan_options">More scan options</string>
     <string name="overlay_dismiss">Dismiss</string>
     <string name="camera_enter_plate">Enter Plate Number</string>
     <string name="camera_search">Search</string>

@@ -26,6 +26,7 @@
     <string name="toolbar_history">Historique</string>
     <string name="toolbar_manual">Manuel</string>
     <string name="toolbar_image">Photo</string>
+    <string name="toolbar_scan_options">Plus d\'options de scan</string>
     <string name="overlay_dismiss">Fermer</string>
     <string name="camera_enter_plate">Entrez le numéro de plaque</string>
     <string name="camera_search">Rechercher</string>

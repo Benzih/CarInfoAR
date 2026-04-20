@@ -26,6 +26,7 @@
     <string name="toolbar_history">Geçmiş</string>
     <string name="toolbar_manual">Manuel</string>
     <string name="toolbar_image">Görüntü</string>
+    <string name="toolbar_scan_options">Daha fazla tarama seçeneği</string>
     <string name="overlay_dismiss">Kapat</string>
     <string name="camera_enter_plate">Plaka numarasını girin</string>
     <string name="camera_search">Ara</string>

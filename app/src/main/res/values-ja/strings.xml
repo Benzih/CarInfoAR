@@ -26,6 +26,7 @@
     <string name="toolbar_history">履歴</string>
     <string name="toolbar_manual">手動</string>
     <string name="toolbar_image">画像</string>
+    <string name="toolbar_scan_options">その他のスキャン方法</string>
     <string name="overlay_dismiss">閉じる</string>
     <string name="camera_enter_plate">ナンバーを入力</string>
     <string name="camera_search">検索</string>

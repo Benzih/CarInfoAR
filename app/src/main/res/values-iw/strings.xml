@@ -26,6 +26,7 @@
     <string name="toolbar_history">היסטוריה</string>
     <string name="toolbar_manual">ידני</string>
     <string name="toolbar_image">תמונה</string>
+    <string name="toolbar_scan_options">אפשרויות סריקה נוספות</string>
     <string name="overlay_dismiss">סגור</string>
     <string name="camera_enter_plate">הזן מספר לוחית</string>
     <string name="camera_search">חיפוש</string>

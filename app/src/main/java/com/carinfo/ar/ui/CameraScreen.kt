@@ -31,10 +31,14 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.fadeIn
@@ -48,9 +52,14 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -70,9 +79,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Search
@@ -224,6 +235,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
     var viewHeight by remember { mutableIntStateOf(1) }
     var showManualInput by remember { mutableStateOf(false) }
     var manualPlateText by remember { mutableStateOf("") }
+    var showScanOptions by remember { mutableStateOf(false) }
 
     // Image-based plate scan state
     var showImagePicker by remember { mutableStateOf(false) }
@@ -532,41 +544,75 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 .sortedByDescending { it.lastSeenTime }
                 .toList()
 
-            // Top HUD bar — labeled pill buttons spread across full width
-            Row(
+            // Invisible scrim to dismiss the scan-options menu on outside taps.
+            // Declared BEFORE the toolbar so pills/menu items (declared later) capture
+            // their own taps first; taps on empty space fall through to this scrim.
+            if (showScanOptions) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit) {
+                            detectTapGestures { showScanOptions = false }
+                        }
+                )
+            }
+
+            // Top HUD — 1) scan-options pill, 2) history, 3) settings, with the
+            // expandable menu anchored below the scan-options pill.
+            Column(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
-                    .padding(top = 52.dp, start = 4.dp, end = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(top = 52.dp, start = 4.dp, end = 4.dp)
             ) {
-                ToolbarPillButton(
-                    icon = Icons.Default.Image,
-                    label = stringResource(R.string.toolbar_image),
-                    onClick = { showImagePicker = true }
-                )
-                ToolbarPillButton(
-                    icon = Icons.Default.Edit,
-                    label = stringResource(R.string.toolbar_manual),
-                    onClick = { showManualInput = true; AnalyticsManager.manualInputOpened() }
-                )
-                ToolbarPillButton(
-                    icon = Icons.Default.History,
-                    label = stringResource(R.string.toolbar_history),
-                    onClick = { onOpenHistory() },
-                    scale = historyPulseScale.value,
-                    modifier = Modifier.onGloballyPositioned { coords ->
-                        val pos = coords.positionInRoot()
-                        val size = coords.size
-                        historyBtnCenter = Offset(pos.x + size.width / 2f, pos.y + size.height / 2f)
-                    }
-                )
-                ToolbarPillButton(
-                    icon = Icons.Default.Settings,
-                    label = stringResource(R.string.toolbar_settings),
-                    onClick = { onOpenSettings() }
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ScanOptionsPillButton(
+                        label = stringResource(R.string.toolbar_scan_options),
+                        expanded = showScanOptions,
+                        onClick = { showScanOptions = !showScanOptions }
+                    )
+                    ToolbarPillButton(
+                        icon = Icons.Default.History,
+                        label = stringResource(R.string.toolbar_history),
+                        onClick = { onOpenHistory() },
+                        scale = historyPulseScale.value,
+                        modifier = Modifier.onGloballyPositioned { coords ->
+                            val pos = coords.positionInRoot()
+                            val size = coords.size
+                            historyBtnCenter = Offset(pos.x + size.width / 2f, pos.y + size.height / 2f)
+                        }
+                    )
+                    ToolbarIconButton(
+                        icon = Icons.Default.Settings,
+                        contentDescription = stringResource(R.string.toolbar_settings),
+                        onClick = { onOpenSettings() }
+                    )
+                }
+
+                // Expandable menu — aligned to start (same side as scan-options pill).
+                // Compose's Alignment.Start is layout-direction-aware, so LTR=left, RTL=right.
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                ) {
+                    ScanOptionsMenu(
+                        visible = showScanOptions,
+                        onPickImage = {
+                            showScanOptions = false
+                            showImagePicker = true
+                        },
+                        onManualInput = {
+                            showScanOptions = false
+                            showManualInput = true
+                            AnalyticsManager.manualInputOpened()
+                        }
+                    )
+                }
             }
 
             // Bottom hint/reset
@@ -585,13 +631,20 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        stringResource(R.string.camera_scan_plate_title),
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = BrandPrimary.copy(alpha = alpha),
-                        letterSpacing = 2.sp
-                    )
+                    // Render each word on its own line for a bolder, more vertical look.
+                    val words = stringResource(R.string.camera_scan_plate_title)
+                        .split(' ')
+                        .filter { it.isNotBlank() }
+                    words.forEach { word ->
+                        Text(
+                            text = word,
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = BrandPrimary.copy(alpha = alpha),
+                            letterSpacing = 2.sp,
+                            lineHeight = 38.sp
+                        )
+                    }
                 }
             }
 
@@ -900,6 +953,277 @@ private fun ToolbarPillButton(
             fontWeight = FontWeight.SemiBold,
             maxLines = 1,
             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+    }
+}
+
+/**
+ * Circular icon-only toolbar button. Used for the Settings button where the
+ * icon alone is self-explanatory (gear = settings) and dropping the label frees
+ * up horizontal space for the primary "scan options" pill.
+ */
+@Composable
+private fun ToolbarIconButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(42.dp)
+            .clip(CircleShape)
+            .background(GlassOverlay)
+            .border(0.5.dp, Color.White.copy(alpha = 0.14f), CircleShape)
+            .clickable { onClick() }
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = Color.White,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+/**
+ * Featured pill that opens the "more scan options" menu. Differentiated from the
+ * plain [ToolbarPillButton] by a brand-tinted gradient background, a sparkle icon,
+ * a trailing caret that rotates 180° when expanded, and a pulsing brand border
+ * when the menu is open.
+ */
+@Composable
+private fun ScanOptionsPillButton(
+    label: String,
+    expanded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val caretRotation by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "caretRotation"
+    )
+    val borderAlpha by animateFloatAsState(
+        targetValue = if (expanded) 0.65f else 0.18f,
+        animationSpec = tween(240),
+        label = "borderAlpha"
+    )
+    val pressScale by animateFloatAsState(
+        targetValue = if (expanded) 1.03f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "pressScale"
+    )
+
+    // Subtle breathing glow when collapsed so users notice the entry point
+    val infinite = rememberInfiniteTransition(label = "scanPillBreath")
+    val breath by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2200, easing = androidx.compose.animation.core.EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "breath"
+    )
+    val dynamicBorderAlpha = if (expanded) borderAlpha else (0.16f + breath * 0.22f)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .scale(pressScale)
+            .clip(RoundedCornerShape(100.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        BrandPrimary.copy(alpha = 0.18f),
+                        Color.White.copy(alpha = 0.06f),
+                        BrandPrimary.copy(alpha = 0.12f)
+                    )
+                )
+            )
+            .border(
+                width = 0.8.dp,
+                color = BrandPrimary.copy(alpha = dynamicBorderAlpha),
+                shape = RoundedCornerShape(100.dp)
+            )
+            .clickable { onClick() }
+            .padding(horizontal = 11.dp, vertical = 9.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.AutoAwesome,
+            contentDescription = label,
+            tint = BrandPrimary,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            label,
+            color = Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        )
+        Spacer(Modifier.width(4.dp))
+        Icon(
+            imageVector = Icons.Default.KeyboardArrowDown,
+            contentDescription = null,
+            tint = BrandPrimary.copy(alpha = 0.85f),
+            modifier = Modifier
+                .size(16.dp)
+                .graphicsLayer { rotationZ = caretRotation }
+        )
+    }
+}
+
+/**
+ * Elegant dropdown that reveals the two alternative scan modes (image & manual).
+ *
+ * Animation layers:
+ * 1. Container: fade + scale from top-start (spring bouncy) + short vertical slide
+ * 2. Each item: staggered fade-in + vertical slide-in using per-item Animatables
+ *    so items "cascade" into place after the container opens
+ */
+@Composable
+private fun ScanOptionsMenu(
+    visible: Boolean,
+    onPickImage: () -> Unit,
+    onManualInput: () -> Unit
+) {
+    val transitionState = remember { MutableTransitionState(false) }
+    transitionState.targetState = visible
+
+    AnimatedVisibility(
+        visibleState = transitionState,
+        enter = fadeIn(tween(180)) +
+                scaleIn(
+                    initialScale = 0.84f,
+                    transformOrigin = TransformOrigin(0f, 0f),
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMediumLow
+                    )
+                ) +
+                slideInVertically(
+                    initialOffsetY = { -it / 3 },
+                    animationSpec = tween(260, easing = EaseOutCubic)
+                ),
+        exit = fadeOut(tween(140)) +
+               scaleOut(
+                   targetScale = 0.9f,
+                   transformOrigin = TransformOrigin(0f, 0f),
+                   animationSpec = tween(160)
+               )
+    ) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(18.dp))
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xF20E1524),
+                            Color(0xF21A1A2E)
+                        )
+                    )
+                )
+                .border(
+                    width = 1.dp,
+                    brush = Brush.linearGradient(
+                        listOf(
+                            BrandPrimary.copy(alpha = 0.55f),
+                            BrandPrimary.copy(alpha = 0.15f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(18.dp)
+                )
+                .padding(6.dp)
+        ) {
+            ScanOptionMenuItem(
+                icon = Icons.Default.Image,
+                label = stringResource(R.string.toolbar_image),
+                onClick = onPickImage,
+                index = 0
+            )
+            Spacer(Modifier.height(2.dp))
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 10.dp)
+                    .height(0.5.dp)
+                    .background(Color.White.copy(alpha = 0.08f))
+            )
+            Spacer(Modifier.height(2.dp))
+            ScanOptionMenuItem(
+                icon = Icons.Default.Edit,
+                label = stringResource(R.string.toolbar_manual),
+                onClick = onManualInput,
+                index = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun ScanOptionMenuItem(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    index: Int
+) {
+    val alpha = remember { Animatable(0f) }
+    val translateY = remember { Animatable(-14f) }
+    LaunchedEffect(Unit) {
+        delay(70L * index)
+        launch {
+            alpha.animateTo(1f, tween(260, easing = EaseOutCubic))
+        }
+        translateY.animateTo(
+            0f,
+            spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            )
+        )
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .graphicsLayer {
+                this.alpha = alpha.value
+                this.translationY = translateY.value
+            }
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 11.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(CircleShape)
+                .background(BrandPrimary.copy(alpha = 0.18f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = BrandPrimary,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = label,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold
         )
     }
 }

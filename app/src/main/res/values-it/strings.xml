@@ -26,6 +26,7 @@
     <string name="toolbar_history">Cronologia</string>
     <string name="toolbar_manual">Manuale</string>
     <string name="toolbar_image">Immagine</string>
+    <string name="toolbar_scan_options">Altre opzioni di scansione</string>
     <string name="overlay_dismiss">Chiudi</string>
     <string name="camera_enter_plate">Inserisci il numero di targa</string>
     <string name="camera_search">Cerca</string>

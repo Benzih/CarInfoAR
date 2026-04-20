@@ -1,8 +1,8 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.2.4 (versionCode 18)
+> **Version:** 1.2.5 (versionCode 19)
 > **Platform:** Android
-> **Last Updated:** 2026-04-17
+> **Last Updated:** 2026-04-20
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -183,17 +183,30 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 - Play Store icon: **512x512** (`ic_launcher_playstore.png`).
 - Adaptive icon XML has been removed; the app uses **PNG directly** for the launcher icon.
 
-### Camera Screen Top Toolbar (v1.2.4+)
+### Camera Screen Top Toolbar (v1.2.5+)
 
-The 4 primary actions on CameraScreen use labeled pill buttons:
-- **Image** (🖼️), **Manual** (✏️), **History** (🕐), **Settings** (⚙️)
+The top HUD has **3 visible controls**: a primary "Scan Options" expandable pill, a History pill, and a circular Settings icon button. Image and Manual input moved into the Scan Options dropdown menu.
 
-Design details:
-- **Layout:** `Row` with `fillMaxWidth()` + `Arrangement.SpaceBetween` — pills span the full screen width
-- **Pill styling:** `GlassOverlay` background, `RoundedCornerShape(100.dp)`, 0.5dp white-14%-alpha border, 9dp padding, 16dp icon, 4dp gap, 13sp SemiBold white text, `maxLines=1` + Ellipsis
-- **Localization:** `toolbar_image`, `toolbar_manual`, `toolbar_history`, `toolbar_settings` in all 14 languages
-- **History pulse:** the History pill scales 1.0→1.4→1.0 when a "Saved!" flying-badge lands on it
-- **Dynamic save-target position:** the flying-save animation captures the History pill's center via `onGloballyPositioned` instead of hardcoded coordinates — correct for any translation length and RTL/LTR
+Layout:
+- **Column** with `Row` (pills) + `Box` (expandable menu anchored below).
+- **Row:** `fillMaxWidth()` + `Arrangement.SpaceBetween` — Scan Options pill on start, History in middle, Settings gear on end.
+- **Outside-tap dismissal:** an invisible full-screen `Box` with `pointerInput { detectTapGestures { showScanOptions = false } }` is declared **before** the toolbar so menu and pill taps capture first and empty-space taps fall through to the scrim.
+
+Controls:
+- **ScanOptionsPillButton** — labeled pill with `Icons.AutoAwesome` + chevron that rotates 180° when expanded. Localized via `toolbar_scan_options` ("More scan options") in all 14 languages.
+- **ToolbarPillButton** (History) — same glass-morphism pill styling as before. Still pulses 1.0→1.4→1.0 when a "Saved!" flying-badge lands on it.
+- **ToolbarIconButton** (Settings) — circular icon-only glass button (no label), frees horizontal space for the primary Scan Options pill.
+
+Pill styling: `GlassOverlay` background, `RoundedCornerShape(100.dp)`, 0.5dp white-14%-alpha border, 9dp padding, 16dp icon, 4dp gap, 13sp SemiBold white text, `maxLines=1` + Ellipsis.
+
+**ScanOptionsMenu** (expandable dropdown below the pills):
+- Two items: **Pick Image** (`Icons.PhotoLibrary`) and **Manual Input** (`Icons.Edit`).
+- Enter animation: `fadeIn + expandVertically(spring)`; exit: `fadeOut + shrinkVertically(spring)`.
+- Aligned to `Alignment.Start` — layout-direction-aware so LTR menu appears on the left, RTL on the right, under the Scan Options pill.
+
+**Scan hint:** the "Scan a license plate" hint renders each word on its **own line** (32sp ExtraBold, 38sp lineHeight) for a more vertical, prominent look.
+
+**Dynamic save-target position:** the flying-save animation captures the History pill's center via `onGloballyPositioned` instead of hardcoded coordinates — correct for any translation length and RTL/LTR.
 
 ### Per-Card Dismiss & Exit Animation (v1.2.4+)
 
@@ -1474,7 +1487,8 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 15          | 1.2.1       | Internal testing | Mar 27, 2026  | Superseded      | Extended data: 8 IL resources, 3 NL resources, UK extra fields, history screen with all fields, 45% scroll area |
 | 16          | 1.2.2       | Production       | Mar 28, 2026  | Superseded      | Image-based plate scanning, Billing PendingIntent NPE guard |
 | 17          | 1.2.3       | Production       | Apr 17, 2026  | Superseded      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
-| 18          | 1.2.4       | Internal testing | Apr 17, 2026  | **Active**      | Camera toolbar redesign: labeled pill buttons (Image/Manual/History/Settings) in all 14 languages, SpaceBetween full-width layout, larger text. Removed global Reset button — each car card has its own X dismiss with scale+fade+shrink exit animation and LazyColumn animateItem for smooth reflow |
+| 18          | 1.2.4       | Internal testing | Apr 17, 2026  | Superseded      | Camera toolbar redesign: labeled pill buttons (Image/Manual/History/Settings) in all 14 languages, SpaceBetween full-width layout, larger text. Removed global Reset button — each car card has its own X dismiss with scale+fade+shrink exit animation and LazyColumn animateItem for smooth reflow |
+| 19          | 1.2.5       | Production       | Apr 20, 2026  | **Active**      | Toolbar restructured: Image + Manual collapsed into a single "Scan Options" expandable pill with a dropdown menu. Settings downgraded to a circular icon-only button. New `toolbar_scan_options` string ("More scan options") in all 14 languages. Scan hint now renders each word on its own line (32sp ExtraBold). Live in 177 countries. |
 
 ### Play Store Setup Completed
 

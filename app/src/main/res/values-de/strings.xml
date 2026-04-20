@@ -26,6 +26,7 @@
     <string name="toolbar_history">Verlauf</string>
     <string name="toolbar_manual">Manuell</string>
     <string name="toolbar_image">Bild</string>
+    <string name="toolbar_scan_options">Weitere Scan-Optionen</string>
     <string name="overlay_dismiss">Schließen</string>
     <string name="camera_enter_plate">Kennzeichen eingeben</string>
     <string name="camera_search">Suchen</string>

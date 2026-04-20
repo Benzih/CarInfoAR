@@ -26,6 +26,7 @@
     <string name="toolbar_history">السجل</string>
     <string name="toolbar_manual">يدوي</string>
     <string name="toolbar_image">صورة</string>
+    <string name="toolbar_scan_options">المزيد من خيارات المسح</string>
     <string name="overlay_dismiss">إغلاق</string>
     <string name="camera_enter_plate">أدخل رقم اللوحة</string>
     <string name="camera_search">بحث</string>

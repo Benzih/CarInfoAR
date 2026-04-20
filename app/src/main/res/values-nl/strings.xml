@@ -26,6 +26,7 @@
     <string name="toolbar_history">Geschiedenis</string>
     <string name="toolbar_manual">Handmatig</string>
     <string name="toolbar_image">Foto</string>
+    <string name="toolbar_scan_options">Meer scan-opties</string>
     <string name="overlay_dismiss">Sluiten</string>
     <string name="camera_enter_plate">Voer kenteken in</string>
     <string name="camera_search">Zoeken</string>
