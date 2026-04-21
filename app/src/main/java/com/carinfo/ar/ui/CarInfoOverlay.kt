@@ -47,12 +47,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import com.carinfo.ar.data.model.VehicleInfo
 import com.carinfo.ar.ui.theme.BrandPrimary
 import com.carinfo.ar.ui.theme.GlassBorder
 import com.carinfo.ar.ui.theme.GlassOverlay
+import com.carinfo.ar.util.PriceEstimator
 import androidx.compose.ui.res.stringResource
 import com.carinfo.ar.R
+import java.net.URLEncoder
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -88,6 +93,290 @@ private fun formatPrice(price: Int): String {
     return "₪${formatter.format(price)}"
 }
 
+/**
+ * Format an estimated value using the appropriate currency symbol.
+ */
+fun formatEstimateValue(value: Int, currency: PriceEstimator.Currency): String {
+    val formatter = NumberFormat.getNumberInstance(Locale.US)
+    val symbol = when (currency) {
+        PriceEstimator.Currency.ILS -> "₪"
+        PriceEstimator.Currency.EUR -> "€"
+        PriceEstimator.Currency.GBP -> "£"
+    }
+    return "$symbol${formatter.format(value)}"
+}
+
+@Composable
+fun CompactEstimateCard(estimate: PriceEstimator.Estimate, modifier: Modifier = Modifier) {
+    val (dotColor) = when {
+        estimate.confidence >= 0.85f -> listOf(Color(0xFF4CAF50))
+        estimate.confidence >= 0.65f -> listOf(Color(0xFFFFB300))
+        else -> listOf(Color(0xFFFF7043))
+    }
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(BrandPrimary.copy(alpha = 0.12f))
+            .border(1.dp, BrandPrimary.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 10.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(dotColor)
+            )
+            Spacer(Modifier.width(4.dp))
+            Text(
+                text = stringResource(R.string.label_estimated_value),
+                color = Color(0xFFAAAAAA),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = formatEstimateValue(estimate.mid, estimate.currency),
+            color = BrandPrimary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.ExtraBold,
+            maxLines = 1
+        )
+        Text(
+            text = "${formatEstimateValue(estimate.low, estimate.currency)} – ${formatEstimateValue(estimate.high, estimate.currency)}",
+            color = Color(0xFF888888),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Medium,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+fun EstimatedValueCard(estimate: PriceEstimator.Estimate) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(BrandPrimary.copy(alpha = 0.12f))
+            .border(1.dp, BrandPrimary.copy(alpha = 0.35f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = stringResource(R.string.label_estimated_value),
+                color = Color(0xFFAAAAAA),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            ConfidenceDot(estimate.confidence)
+        }
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = formatEstimateValue(estimate.mid, estimate.currency),
+            color = BrandPrimary,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = "${formatEstimateValue(estimate.low, estimate.currency)} – ${formatEstimateValue(estimate.high, estimate.currency)}",
+            color = Color(0xFFBBBBBB),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.estimated_value_disclaimer),
+            color = Color(0xFF888888),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.Normal,
+            lineHeight = 13.sp
+        )
+    }
+}
+
+data class PricelistLink(val label: String, val url: String)
+
+/**
+ * Yad2 manufacturer IDs scraped from yad2.co.il/price-list (April 2026).
+ * Keys are data.gov.il Hebrew manufacturer names, normalized (no dots/spaces).
+ */
+private val yad2ManufacturerIds: Map<String, Int> = mapOf(
+    "אאודי" to 1, "אופל" to 2, "אינפיניטי" to 3, "איסוזו" to 4,
+    "אלפארומיאו" to 5, "אםגי" to 6, "במוו" to 7, "ביואיק" to 8,
+    "גיאמאמס" to 9, "גיפ" to 10, "גרייטוול" to 11, "דאציה" to 12,
+    "דודג" to 13, "דיאס" to 14, "דייהטסו" to 15, "האמר" to 16,
+    "הונדה" to 17, "וולוו" to 18, "טויוטה" to 19, "יגואר" to 20,
+    "יונדאי" to 21, "לוטוס" to 22, "לינקולן" to 23, "לנדרובר" to 24,
+    "לנציה" to 25, "לקסוס" to 26, "מאזדה" to 27, "מזראטי" to 28,
+    "מיני" to 29, "מיצובישי" to 30, "מרצדסבנץ" to 31, "מרצדס" to 31,
+    "ניסאן" to 32, "סאאב" to 33, "סאנגיונג" to 34, "סובארו" to 35,
+    "סוזוקי" to 36, "סיאט" to 37, "סיטרואן" to 38, "סמארט" to 39,
+    "סקודה" to 40, "פולקסווגן" to 41, "פונטיאק" to 42, "פורד" to 43,
+    "פורשה" to 44, "פיאט" to 45, "פיגו" to 46, "קאדילק" to 47,
+    "קיה" to 48, "קרייזלר" to 49, "רובר" to 50, "רנו" to 51,
+    "שברולט" to 52, "אבארט" to 53, "אסטוןמרטין" to 54, "בנטלי" to 55,
+    "סאנשיין" to 56, "פרארי" to 57, "רולסרויס" to 58, "תעשיותרכב" to 59,
+    "דייהו" to 60, "טסלה" to 62, "למבורגיני" to 63, "מקלארן" to 73,
+    "אלטיאי" to 77, "ננגינג" to 78, "לאדה" to 80, "איווקו" to 85,
+    "מאן" to 86, "טאטא" to 87, "דונגפנג" to 88, "מקסוס" to 89,
+    "פיאגיו" to 90, "ראם" to 91, "קופרה" to 92, "גנסיס" to 93,
+    "אוטוביאנקי" to 96, "סנטרו" to 97, "גיאייסי" to 99, "אקורה" to 111,
+    "אלפין" to 115, "ארקפוקס" to 117, "באייק" to 126, "בייד" to 141,
+    "צרי" to 147, "גילי" to 177, "ביאידאבליו" to 193, "גייאיסי" to 200,
+    "קארמה" to 203, "מורגן" to 219, "אורה" to 224, "פולסטאר" to 231,
+    "ויי" to 284, "סרס" to 287, "איוויס" to 288, "ניאו" to 289,
+    "אקספנג" to 290, "אלאיוויסי" to 299, "סקייוול" to 300, "הונגצי" to 301,
+    "אינאוס" to 310, "גופיל" to 319, "ליפמוטור" to 320, "לינקאנדקו" to 321,
+    "וויה" to 322, "איויאיזי" to 323, "זיקר" to 333, "פורתינג" to 334,
+    "אקסאיוי" to 335, "אווטאר" to 338, "קיגיאם" to 344, "אסדאבליואם" to 345,
+    "גיאיוואן" to 346, "נטע" to 348, "אקסיד" to 349, "פוטון" to 352,
+    "גאקו" to 355, "יודו" to 357, "דאיון" to 360, "ריהיי" to 361,
+    "דיפאל" to 362, "לינקסיס" to 363, "פאריזון" to 364, "אומודה" to 369,
+    "אייאם" to 374, "איון" to 379
+)
+
+/** Normalize a Hebrew manufacturer name — strip dots, spaces, apostrophes, dashes. */
+private fun normalizeMake(s: String): String =
+    s.trim().replace(".", "").replace(" ", "").replace("'", "").replace("\"", "")
+        .replace("-", "").replace("׳", "").replace("״", "")
+
+/**
+ * Per-country direct deep links to valuation & listing sites.
+ * Each country has two: a valuation authority + a real-listings marketplace.
+ * Links go STRAIGHT to the site's search with concrete filters — no Google.
+ */
+private fun pricelistLinksFor(info: VehicleInfo): List<PricelistLink> {
+    val rawMake = info.manufacturer?.trim().orEmpty()
+    val rawModel = info.model?.trim().orEmpty()
+    val year = info.year
+    if (rawMake.isEmpty()) return emptyList()
+
+    val queryText = buildString {
+        append(rawMake)
+        if (rawModel.isNotEmpty()) { append(' '); append(rawModel) }
+        year?.let { append(' '); append(it) }
+    }
+    val encText = URLEncoder.encode(queryText, "UTF-8")
+    val encMake = URLEncoder.encode(rawMake, "UTF-8")
+    val encModel = URLEncoder.encode(rawModel, "UTF-8")
+    val makeSlug = rawMake.lowercase().replace(' ', '-')
+    val modelSlug = rawModel.lowercase().replace(' ', '-')
+
+    return when (info.country) {
+        "IL" -> {
+            val mfgId = yad2ManufacturerIds[normalizeMake(rawMake)]
+            val yearParam = year?.let { "&year=$it-$it" } ?: ""
+            val yad2Url = if (mfgId != null) {
+                "https://www.yad2.co.il/price-list/feed?manufacturer=$mfgId$yearParam"
+            } else {
+                "https://www.yad2.co.il/price-list"
+            }
+            // Levi Itzhak — their dedicated free pricelist page (better than homepage).
+            val leviUrl = "https://levi-itzhak.co.il/%D7%90%D7%A4%D7%9C%D7%99%D7%A7%D7%A6%D7%99%D7%94-%D7%9C%D7%91%D7%93%D7%99%D7%A7%D7%AA-%D7%A8%D7%9B%D7%91-%D7%9E%D7%97%D7%99%D7%A8%D7%95%D7%9F-%D7%A8%D7%9B%D7%91-%D7%9C%D7%95%D7%99-%D7%99%D7%A6%D7%97%D7%A7"
+            listOf(
+                PricelistLink("לוי יצחק", leviUrl),
+                PricelistLink("יד 2", yad2Url)
+            )
+        }
+        "NL" -> listOf(
+            PricelistLink("ANWB", "https://www.anwb.nl/auto/koerslijst"),
+            PricelistLink("Marktplaats", "https://www.marktplaats.nl/q/$encText/")
+        )
+        "GB" -> {
+            val yearParam = year?.let { "&year-from=$it&year-to=$it" } ?: ""
+            listOf(
+                PricelistLink("Parkers", "https://www.parkers.co.uk/$makeSlug/$modelSlug/"),
+                PricelistLink("Auto Trader", "https://www.autotrader.co.uk/car-search?postcode=SW1A1AA&make=$encMake&model=$encModel$yearParam")
+            )
+        }
+        else -> emptyList()
+    }
+}
+
+@Composable
+fun PricelistLinksRow(info: VehicleInfo, modifier: Modifier = Modifier) {
+    val links = remember(info.country, info.manufacturer, info.model, info.year) {
+        pricelistLinksFor(info)
+    }
+    if (links.isEmpty()) return
+    val context = LocalContext.current
+    Row(
+        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        links.forEach { link ->
+            PricelistPill(link) {
+                try {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(link.url))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                } catch (_: Exception) { /* No browser installed */ }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PricelistPill(link: PricelistLink, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(100.dp))
+            .background(BrandPrimary.copy(alpha = 0.12f))
+            .border(0.5.dp, BrandPrimary.copy(alpha = 0.4f), RoundedCornerShape(100.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.OpenInNew,
+            contentDescription = null,
+            tint = BrandPrimary,
+            modifier = Modifier.size(12.dp)
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = link.label,
+            color = BrandPrimary,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+fun ConfidenceDot(confidence: Float) {
+    val (color, label) = when {
+        confidence >= 0.85f -> Color(0xFF4CAF50) to stringResource(R.string.confidence_high)
+        confidence >= 0.65f -> Color(0xFFFFB300) to stringResource(R.string.confidence_medium)
+        else -> Color(0xFFFF7043) to stringResource(R.string.confidence_low)
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .clip(RoundedCornerShape(50))
+                .background(color)
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = label,
+            color = color,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
 @Composable
 fun InfoRow(label: String, value: String, isExpired: Boolean = false) {
     Row(
@@ -104,22 +393,21 @@ fun InfoRow(label: String, value: String, isExpired: Boolean = false) {
 }
 
 @Composable
-private fun SectionDivider() {
+fun SectionDivider() {
     Spacer(Modifier.height(6.dp))
     HorizontalDivider(color = Color(0xFF333333), thickness = 0.5.dp)
     Spacer(Modifier.height(6.dp))
 }
 
 @Composable
-private fun SectionHeader(title: String) {
-    Spacer(Modifier.height(4.dp))
+fun SectionHeader(title: String) {
     Text(
         text = title,
         color = BrandPrimary,
         fontSize = 12.sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier.padding(bottom = 1.dp)
     )
-    Spacer(Modifier.height(2.dp))
 }
 
 @Composable
@@ -153,12 +441,23 @@ fun FloatingCarInfo(
                 .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
                 .padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            // === HEADER: Flag + Manufacturer + Action Buttons ===
+            // === HEADER: Flag + (♿ if disabled) + Manufacturer + Action Buttons ===
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = countryFlag, fontSize = 16.sp)
+                Text(text = countryFlag, fontSize = 20.sp)
+                if (vehicleInfo.disabledTag == true) {
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "♿",
+                        fontSize = 20.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xFFFFAA00).copy(alpha = 0.2f))
+                            .padding(horizontal = 5.dp, vertical = 1.dp)
+                    )
+                }
                 Spacer(Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -171,7 +470,7 @@ fun FloatingCarInfo(
                         }.ifEmpty { stringResource(R.string.overlay_unknown) },
                         color = Color.White,
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 16.sp
+                        fontSize = 18.sp
                     )
                     val subtitle = buildString {
                         vehicleInfo.year?.let { append("$it") }
@@ -181,7 +480,7 @@ fun FloatingCarInfo(
                         }
                     }
                     if (subtitle.isNotEmpty()) {
-                        Text(subtitle, color = BrandPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(subtitle, color = BrandPrimary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                     }
                 }
                 // Action buttons next to title
@@ -233,7 +532,7 @@ fun FloatingCarInfo(
             }
 
             // Accent line
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(6.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -245,20 +544,36 @@ fun FloatingCarInfo(
                         )
                     )
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
 
-            // === TEST / MOT / APK (first after line) ===
+            // === ESTIMATED VALUE + TEST / MOT / APK — side by side at the top ===
+            val estimate = remember(vehicleInfo) { PriceEstimator.estimate(vehicleInfo) }
             val hasTest = vehicleInfo.testValidUntil != null || vehicleInfo.lastTestDate != null ||
                     vehicleInfo.motStatus != null
-            if (hasTest) {
-                vehicleInfo.motStatus?.let {
-                    val expired = it.lowercase() != "valid" && it.lowercase() != "geldig"
-                    InfoRow(stringResource(R.string.label_mot_test), it, isExpired = expired)
+            if (hasTest || estimate != null) {
+                if (hasTest) SectionHeader(stringResource(R.string.label_section_test))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        vehicleInfo.motStatus?.let {
+                            val expired = it.lowercase() != "valid" && it.lowercase() != "geldig"
+                            InfoRow(stringResource(R.string.label_mot_test), it, isExpired = expired)
+                        }
+                        vehicleInfo.testValidUntil?.let {
+                            InfoRow(stringResource(R.string.label_valid_until), it, isExpired = isDateExpired(it))
+                        }
+                        vehicleInfo.lastTestDate?.let { InfoRow(stringResource(R.string.label_last_test), it) }
+                        vehicleInfo.lastTestKm?.let {
+                            InfoRow(stringResource(R.string.label_last_test_km), "${NumberFormat.getNumberInstance().format(it)} km")
+                        }
+                    }
+                    estimate?.let {
+                        Spacer(Modifier.width(8.dp))
+                        CompactEstimateCard(it)
+                    }
                 }
-                vehicleInfo.testValidUntil?.let {
-                    InfoRow(stringResource(R.string.label_valid_until), it, isExpired = isDateExpired(it))
-                }
-                vehicleInfo.lastTestDate?.let { InfoRow(stringResource(R.string.label_last_test), it) }
             }
 
             // === OWNERSHIP HISTORY (IL) — right after test ===
@@ -298,6 +613,8 @@ fun FloatingCarInfo(
                 }
             }
 
+            // Estimated market value is now shown inline at the top (next to Test section).
+
             // === DISABLED TAG — right after price ===
             vehicleInfo.disabledTag?.let { hasTag ->
                 SectionDivider()
@@ -334,6 +651,8 @@ fun FloatingCarInfo(
             }
 
             // === BASIC INFO ===
+            SectionDivider()
+            SectionHeader(stringResource(R.string.label_section_basic))
             vehicleInfo.color?.let { InfoRow(stringResource(R.string.label_color), it) }
             vehicleInfo.secondaryColor?.let { InfoRow(stringResource(R.string.label_secondary_color), it) }
             vehicleInfo.fuelType?.let { InfoRow(stringResource(R.string.label_fuel), it) }
@@ -355,6 +674,7 @@ fun FloatingCarInfo(
                     vehicleInfo.enginePowerKw != null
             if (hasEngine) {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_engine))
                 vehicleInfo.horsepower?.let { InfoRow(stringResource(R.string.label_horsepower), "$it HP") }
                 vehicleInfo.enginePowerKw?.let { kw ->
                     if (vehicleInfo.horsepower == null) {
@@ -393,6 +713,7 @@ fun FloatingCarInfo(
                     vehicleInfo.transmission != null || vehicleInfo.vehicleLength != null
             if (hasSpecs) {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_specs))
                 vehicleInfo.driveType?.let { InfoRow(stringResource(R.string.label_drive), it) }
                 vehicleInfo.driveTechnology?.let { InfoRow(stringResource(R.string.label_drive_tech), it) }
                 vehicleInfo.transmission?.let { InfoRow(stringResource(R.string.label_transmission), it) }
@@ -420,6 +741,7 @@ fun FloatingCarInfo(
             val hasOdometer = vehicleInfo.odometerJudgment != null
             if (hasOdometer) {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_odometer))
                 vehicleInfo.odometerJudgment?.let { InfoRow(stringResource(R.string.label_odometer_judgment), it) }
                 vehicleInfo.odometerYear?.let { InfoRow(stringResource(R.string.label_odometer_year), "$it") }
             }
@@ -427,6 +749,7 @@ fun FloatingCarInfo(
             // === RECALL (NL) ===
             vehicleInfo.hasOpenRecall?.let { hasRecall ->
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_recall))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -494,6 +817,8 @@ fun FloatingCarInfo(
             // === TAX (UK) ===
             val hasTax = vehicleInfo.taxStatus != null
             if (hasTax) {
+                SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_tax))
                 vehicleInfo.taxStatus?.let {
                     val expired = it.lowercase() != "taxed"
                     InfoRow(stringResource(R.string.label_tax), it, isExpired = expired)
@@ -518,6 +843,7 @@ fun FloatingCarInfo(
                     vehicleInfo.towHook != null || vehicleInfo.maxTowingBraked != null
             if (hasTowing) {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_towing))
                 vehicleInfo.towHook?.let { InfoRow(stringResource(R.string.label_tow_hook), it) }
                 vehicleInfo.towingWithBrakes?.let { InfoRow(stringResource(R.string.label_towing_brakes), "$it kg") }
                 vehicleInfo.towingWithoutBrakes?.let { InfoRow(stringResource(R.string.label_towing_no_brakes), "$it kg") }
@@ -533,6 +859,7 @@ fun FloatingCarInfo(
             val hasTires = vehicleInfo.frontTires != null
             if (hasTires) {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_tires))
                 vehicleInfo.frontTires?.let { InfoRow(stringResource(R.string.label_front_tires), it) }
                 vehicleInfo.rearTires?.let { InfoRow(stringResource(R.string.label_rear_tires), it) }
             }
@@ -546,7 +873,7 @@ fun FloatingCarInfo(
                 SectionHeader(stringResource(R.string.label_section_internal))
                 vehicleInfo.chassisNumber?.let { InfoRow(stringResource(R.string.label_chassis), it) }
                 vehicleInfo.engineNumber?.let { InfoRow(stringResource(R.string.label_engine_number), it) }
-                vehicleInfo.lastTestKm?.let { InfoRow(stringResource(R.string.label_last_test_km), "${NumberFormat.getNumberInstance().format(it)} km") }
+                // lastTestKm moved up to Test section
                 vehicleInfo.lpgAdded?.let { InfoRow(stringResource(R.string.label_lpg_added), boolToYesNo(it)) }
                 vehicleInfo.colorChanged?.let { InfoRow(stringResource(R.string.label_color_changed), boolToYesNo(it)) }
                 vehicleInfo.tiresChanged?.let { InfoRow(stringResource(R.string.label_tires_changed), boolToYesNo(it)) }
@@ -556,12 +883,14 @@ fun FloatingCarInfo(
             // === STATISTICS ===
             vehicleInfo.activeVehiclesCount?.let {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_statistics))
                 InfoRow(stringResource(R.string.label_active_vehicles), "$it")
             }
 
             // === INSURANCE (NL) ===
             vehicleInfo.insured?.let {
                 SectionDivider()
+                SectionHeader(stringResource(R.string.label_section_insurance))
                 InfoRow(stringResource(R.string.label_insured), it)
             }
 

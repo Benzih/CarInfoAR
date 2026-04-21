@@ -616,18 +616,18 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 }
             }
 
-            // Bottom hint/reset
+            // Scan hint — big centered when empty, compact top-pill when a card is visible
+            val scanHintTransition = rememberInfiniteTransition(label = "blink")
+            val scanHintAlpha by scanHintTransition.animateFloat(
+                initialValue = 1f,
+                targetValue = 0.4f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(800, easing = androidx.compose.animation.core.EaseInOut),
+                    repeatMode = RepeatMode.Reverse
+                ),
+                label = "blinkAlpha"
+            )
             if (visibleStates.isEmpty()) {
-                val infiniteTransition = rememberInfiniteTransition(label = "blink")
-                val alpha by infiniteTransition.animateFloat(
-                    initialValue = 1f,
-                    targetValue = 0.3f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(800, easing = androidx.compose.animation.core.EaseInOut),
-                        repeatMode = RepeatMode.Reverse
-                    ),
-                    label = "blinkAlpha"
-                )
                 Column(
                     modifier = Modifier.align(Alignment.Center),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -641,11 +641,31 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                             text = word,
                             fontSize = 32.sp,
                             fontWeight = FontWeight.ExtraBold,
-                            color = BrandPrimary.copy(alpha = alpha),
+                            color = BrandPrimary.copy(alpha = scanHintAlpha),
                             letterSpacing = 2.sp,
                             lineHeight = 38.sp
                         )
                     }
+                }
+            } else {
+                // Compact hint under toolbar so user knows they can still scan another plate
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 70.dp)
+                        .clip(RoundedCornerShape(100.dp))
+                        .background(BrandPrimary.copy(alpha = 0.15f))
+                        .border(0.5.dp, BrandPrimary.copy(alpha = 0.4f), RoundedCornerShape(100.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.camera_scan_plate_title),
+                        color = BrandPrimary.copy(alpha = scanHintAlpha),
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1
+                    )
                 }
             }
 
