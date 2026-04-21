@@ -2,7 +2,7 @@
 
 > **Version:** 1.2.5 (versionCode 19)
 > **Platform:** Android
-> **Last Updated:** 2026-04-20
+> **Last Updated:** 2026-04-21
 > **Package:** `com.carinfo.ar`
 
 ---
@@ -112,6 +112,7 @@ com.carinfo.ar/
 |   |-- AdManager.kt             # Banner + interstitial ads, detection counter
 |   |-- BillingManager.kt        # Google Play Billing for remove-ads IAP
 |-- util/
+|   |-- PriceEstimator.kt        # Offline multi-factor market-value estimate (age curve per country, ownership chain, mileage, brand tier, IL Korean bonus, etc.)
 |   |-- SoundManager.kt          # MediaPlayer + ToneGenerator fallback + Vibrator
 ```
 
@@ -726,32 +727,72 @@ Each detected plate gets its own `PlateOverlayState` instance. The state tracks 
 
 The glass-morphism card displays:
 
-**Header:**
-- Country flag + Manufacturer + Model (title)
-- Year + Trim Level (subtitle, in brand color)
-- Save button (Web/Info button removed)
+**Header (banner):**
+- Country flag (20sp) + ♿ disabled-tag chip (if present) + Manufacturer + Model (18sp title)
+- Year + Trim Level (13sp subtitle, in brand color)
+- Save + Close pills on the right
+- `disabledTag == true` renders a small orange-tinted ♿ chip next to the flag so the user sees it at a glance without scrolling.
 
-**After accent line (sections in order):**
-1. Test/MOT/APK — motStatus, testValidUntil, lastTestDate (expired dates in red)
-2. Ownership history (IL) — table of ownership dates and types
-3. Price (IL) — highlighted card with ₪ price in brand color, bold
-4. Disabled tag (IL) — highlighted card with ♿ emoji, orange if present
-5. Basic info — color, secondaryColor, fuelType, ownership, bodyType, onRoadDate, ownerRegistrationDate, countryOfOrigin, importerName, euCategory, plateNumber
-6. Engine — horsepower, enginePowerKw, engineDisplacement, engineCapacity, engineModel, numCylinders, co2Emissions, euroEmissionClass, emissionGroup, greenIndex, fuelEfficiencyClass
-7. Fuel consumption (NL) — combined, city, highway (l/100km)
-8. Specs — driveType, driveTechnology, transmission, standardType, numDoors, numSeats, weight, emptyMass, dimensions (L×W×H), wheelbase, catalogPrice, purchaseTax (BPM), licensingGroup
-9. Odometer (NL) — odometerJudgment, odometerYear
-10. Recall (NL) — highlighted card, red if open recall ⚠️, green if none ✅
-11. Equipment (IL) — electricWindows, sunroof, alloyWheels, tirePressureSensors, reverseCamera
-12. Safety systems (IL) — airbagCount, ABS, stabilityControl, laneDeparture, forwardDistanceMonitoring, adaptiveCruise, pedestrianDetection, blindSpotDetection, safetyScore
-13. Tax (UK) — taxStatus, taxDueDate (expired in red)
-14. UK extra — v5cDate, typeApproval, markedForExport
-15. Towing — towHook, towingWithBrakes, towingWithoutBrakes, maxTowingBraked, maxTowingUnbraked
-16. Tires (IL) — frontTires, rearTires
-17. Internal details (IL) — chassisNumber, engineNumber, lastTestKm, lpgAdded, colorChanged, tiresChanged, originality, modelCode, registrationDirective
-18. Insurance (NL) — insured status
-19. Statistics (IL) — activeVehiclesCount
-20. Data source — government data source URL
+**After the accent line (section order — identical in overlay and history):**
+
+Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported from `CarInfoOverlay.kt`), so the overlay and `HistoryScreen` expanded view are visually identical.
+
+1. **Test / Validity** (`label_section_test`) — rendered as a two-column `Row`:
+   - **Start column** (right in RTL): motStatus, testValidUntil, lastTestDate, `lastTestKm` *(moved up from Internal Details)*.
+   - **End column** (left in RTL): `CompactEstimateCard` — ₪ mid price (18sp ExtraBold), low–high range, confidence dot.
+2. **Ownership history** (`label_ownership_history`) — table of ownership dates and types (IL).
+3. **Price** — highlighted card with ₪ price at registration (IL, `priceAtRegistration`).
+4. **Disabled tag** — highlighted card with ♿ emoji, orange if present (IL).
+5. **Basic info** (`label_section_basic`) — color, secondaryColor, fuelType, ownership, bodyType, onRoadDate, ownerRegistrationDate, countryOfOrigin, importerName, euCategory, isTaxi, isExported, plateNumber, trimLevel.
+6. **Engine** (`label_section_engine`) — horsepower, enginePowerKw, engineDisplacement, engineCapacity, engineModel, numCylinders, co2Emissions, euroEmissionClass, emissionGroup, greenIndex, fuelEfficiencyClass.
+7. **Fuel consumption** (`label_section_fuel`) — combined, city, highway (l/100km) (NL).
+8. **Specs** (`label_section_specs`) — driveType, driveTechnology, transmission, standardType, numDoors, numSeats, weight, emptyMass, dimensions (L×W×H), wheelbase, catalogPrice, purchaseTax (BPM), licensingGroup.
+9. **Odometer** (`label_section_odometer`) — odometerJudgment, odometerYear (NL).
+10. **Recall** (`label_section_recall`) — highlighted card, red if open recall ⚠️, green if none ✅ (NL).
+11. **Equipment** (`label_section_equipment`) — electricWindows, sunroof, alloyWheels, tirePressureSensors, reverseCamera (IL).
+12. **Safety systems** (`label_section_safety`) — airbagCount, ABS, stabilityControl, laneDeparture, forwardDistanceMonitoring, adaptiveCruise, pedestrianDetection, blindSpotDetection, safetyScore (IL).
+13. **Tax** (`label_section_tax`) — taxStatus, taxDueDate (UK, expired in red).
+14. **UK extra** — v5cDate, typeApproval, markedForExport.
+15. **Towing** (`label_section_towing`) — towHook, towingWithBrakes, towingWithoutBrakes, maxTowingBraked, maxTowingUnbraked.
+16. **Tires** (`label_section_tires`) — frontTires, rearTires (IL).
+17. **Internal details** (`label_section_internal`) — chassisNumber, engineNumber, lpgAdded, colorChanged, tiresChanged, originality, modelCode, registrationDirective (IL). `lastTestKm` is **not** here — it lives with Test/Validity.
+18. **Statistics** (`label_section_statistics`) — activeVehiclesCount (IL).
+19. **Insurance** (`label_section_insurance`) — insured status (NL).
+20. **Data source** — government data source URL.
+
+### Estimated Market Value (PriceEstimator)
+
+`util/PriceEstimator.kt` produces an **offline** multi-factor estimate of the car's current private-sale value. No network call, no scraping — uses only fields already fetched from data.gov.il / RDW / DVLA.
+
+**Output:** `Estimate(low, mid, high, currency, confidence)` rounded to clean numbers (₪100 / €500 / £1000). Rendered by `CompactEstimateCard` inline with the Test section (mid price + low–high + colored confidence dot: green ≥0.85, amber ≥0.65, orange else).
+
+**Factors** (multiplied together — chain, not sum):
+
+| # | Factor | Notes |
+|---|--------|-------|
+| 1 | Age + fuel curve | Country-specific: **IL retains value much better** (Y1 ~85%, Y3 ~72%, Y6 ~56%) than US/EU baseline. EVs lose extra 15–25% Y1. Diesel post-5yr −8% (ULEZ/Umweltzone). |
+| 2 | Ownership + hand count | Chain rule: primary penalty full, second × 0.5, third × 0.25. Matches Hebrew variants `השכר`, **`החכר`**, `חכיר`, `ליסינג`, English `rental`, `lease`. Rental history penalty 12%, taxi 30%, driving-school 25%, government 25%. Hand 2 −5%, hand 3 −10%, hand 4 −14%. |
+| 3 | Mileage vs expected | Baseline 15,000 km/yr (IL/UK), 13,000 (NL). ±2% per 10k km off. Capped ±20%/+12%. |
+| 4 | Body type | SUV/crossover +5%, sedan 1.0, hatchback −2%, MPV/van −6%, coupe/cabrio −3%. |
+| 5 | Brand × country | Premium-reliable (Toyota/Lexus/Honda/Mazda/Subaru) +6%. **Korean-in-IL bonus** (Hyundai/Kia/Genesis) +4%. Chinese-in-IL (BYD/Chery/Jaecoo/…) −15% Y1, −22% Y3, −28% Y4+. Premium German −5% after Y3. FIAT/Alfa/Renault/Citroen/Peugeot −7%. |
+| 6 | Trim | Top (luxury/premium/**inspire**/prestige/limited/gls/יוקרה/עליון/top/executive) +3%. Base trim −2%. |
+| 7 | Safety score | 7–8 +2%, 1–3 −4%. |
+| 8 | Open recall | NL −6%. |
+| 9 | Test / MOT expired | −6%. |
+| 10 | Emissions | **Guarded** — IL `greenIndex` applies only if 1–15 (data sometimes returns 266 etc.); NL efficiency class A/B +1–2%, F/G −5%; UK CO2 <100 +2%, ≥200 −5%. |
+| 11 | Originality / color changed / tires changed | `מקוריות='לא מקורי'` −15%, `colorChanged` −8%, `tiresChanged` −2%. |
+| 12 | LPG | −12%. |
+| 13 | Parallel import | `importerName` contains `מקביל` → −3%. |
+| 14 | Taxi | −30%. |
+| 15 | Exported | −15%. |
+
+**Confidence** starts at 0.5 and adds 0.1–0.2 per data field present (base price, km, ownership, history, onRoadDate, bodyType). Spread = 12% + (1 − confidence) × 8%, so low-confidence estimates show a wider range.
+
+**Debug logging** (DEBUG builds only, tag `PriceEstimator`): logs every factor + combined factor + mid/low/high + confidence on each `estimate()` call. Useful for calibration — `adb logcat -s PriceEstimator:*`.
+
+**Validation** — 2022 Hyundai Accent INSPIRE 1.6 (catalog ₪121,900, ex-rental, hand 2, 68k km): formula → ₪73,000; Levi Itzhak authoritative pricelist → ₪71,400. Delta **2.2%**.
+
+`ScanHistory.toVehicleInfo()` extension lets `HistoryScreen` recompute the estimate from a stored `ScanRecord` — the estimate re-ages every time you open the record, so old saves show current-year prices.
 
 ### Save Behavior
 
@@ -786,7 +827,10 @@ The Reset button (top-left, red) clears all cards and vote groups. It is only vi
 
 ### Scan Hint
 
-When no cards are visible, a **blinking** "Scan a license plate" text appears in the center of the screen (localized to the app's language). The text pulses between full and 30% opacity.
+Two display modes, both driven by the same `rememberInfiniteTransition` blink (alpha 1.0 ↔ 0.4 over 800ms):
+
+- **No cards visible:** big centered text, each word on its own line (32sp ExtraBold). Localized via `camera_scan_plate_title`.
+- **At least one card visible:** compact pill with a BrandPrimary border, anchored `Alignment.TopCenter` with 70dp top padding (sits just under the toolbar, above the cards). 13sp SemiBold, single line. Tells the user they can keep scanning even when a result is on screen.
 
 ---
 
