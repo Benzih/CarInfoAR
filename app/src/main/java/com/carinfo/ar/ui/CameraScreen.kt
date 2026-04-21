@@ -107,6 +107,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -535,15 +536,22 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 modifier = Modifier.fillMaxSize()
             )
 
-            ScanEffect()
-            ViewfinderOverlay()
-
             // All overlays are visible: found cards, loading spinners, and short-lived
             // not-found indicators. The cleanup in onPlatesDetected removes stale
             // not-found entries after 3s, so reset button and scan hint stay in sync.
             val visibleStates = overlayStates.values
                 .sortedByDescending { it.lastSeenTime }
                 .toList()
+
+            ScanEffect()
+            // Viewfinder and scan hint share a vertical center: full-screen center
+            // when no cards, shifted up into the band above the cards when any card
+            // is visible (cards occupy the bottom 45%). The viewfinder fraction is
+            // bumped slightly below the text bias to compensate for BiasAlignment's
+            // child-height term, so the text sits at the visual middle of the frame.
+            val hintCenterFraction = if (visibleStates.isEmpty()) 0.5f else 0.35f
+            val viewfinderCenter = if (visibleStates.isEmpty()) 0.5f else 0.37f
+            ViewfinderOverlay(centerYFraction = viewfinderCenter)
 
             // Invisible scrim to dismiss the scan-options menu on outside taps.
             // Declared BEFORE the toolbar so pills/menu items (declared later) capture
@@ -627,44 +635,30 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                 ),
                 label = "blinkAlpha"
             )
-            if (visibleStates.isEmpty()) {
-                Column(
-                    modifier = Modifier.align(Alignment.Center),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Render each word on its own line for a bolder, more vertical look.
-                    val words = stringResource(R.string.camera_scan_plate_title)
-                        .split(' ')
-                        .filter { it.isNotBlank() }
-                    words.forEach { word ->
-                        Text(
-                            text = word,
-                            fontSize = 32.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = BrandPrimary.copy(alpha = scanHintAlpha),
-                            letterSpacing = 2.sp,
-                            lineHeight = 38.sp
-                        )
-                    }
-                }
-            } else {
-                // Compact hint under toolbar so user knows they can still scan another plate
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 70.dp)
-                        .clip(RoundedCornerShape(100.dp))
-                        .background(BrandPrimary.copy(alpha = 0.15f))
-                        .border(0.5.dp, BrandPrimary.copy(alpha = 0.4f), RoundedCornerShape(100.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+            // Same big hint in both states. When no cards are visible it sits at the
+            // true center; once cards fill the bottom 45%, it shifts up into the empty
+            // band between the toolbar and the top card so it stays readable without
+            // shrinking to a small pill. The vertical bias is derived from the shared
+            // hintCenterFraction so the text stays centered inside the viewfinder.
+            val hintAlignment = BiasAlignment(
+                horizontalBias = 0f,
+                verticalBias = 2f * hintCenterFraction - 1f
+            )
+            Column(
+                modifier = Modifier.align(hintAlignment),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val words = stringResource(R.string.camera_scan_plate_title)
+                    .split(' ')
+                    .filter { it.isNotBlank() }
+                words.forEach { word ->
                     Text(
-                        text = stringResource(R.string.camera_scan_plate_title),
+                        text = word,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.ExtraBold,
                         color = BrandPrimary.copy(alpha = scanHintAlpha),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1
+                        letterSpacing = 2.sp,
+                        lineHeight = 38.sp
                     )
                 }
             }

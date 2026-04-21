@@ -10,14 +10,17 @@ import androidx.compose.ui.graphics.StrokeCap
 import com.carinfo.ar.ui.theme.BrandPrimary
 
 @Composable
-fun ViewfinderOverlay(modifier: Modifier = Modifier) {
+fun ViewfinderOverlay(
+    modifier: Modifier = Modifier,
+    centerYFraction: Float = 0.5f,
+) {
     Canvas(modifier = modifier.fillMaxSize()) {
         val cornerLen = 40f
         val strokeW = 3f
         val color = BrandPrimary.copy(alpha = 0.5f)
 
         val cx = size.width / 2f
-        val cy = size.height / 2f
+        val cy = size.height * centerYFraction
         val halfW = size.width * 0.35f
         val halfH = size.height * 0.12f
 
