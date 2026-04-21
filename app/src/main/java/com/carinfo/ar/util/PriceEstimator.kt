@@ -122,7 +122,10 @@ object PriceEstimator {
                 age <= 1.0 -> 0.87 - (age * 0.04)                       // Y0-Y1: 87 → 83%
                 age <= 3.0 -> 0.83 * 0.93.pow(age - 1.0)                // -7%/yr
                 age <= 6.0 -> 0.83 * 0.93.pow(2.0) * 0.92.pow(age - 3.0) // -8%/yr
-                else       -> 0.83 * 0.93.pow(2.0) * 0.92.pow(3.0) * 0.93.pow(age - 6.0)
+                // After Y6 IL market drops ~10%/yr (validated against Levi Itzhak
+                // pricelist: 2016 Dacia Duster ₪31.5k on ₪100k catalog = 31.5% at
+                // Y10, which 0.93/yr overstated to 42%).
+                else       -> 0.83 * 0.93.pow(2.0) * 0.92.pow(3.0) * 0.90.pow(age - 6.0)
             }
             else -> when {
                 age <= 1.0 -> 0.82 - (age * 0.06)                       // Y0-Y1: 82 → 76%
@@ -252,8 +255,10 @@ object PriceEstimator {
         val koreanIL = setOf("HYUNDAI", "KIA", "GENESIS", "יונדאי", "קיה", "גנסיס")
         val premiumGerman = setOf("BMW", "MERCEDES", "MERCEDES-BENZ", "AUDI", "PORSCHE",
             "ב.מ.וו", "ב.מ.ו", "מרצדס", "אאודי", "פורשה")
+        // Dacia is a Renault budget subsidiary; Romanian builds drop faster than
+        // the French parents in IL — grouped with the French weak-resale set.
         val weakResale = setOf("FIAT", "ALFA", "ALFA ROMEO", "RENAULT", "CITROEN", "PEUGEOT",
-            "פיאט", "אלפא", "רנו", "סיטרואן", "פיג'ו")
+            "DACIA", "פיאט", "אלפא", "רנו", "סיטרואן", "פיג'ו", "דאצ'יה", "דאציה")
         return when {
             premiumReliable.any { m.contains(it) } -> 1.06
             country == "IL" && koreanIL.any { m.contains(it) } -> 1.04
