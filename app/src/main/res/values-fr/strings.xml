@@ -48,6 +48,8 @@
     <string name="overlay_save">Enregistrer</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Non trouvé</string>
+    <string name="overlay_loading_title">Recherche des infos pour la plaque %1$s</string>
+    <string name="overlay_loading_wait">Veuillez patienter…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">Plaque</string>

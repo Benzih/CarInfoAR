@@ -48,6 +48,8 @@
     <string name="overlay_save">保存</string>
     <string name="overlay_info">网页</string>
     <string name="overlay_not_found">未找到</string>
+    <string name="overlay_loading_title">正在获取车牌 %1$s 的详情</string>
+    <string name="overlay_loading_wait">请稍候…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">车牌</string>

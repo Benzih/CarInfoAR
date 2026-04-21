@@ -48,6 +48,8 @@
     <string name="overlay_save">Kaydet</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Bulunamadı</string>
+    <string name="overlay_loading_title">%1$s plakası için bilgiler alınıyor</string>
+    <string name="overlay_loading_wait">Lütfen bekleyin…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">Plaka</string>

@@ -48,6 +48,8 @@
     <string name="overlay_save">保存</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">見つかりません</string>
+    <string name="overlay_loading_title">ナンバープレート %1$s の情報を取得中</string>
+    <string name="overlay_loading_wait">お待ちください…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">ナンバープレート</string>

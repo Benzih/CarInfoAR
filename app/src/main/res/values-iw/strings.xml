@@ -48,6 +48,8 @@
     <string name="overlay_save">שמור</string>
     <string name="overlay_info">אינטרנט</string>
     <string name="overlay_not_found">לא נמצא</string>
+    <string name="overlay_loading_title">מביא פרטים על רכב מספר %1$s</string>
+    <string name="overlay_loading_wait">אנא המתן…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">לוחית רישוי</string>

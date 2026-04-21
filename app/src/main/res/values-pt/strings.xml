@@ -48,6 +48,8 @@
     <string name="overlay_save">Guardar</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Não encontrado</string>
+    <string name="overlay_loading_title">A obter dados da matrícula %1$s</string>
+    <string name="overlay_loading_wait">Aguarde, por favor…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">Matrícula</string>

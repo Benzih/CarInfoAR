@@ -48,6 +48,8 @@
     <string name="overlay_save">حفظ</string>
     <string name="overlay_info">ويب</string>
     <string name="overlay_not_found">غير موجود</string>
+    <string name="overlay_loading_title">جاري جلب تفاصيل اللوحة %1$s</string>
+    <string name="overlay_loading_wait">يرجى الانتظار…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">لوحة الترخيص</string>

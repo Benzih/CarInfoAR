@@ -48,6 +48,8 @@
     <string name="overlay_save">Сохранить</string>
     <string name="overlay_info">Веб</string>
     <string name="overlay_not_found">Не найдено</string>
+    <string name="overlay_loading_title">Получение данных по номеру %1$s</string>
+    <string name="overlay_loading_wait">Пожалуйста, подождите…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">Номерной знак</string>

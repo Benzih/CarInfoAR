@@ -224,7 +224,8 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
         if (granted) AnalyticsManager.cameraPermissionGranted() else AnalyticsManager.cameraPermissionDenied()
     }
 
-    val overlayStates = remember { mutableStateMapOf<String, PlateOverlayState>() }
+    // Shared across navigation so scanned cards persist until the user dismisses them.
+    val overlayStates = ScanSession.overlayStates
     val countryRef = remember { mutableStateOf(country ?: SupportedCountry.ISRAEL) }
     countryRef.value = country ?: SupportedCountry.ISRAEL
     // Track exact OCR readings — each exact string counted separately

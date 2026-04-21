@@ -51,6 +51,8 @@
     <string name="overlay_save">Save</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Not found</string>
+    <string name="overlay_loading_title">Fetching details for plate %1$s</string>
+    <string name="overlay_loading_wait">Please wait…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">License Plate</string>

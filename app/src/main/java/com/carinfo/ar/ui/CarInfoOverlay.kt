@@ -203,22 +203,30 @@ fun FloatingCarInfo(
                         Text(stringResource(R.string.overlay_save), color = BrandPrimary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
-                // Dismiss (X) button
+                // Close button — same pill style as Save, tinted red
                 if (onDelete != null) {
                     Spacer(Modifier.width(6.dp))
-                    Box(
+                    val closeTint = Color(0xFFFF7A7A)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .size(26.dp)
-                            .clip(androidx.compose.foundation.shape.CircleShape)
-                            .background(Color.White.copy(alpha = 0.06f))
-                            .clickable { onDelete() },
-                        contentAlignment = Alignment.Center
+                            .clip(RoundedCornerShape(6.dp))
+                            .clickable { onDelete() }
+                            .background(closeTint.copy(alpha = 0.15f))
+                            .padding(horizontal = 6.dp, vertical = 4.dp)
                     ) {
                         Icon(
                             Icons.Default.Close,
                             stringResource(R.string.overlay_dismiss),
-                            tint = Color(0xFFBBBBBB),
+                            tint = closeTint,
                             modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(Modifier.width(3.dp))
+                        Text(
+                            stringResource(R.string.overlay_dismiss),
+                            color = closeTint,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -595,10 +603,10 @@ fun LoadingPlateIndicator(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
+        initialValue = 0.55f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(600, easing = LinearEasing),
+            animation = tween(700, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "pulseAlpha"
@@ -607,39 +615,49 @@ fun LoadingPlateIndicator(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
             .background(GlassOverlay)
-            .border(1.dp, BrandPrimary.copy(alpha = 0.3f), RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .border(1.dp, BrandPrimary.copy(alpha = 0.35f), RoundedCornerShape(14.dp))
+            .padding(horizontal = 14.dp, vertical = 12.dp)
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(22.dp),
             color = BrandPrimary.copy(alpha = alpha),
-            strokeWidth = 2.dp
+            strokeWidth = 2.5.dp
         )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = plateNumber,
-            color = BrandPrimary.copy(alpha = alpha),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f, fill = false)
-        )
+        Spacer(Modifier.width(12.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(R.string.overlay_loading_title, plateNumber),
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 18.sp
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = stringResource(R.string.overlay_loading_wait),
+                color = BrandPrimary.copy(alpha = alpha),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
         if (onDelete != null) {
             Spacer(Modifier.width(8.dp))
             Box(
                 modifier = Modifier
-                    .size(22.dp)
+                    .size(26.dp)
                     .clip(androidx.compose.foundation.shape.CircleShape)
-                    .background(Color.White.copy(alpha = 0.06f))
+                    .background(Color.White.copy(alpha = 0.08f))
                     .clickable { onDelete() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Close,
                     stringResource(R.string.overlay_dismiss),
-                    tint = Color(0xFFBBBBBB),
-                    modifier = Modifier.size(12.dp)
+                    tint = Color(0xFFCCCCCC),
+                    modifier = Modifier.size(14.dp)
                 )
             }
         }

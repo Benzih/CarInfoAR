@@ -48,6 +48,8 @@
     <string name="overlay_save">Opslaan</string>
     <string name="overlay_info">Web</string>
     <string name="overlay_not_found">Niet gevonden</string>
+    <string name="overlay_loading_title">Gegevens ophalen voor kenteken %1$s</string>
+    <string name="overlay_loading_wait">Even geduld…</string>
 
     <!-- Vehicle Info Labels -->
     <string name="label_plate">Kenteken</string>
