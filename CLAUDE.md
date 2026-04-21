@@ -1,6 +1,6 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.2.5 (versionCode 19)
+> **Version:** 1.2.6 (versionCode 20)
 > **Platform:** Android
 > **Last Updated:** 2026-04-21
 > **Package:** `com.carinfo.ar`
@@ -1532,7 +1532,8 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 16          | 1.2.2       | Production       | Mar 28, 2026  | Superseded      | Image-based plate scanning, Billing PendingIntent NPE guard |
 | 17          | 1.2.3       | Production       | Apr 17, 2026  | Superseded      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
 | 18          | 1.2.4       | Internal testing | Apr 17, 2026  | Superseded      | Camera toolbar redesign: labeled pill buttons (Image/Manual/History/Settings) in all 14 languages, SpaceBetween full-width layout, larger text. Removed global Reset button — each car card has its own X dismiss with scale+fade+shrink exit animation and LazyColumn animateItem for smooth reflow |
-| 19          | 1.2.5       | Production       | Apr 20, 2026  | **Active**      | Toolbar restructured: Image + Manual collapsed into a single "Scan Options" expandable pill with a dropdown menu. Settings downgraded to a circular icon-only button. New `toolbar_scan_options` string ("More scan options") in all 14 languages. Scan hint now renders each word on its own line (32sp ExtraBold). Live in 177 countries. |
+| 19          | 1.2.5       | Production       | Apr 20, 2026  | Superseded      | Toolbar restructured: Image + Manual collapsed into a single "Scan Options" expandable pill with a dropdown menu. Settings downgraded to a circular icon-only button. New `toolbar_scan_options` string ("More scan options") in all 14 languages. Scan hint now renders each word on its own line (32sp ExtraBold). Live in 177 countries. |
+| 20          | 1.2.6       | Production       | Apr 21, 2026  | **Active**      | Scan hint + viewfinder now shift up into the empty band above the car card when a result is visible (was previously a tiny unintended pill at the top). Price estimator calibrated against Levi Itzhak pricelist: IL depreciation curve past Y6 steepened (0.93→0.90 per year) and Dacia added to the weak-resale brand set. A 2016 Duster now estimates ~₪36k instead of ~₪44k (real ≈ ₪31.5k). |
 
 ### Play Store Setup Completed
 
