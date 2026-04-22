@@ -760,7 +760,33 @@ Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported f
 19. **Insurance** (`label_section_insurance`) — insured status (NL).
 20. **Data source** — government data source URL.
 
-### Estimated Market Value (PriceEstimator v3c)
+### Estimated Market Value (PriceEstimator v3d)
+
+**v3d refinements (Apr 2026)** — 5 targeted structural fixes on top of v3c after
+deeper outlier analysis. MAD dropped from 12.20% (v3c) to **11.74%** on the full
+80-car LY set, and from 10.76% to **9.73%** on the 45-car no-km subset (first time
+under 10% — the threshold where LY's own internal noise dominates). Held-out MAD
+improved from 15.43% to **13.70%**. ±10% coverage: 50% → 54%. ±20%: 89% → 91%.
+
+Changes vs v3c:
+1. **Mid-reliable split by body** — Sentra Y5.9 sedan was +24% overestimate under
+   flat Mid-reliable Y5+ 1.08, because Nissan's SUVs (X-Trail/Qashqai) hold value
+   but compact sedans don't. Sedans/hatches now get 1.02, SUVs keep 1.08.
+2. **Premium-reliable non-SUV Y13+ stronger fade** — Y13-15 was 1.05, now 1.00;
+   Y15+ was 1.00, now 0.95 (non-SUV only). Mazda 3 Y13-15 was +24% over; Accord
+   Y17 sedan was +23%. Y13+ SUV still gets 1.15 (Forester 4WD demand).
+3. **Japanese-SUV Y15+ retention floor** — post-multiply check: if IL + Japanese
+   Premium-reliable + SUV + Y≥15 and combined factor < 0.14, floor at 0.14.
+   Forester Y17 (Subaru, SUV) was -28% under because raw 0.089 × 1.15 × 1.05 still
+   capped at ~10% retention. LY values Forester Y17 at 23% retention.
+4. **Suzuki subtier by model** — flat 1.05 was wrong for cheap subcompacts.
+   CELERIO Y9.9 was +27% over. Split: budget (SWIFT/CELERIO/ALTO/SPLASH/IGNIS)
+   gets 1.00; solid (JIMNY/SX4/VITARA/S-CROSS/BALENO) keeps 1.05.
+5. **Jeep/Chrysler-old tier** — previously hit Standard 1.00. COMPASS Y14 was +18%.
+   Now Y10+ Jeep/Chrysler/Dodge gets 0.85 (American mid-size SUVs depreciate
+   harder than Japanese past Y10).
+
+### Estimated Market Value (PriceEstimator v3c — earlier iteration)
 
 **v3c refinements (Apr 2026)** — data-driven targeted fixes after validation on 80 cars
 revealed systematic biases. MAD dropped from 13.15% (v3b) to **11.82%**. Mean bias dropped

@@ -85,9 +85,24 @@ object PriceEstimator {
         val fTaxi = if (info.isTaxi == true) 0.70 else 1.0
         val fExport = if (info.isExported == true) 0.85 else 1.0
 
-        val factor = fAgeFuel * fOwners * fMileage * fBody * fBrand * fTrim *
+        val rawFactor = fAgeFuel * fOwners * fMileage * fBody * fBrand * fTrim *
                 fSafety * fRecall * fTest * fEmission * fOrig * fLpg *
                 fParallel * fTaxi * fExport
+
+        // v3d: Japanese-SUV Y15+ retention floor. Raw age factor for Y15+ is
+        // ~0.12; even with Premium-reliable×SUV-old (×1.15) and body (×1.05),
+        // retention caps around 10%. Forester Y17 was -28% vs LY (23.6k vs 17k).
+        // Floor retention at 14% — old Japanese 4WD SUVs hold demand better
+        // than the raw depreciation curve implies.
+        val japaneseSuvKeywords = setOf("TOYOTA","LEXUS","HONDA","MAZDA","SUBARU",
+            "טויוטה","לקסוס","הונדה","מאזדה","מזדה","סובארו")
+        val mkUpper = (info.manufacturer ?: "").uppercase().trim()
+        val bodyLower = (info.bodyType ?: "").lowercase()
+        val isSuvBody = "suv" in bodyLower || "crossover" in bodyLower ||
+            "פנאי" in bodyLower || "ג'יפ" in bodyLower || "jeep" in bodyLower
+        val isJapaneseSuvOld = country == "IL" && age >= 15.0 && isSuvBody &&
+            japaneseSuvKeywords.any { mkUpper.startsWith(it) }
+        val factor = if (isJapaneseSuvOld && rawFactor < 0.14) 0.14 else rawFactor
 
         // IL scrap floor: a running car rarely trades below ~₪8,000 even at Y16+.
         // Calibrated against Levi-Yitzhak 2009 FIAT 500 (₪8,700) and 2011 Cruze (₪8,000).
@@ -462,25 +477,34 @@ object PriceEstimator {
         val ssangYong = setOf("SSANGYONG", "SANGYONG", "סאנגיונג", "סאנגיוג")
         if (matches(ssangYong)) return 0.92
 
-        // Premium-reliable — Japanese reliable. v3c adds two refinements:
-        //   (a) Y13-15 fade 1.10 → 1.05 (Mazda 3 Y13-15 was +30% overestimate)
-        //   (b) SUV body past Y13 gets a resilience boost (Subaru Forester
-        //       Y17 was -36% underestimate — old Japanese SUVs retain 4WD
-        //       demand and reliability reputation)
+        // Premium-reliable — Japanese reliable. v3d extends v3c fade:
+        //   (a) Y13+ SUV = 1.15 (Forester Y17 retention boost — 4WD demand)
+        //   (b) Y13-15 non-SUV = 1.00 (was 1.05 — Mazda 3 Y13-15 was +24% over)
+        //   (c) Y15+ non-SUV = 0.95 (was 1.00 — Accord Y17 sedan was +23% over)
+        //   Extra retention floor for Japanese SUV Y15+ applied after all factors
+        //   in estimate() — see floor block.
         val premiumReliable = setOf("TOYOTA", "LEXUS", "HONDA", "MAZDA", "SUBARU",
             "טויוטה", "לקסוס", "הונדה", "מאזדה", "מזדה", "סובארו")
         if (matches(premiumReliable)) {
             return when {
                 age >= 13.0 && isSuv -> 1.15   // old Japanese SUVs keep value
-                age >= 15.0 -> 1.00
-                age >= 13.0 -> 1.05            // fade start for non-SUV
+                age >= 15.0 -> 0.95            // v3d: non-SUV sedan Y15+ fades more
+                age >= 13.0 -> 1.00            // v3d: non-SUV Y13-15 fade deeper
                 else        -> 1.10
             }
         }
 
-        // Suzuki — v3b: removed Y<2 delay and added Y15+ fade
+        // Suzuki — v3d: split by model. Budget subcompacts (SWIFT/CELERIO/ALTO/
+        // SPLASH/IGNIS) don't hold value like the solid ones (JIMNY/SX4/VITARA/
+        // S-CROSS/BALENO). CELERIO Y9.9 was +27% overestimate under flat 1.05.
         if (m.startsWith("סוזוקי") || m.startsWith("SUZUKI")) {
-            return if (age >= 15.0) 1.00 else 1.05
+            val suzukiBudget = listOf("SWIFT", "CELERIO", "ALTO", "SPLASH", "IGNIS")
+            val isBudget = suzukiBudget.any { it in mdl }
+            return when {
+                age >= 15.0 -> 1.00
+                isBudget    -> 1.00           // v3d: budget Suzukis drop faster
+                else        -> 1.05            // solid (Jimny etc.) keeps boost
+            }
         }
 
         // Korean — IL only. v3b: Y15+ fades to 1.00 (i30 2008 was overpriced).
@@ -518,12 +542,26 @@ object PriceEstimator {
             return if (age > 10) 0.70 else 1.00
         }
 
-        // Mid-reliable — v3b: Y5+ bumped 1.02 → 1.08 (Space Star Y6.9 was -61%,
-        // Nissan X-Trail Y4.9 was -13% — both Mid-reliable underpriced)
+        // v3d: Jeep/Chrysler-old tier. Compass Y14 was +18% overestimate under
+        // Standard 1.00. American mid-size SUVs depreciate harder than Japanese.
+        val jeepChrysler = setOf("JEEP", "CHRYSLER", "DODGE",
+            "ג'יפ", "קרייזלר", "דודג'")
+        if (matches(jeepChrysler)) {
+            return if (age > 10) 0.85 else 1.00
+        }
+
+        // Mid-reliable — v3d: split by body. Sentra Y5.9 SEDAN was +24% under
+        // flat 1.08, because Nissan SUVs (X-Trail/Qashqai) hold value but
+        // compact sedans don't. SUVs keep the 1.08 retention; sedans/hatches
+        // get only 1.02.
         val midReliable = setOf("VW", "VOLKSWAGEN", "SKODA", "FORD", "MITSUBISHI", "NISSAN",
             "פולקסווגן", "סקודה", "פורד", "מיצובישי", "ניסאן")
         if (matches(midReliable)) {
-            return if (age >= 5.0) 1.08 else 1.02
+            return when {
+                age >= 5.0 && isSuv -> 1.08   // X-Trail/Qashqai/Kodiaq keep boost
+                age >= 5.0          -> 1.02   // v3d: Sentra/Space Star sedan dropped
+                else                 -> 1.02
+            }
         }
 
         return 1.00
