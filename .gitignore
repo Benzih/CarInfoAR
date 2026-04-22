@@ -44,3 +44,6 @@ __pycache__/
 /tools/
 /screenshots/
 /price_calibration_v3_final.xlsx
+
+# Per-release note drafts (upload payload, not tracked)
+/release_notes_*.txt

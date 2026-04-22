@@ -14,8 +14,8 @@ android {
         applicationId = "com.carinfo.ar"
         minSdk = 24
         targetSdk = 35
-        versionCode = 20
-        versionName = "1.2.6"
+        versionCode = 21
+        versionName = "1.2.7"
     }
 
     signingConfigs {

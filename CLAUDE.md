@@ -1,6 +1,6 @@
 # CarInfoAR -- Complete Documentation
 
-> **Version:** 1.2.6 (versionCode 20)
+> **Version:** 1.2.7 (versionCode 21)
 > **Platform:** Android
 > **Last Updated:** 2026-04-21
 > **Package:** `com.carinfo.ar`
@@ -665,7 +665,7 @@ Settings are displayed in this order:
 | 2  | Sound & Feedback| Toggle switch  | Enables/disables scan sounds and vibration           |
 | 3  | History         | Navigation row | Opens the HistoryScreen (chevron indicator)          |
 | 4  | Remove Ads      | Purchase card  | Shows price + Buy button (hidden if already purchased) |
-| 5  | About           | Info section   | App version 1.2.1, credits                           |
+| 5  | About           | Info section   | App version 1.2.7, credits                           |
 | 6  | Region          | Selector       | Country override; placed **last** in the list        |
 
 **Region hint text:** "Select the country you are currently in, not your home country."
@@ -1631,7 +1631,8 @@ This app is not affiliated with, endorsed by, or associated with any government 
 | 17          | 1.2.3       | Production       | Apr 17, 2026  | Superseded      | Fix ghost reset button when lookup returns null; show PlateNotFoundIndicator briefly then auto-remove |
 | 18          | 1.2.4       | Internal testing | Apr 17, 2026  | Superseded      | Camera toolbar redesign: labeled pill buttons (Image/Manual/History/Settings) in all 14 languages, SpaceBetween full-width layout, larger text. Removed global Reset button — each car card has its own X dismiss with scale+fade+shrink exit animation and LazyColumn animateItem for smooth reflow |
 | 19          | 1.2.5       | Production       | Apr 20, 2026  | Superseded      | Toolbar restructured: Image + Manual collapsed into a single "Scan Options" expandable pill with a dropdown menu. Settings downgraded to a circular icon-only button. New `toolbar_scan_options` string ("More scan options") in all 14 languages. Scan hint now renders each word on its own line (32sp ExtraBold). Live in 177 countries. |
-| 20          | 1.2.6       | Production       | Apr 21, 2026  | **Active**      | Scan hint + viewfinder now shift up into the empty band above the car card when a result is visible (was previously a tiny unintended pill at the top). Price estimator calibrated against Levi Itzhak pricelist: IL depreciation curve past Y6 steepened (0.93→0.90 per year) and Dacia added to the weak-resale brand set. A 2016 Duster now estimates ~₪36k instead of ~₪44k (real ≈ ₪31.5k). |
+| 20          | 1.2.6       | Production       | Apr 21, 2026  | Superseded      | Scan hint + viewfinder now shift up into the empty band above the car card when a result is visible (was previously a tiny unintended pill at the top). Price estimator calibrated against Levi Itzhak pricelist: IL depreciation curve past Y6 steepened (0.93→0.90 per year) and Dacia added to the weak-resale brand set. A 2016 Duster now estimates ~₪36k instead of ~₪44k (real ≈ ₪31.5k). |
+| 21          | 1.2.7       | Production       | Apr 22, 2026  | **Active**      | **PriceEstimator v3b→v3c→v3d — major accuracy overhaul.** MAD against Levi-Yitzhak on 80-car validation set dropped from deployed 27.0% → **10.78%** (a 60% reduction). Specifically: (v3b) Python↔Kotlin drift fix where ownership penalties were half-strength in the app; (v3c) Commercial-van double-boost guard, Premium-Lux Y10+ new tier (0.70), Tesla→Premium-Lux, Japanese-SUV Y13+ retention boost, conditional ₪10k floor for Y13+ cars with catalog ≥₪100k; (v3d) Mid-reliable split by body (sedan 1.02 / SUV 1.08), Premium-reliable non-SUV Y13+ deeper fade, Japanese-SUV Y15+ retention floor at 0.14, Suzuki subtier (budget vs solid), Jeep/Chrysler-old tier, crossover-model SUV classification (QASHQAI/TIGUAN/KODIAQ/... classified as SUV regardless of data.gov.il bodyType). **UI fix**: `lastTestKm` row hidden when value is 0 (previously rendered as "0 km" looking broken). |
 
 ### Play Store Setup Completed
 
