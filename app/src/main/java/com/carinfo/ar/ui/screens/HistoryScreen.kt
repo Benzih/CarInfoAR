@@ -349,7 +349,7 @@ private fun HistoryItem(record: ScanRecord, onClick: () -> Unit, onDelete: () ->
                                 InfoRow(stringResource(R.string.label_valid_until), it, isExpired = isDateExpired(it))
                             }
                             record.lastTestDate?.let { InfoRow(stringResource(R.string.label_last_test), it) }
-                            record.lastTestKm?.let {
+                            record.lastTestKm?.takeIf { it > 0 }?.let {
                                 InfoRow(stringResource(R.string.label_last_test_km), "${java.text.NumberFormat.getNumberInstance().format(it)} km")
                             }
                         }

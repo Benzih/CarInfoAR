@@ -565,7 +565,7 @@ fun FloatingCarInfo(
                             InfoRow(stringResource(R.string.label_valid_until), it, isExpired = isDateExpired(it))
                         }
                         vehicleInfo.lastTestDate?.let { InfoRow(stringResource(R.string.label_last_test), it) }
-                        vehicleInfo.lastTestKm?.let {
+                        vehicleInfo.lastTestKm?.takeIf { it > 0 }?.let {
                             InfoRow(stringResource(R.string.label_last_test_km), "${NumberFormat.getNumberInstance().format(it)} km")
                         }
                     }
