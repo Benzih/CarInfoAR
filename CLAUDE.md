@@ -760,7 +760,32 @@ Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported f
 19. **Insurance** (`label_section_insurance`) — insured status (NL).
 20. **Data source** — government data source URL.
 
-### Estimated Market Value (PriceEstimator v3)
+### Estimated Market Value (PriceEstimator v3c)
+
+**v3c refinements (Apr 2026)** — data-driven targeted fixes after validation on 80 cars
+revealed systematic biases. MAD dropped from 13.15% (v3b) to **11.82%**. Mean bias dropped
+from +5.16% to **+0.52%** (near-zero). ±10% coverage went from 42% → 52%.
+
+Changes vs v3b:
+1. **Commercial-Van double-boost guard** — old diesel vans were getting both `fuel × 1.20`
+   (commercial-diesel-Y8+) AND `brand × 1.15` (Commercial tier), stacking to +38%. Berlingo
+   Y13.9 was +25% overestimate. Fixed: Commercial diesel Y8+ fuel factor lowered 1.20 → 1.00
+   (brand tier already handles retention).
+2. **Premium-Lux Y10+ new tier → 0.70** (was 0.85 for Y5+). Volvo XC60 Y11.9 dropped from
+   +26% to ~+9%. European luxury past Y10 depreciates sharply in IL due to maintenance cost.
+3. **Premium-Lux Y<3 tightened 1.00 → 0.92**. Audi Q5 Y2 was +18%, Tesla Model Y Y1 was +17%.
+   Young premium/EV luxury drops fast in the first few years.
+4. **Premium-reliable Y13-15 fade → 1.05** (was 1.10). Mazda 3 Y13-15 was consistently +24-31%
+   overestimate. Non-Toyota Premium-reliable brands don't hold as strongly past Y13.
+5. **Japanese-SUV-Y13+ boost → 1.15**. Subaru Forester Y16.9 was -36% underestimate. Old
+   Japanese SUVs with 4WD retain disproportionate value. Rule: Premium-reliable + SUV body
+   + Y≥13 → 1.15 (overrides the Y15+ = 1.00 fade).
+6. **Tesla added to Premium-Lux tier**. Tesla Y1 was +17% overestimate — EV depreciation
+   is well-documented; tier gives the same young-luxury treatment.
+7. **Conditional scrap floor**: ₪10,000 for Y13+ with catalog ≥ ₪100k (was flat ₪8k).
+   Hyundai i30 Y17.9 on ₪111k catalog was hitting the ₪8k floor but LY valued it at ₪11.3k.
+
+### Estimated Market Value (PriceEstimator v3 — earlier iteration)
 
 `util/PriceEstimator.kt` produces an **offline** multi-factor estimate of the car's current private-sale value. No network call, no scraping — uses only fields already fetched from data.gov.il / RDW / DVLA.
 

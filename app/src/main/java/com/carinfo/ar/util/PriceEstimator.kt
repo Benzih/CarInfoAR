@@ -73,7 +73,7 @@ object PriceEstimator {
         val fOwners = ownersFactor(info)
         val fMileage = mileageFactor(info.lastTestKm, age, country)
         val fBody = bodyFactor(info.bodyType)
-        val fBrand = brandFactor(info.manufacturer, info.model, age, country)
+        val fBrand = brandFactor(info.manufacturer, info.model, age, country, info.bodyType)
         val fTrim = trimFactor(info.trimLevel)
         val fSafety = safetyFactor(info.safetyScore ?: info.safetyRating)
         val fRecall = if (info.hasOpenRecall == true) 0.94 else 1.0
@@ -91,7 +91,15 @@ object PriceEstimator {
 
         // IL scrap floor: a running car rarely trades below ~₪8,000 even at Y16+.
         // Calibrated against Levi-Yitzhak 2009 FIAT 500 (₪8,700) and 2011 Cruze (₪8,000).
-        val floor = if (country == "IL") 8_000.0 else 0.0
+        // v3c: raised to ₪10,000 for Y13+ cars that had decent catalog prices
+        // (≥₪100k). Hyundai i30 Y17.9 on ₪111k catalog was hitting the ₪8k
+        // floor but LY valued it at ₪11.3k — small Korean/Japanese cars with
+        // some brand recall hold a higher residual than true scrap.
+        val floor = when {
+            country != "IL" -> 0.0
+            age >= 13.0 && base >= 100_000 -> 10_000.0
+            else -> 8_000.0
+        }
         // Y<1 ceiling: a car barely off the lot can't be worth more than ~95% of
         // catalog. v3b: Kona Supreme Y0.9 hybrid was computed at ₪209k on ₪186k
         // catalog (1.12×) because Korean × Hybrid-Y0 × SUV × 0-km compounded
@@ -230,10 +238,15 @@ object PriceEstimator {
                 // with the flat 1.15.
                 isHybrid -> if (age >= 3.0) 1.15 else 1.10
                 isDiesel -> when {
+                    // v3c fix: DON'T apply the "old work van" ×1.20 fuel bonus
+                    // when brand tier is also Commercial (×1.15) — that's a
+                    // double-boost. Berlingo Y13.9 was +25% overestimate from
+                    // the two bonuses stacking. Keep mild Y<8 bonus so diesel
+                    // vans beat gas vans, but not the +20% on top.
                     isCommercialVan -> when {
                         age <= 4.0 -> 0.97
                         age <= 8.0 -> 0.98
-                        else       -> 1.20   // old work vans hold value as tools
+                        else       -> 1.00   // was 1.20 — brand Commercial handles retention
                     }
                     age <= 4.0 -> 0.95
                     age <= 7.0 -> 0.88
@@ -388,9 +401,13 @@ object PriceEstimator {
         model: String?,
         age: Double,
         country: String,
+        bodyType: String? = null,
     ): Double {
         val m = (make ?: "").uppercase().trim()
         val mdl = (model ?: "").uppercase()
+        val body = (bodyType ?: "").lowercase()
+        val isSuv = "suv" in body || "crossover" in body || "פנאי" in body ||
+            "ג'יפ" in body || "jeep" in body
         fun matches(tokens: Set<String>) = tokens.any { m.startsWith(it) }
 
         // Performance-Lux first (narrower than Premium-Lux; needs German tier)
@@ -445,13 +462,20 @@ object PriceEstimator {
         val ssangYong = setOf("SSANGYONG", "SANGYONG", "סאנגיונג", "סאנגיוג")
         if (matches(ssangYong)) return 0.92
 
-        // Premium-reliable — Japanese reliable. v3b: always 1.10 (removed Y<2
-        // delay — Hilux Y1.9 was underpriced). Y15+ drops to 1.00 because
-        // Accord Y17 was overestimated.
+        // Premium-reliable — Japanese reliable. v3c adds two refinements:
+        //   (a) Y13-15 fade 1.10 → 1.05 (Mazda 3 Y13-15 was +30% overestimate)
+        //   (b) SUV body past Y13 gets a resilience boost (Subaru Forester
+        //       Y17 was -36% underestimate — old Japanese SUVs retain 4WD
+        //       demand and reliability reputation)
         val premiumReliable = setOf("TOYOTA", "LEXUS", "HONDA", "MAZDA", "SUBARU",
             "טויוטה", "לקסוס", "הונדה", "מאזדה", "מזדה", "סובארו")
         if (matches(premiumReliable)) {
-            return if (age >= 15.0) 1.00 else 1.10
+            return when {
+                age >= 13.0 && isSuv -> 1.15   // old Japanese SUVs keep value
+                age >= 15.0 -> 1.00
+                age >= 13.0 -> 1.05            // fade start for non-SUV
+                else        -> 1.10
+            }
         }
 
         // Suzuki — v3b: removed Y<2 delay and added Y15+ fade
@@ -465,12 +489,17 @@ object PriceEstimator {
             return if (age >= 15.0) 1.00 else 1.10
         }
 
-        // German/European luxury
-        if (matches(germanLux)) {
+        // German/European luxury — Tesla added as young-tech-luxury (harsh
+        // depreciation matches this tier). v3c: Y<3 dropped 1.00 → 0.92
+        // (Audi Q5 Y2 was +18%, Tesla Model Y Y1 was +17%). Y10+ new tier
+        // at 0.70 (Volvo XC60 Y11.9 was +26%).
+        val germanLuxPlusTesla = germanLux + setOf("TESLA", "טסלה")
+        if (matches(germanLuxPlusTesla)) {
             return when {
-                age < 3 -> 1.00
-                age < 5 -> 0.92
-                else    -> 0.85
+                age < 3   -> 0.92
+                age < 5   -> 0.90
+                age < 10  -> 0.85
+                else      -> 0.70
             }
         }
 
