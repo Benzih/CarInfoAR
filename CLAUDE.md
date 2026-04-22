@@ -785,6 +785,12 @@ Changes vs v3c:
 5. **Jeep/Chrysler-old tier** — previously hit Standard 1.00. COMPASS Y14 was +18%.
    Now Y10+ Jeep/Chrysler/Dodge gets 0.85 (American mid-size SUVs depreciate
    harder than Japanese past Y10).
+6. **Crossover-model SUV classification** — data.gov.il classifies several
+   crossovers as MPV/sedan/hatchback. QASHQAI PLUS 2 is labeled "MPV" — pre-fix
+   it was caught by Mid-reliable sedan tier (1.02 vs 1.08 SUV), regressing -6.5pp
+   vs v3c. Fix: explicit crossover model list (QASHQAI, TIGUAN, KODIAQ, KUGA,
+   OUTLANDER, …) treated as SUV regardless of bodyType. MAD 10.02% → **9.89%**
+   on 45-car no-km subset.
 
 ### Estimated Market Value (PriceEstimator v3c — earlier iteration)
 

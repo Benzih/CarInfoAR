@@ -421,8 +421,27 @@ object PriceEstimator {
         val m = (make ?: "").uppercase().trim()
         val mdl = (model ?: "").uppercase()
         val body = (bodyType ?: "").lowercase()
+        // Crossover/SUV models that data.gov.il sometimes classifies as MPV,
+        // sedan, or hatchback. v3d regression: QASHQAI PLUS 2 was classified
+        // as MPV and fell into Mid-reliable sedan tier (1.02 vs 1.08 SUV),
+        // losing 6.5 points vs v3c. Same risk for crossovers like TIGUAN
+        // sometimes labeled "sedan" or KODIAQ labeled "MPV".
+        val crossoverModels = setOf(
+            // Nissan
+            "QASHQAI", "X-TRAIL", "XTRAIL", "JUKE", "MURANO", "PATHFINDER",
+            "ARMADA", "TERRANO", "ROGUE",
+            // VW
+            "TIGUAN", "TOUAREG", "T-ROC", "T-CROSS", "TAOS", "ATLAS", "ID.4", "ID4",
+            // Skoda
+            "KODIAQ", "KAROQ", "YETI",
+            // Ford
+            "KUGA", "EDGE", "EXPLORER", "EXPEDITION", "BRONCO", "ESCAPE", "ECOSPORT",
+            // Mitsubishi
+            "OUTLANDER", "ECLIPSE CROSS", "ASX", "PAJERO", "XPANDER"
+        )
+        val isCrossoverModel = crossoverModels.any { it in mdl }
         val isSuv = "suv" in body || "crossover" in body || "פנאי" in body ||
-            "ג'יפ" in body || "jeep" in body
+            "ג'יפ" in body || "jeep" in body || isCrossoverModel
         fun matches(tokens: Set<String>) = tokens.any { m.startsWith(it) }
 
         // Performance-Lux first (narrower than Premium-Lux; needs German tier)
