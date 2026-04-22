@@ -768,7 +768,7 @@ Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported f
 
 **v3 calibration (Apr 2026)** — retuned against combined **55 Levi-Yitzhak** pricings (43 from earlier v2 round + 12 new cars scanned Apr 22 that exposed v2's weaknesses). MAD dropped from the previously-deployed **27.0% (stale Kotlin curve) → 13.1%** (v3) — a 52% improvement. ±20% coverage jumped from 47% → 89%.
 
-**Why v3 happened:** the reference Python `calibrate_v2.py` had been retuned against 43 LY cars but the matching edits **were never ported to Kotlin** — so the app was running an older pre-v2 curve. v3 is both the port and a fresh retune against 55 cars. Going forward, keep Python and Kotlin in sync by running `python tools/tune_v3.py` after any estimator change and expecting MAD ≤ 14%.
+**Why v3 happened:** the reference Python `calibrate_v2.py` had been retuned against 43 LY cars but the matching edits **were never ported to Kotlin** — so the app was running an older pre-v2 curve. v3 is both the port and a fresh retune against 55 cars. Going forward, keep Python and Kotlin in sync by running `python ../CarInfoARData/tools/tune_v3.py` after any estimator change and expecting MAD ≤ 14%. Calibration tooling lives in `C:\Users\ASUS\Desktop\CarInfoARData\tools\` — outside the Android project folder so the repo stays pure Android/docs.
 
 **Factors** (multiplied together — chain, not sum):
 
@@ -819,18 +819,19 @@ Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported f
 2. Extremely high-km cars (>220k km) still under-estimated because LY essentially ignores km while we apply −5% cap.
 3. Niche luxury (BMW M850, Audi Q5 at specific configurations) sometimes misses by 15-25% because sample too small to tune per-model.
 
-**Drift prevention:** `tools/tune_v3.py` is the canonical reference. After ANY change to `PriceEstimator.kt` run:
+**Drift prevention:** `../CarInfoARData/tools/tune_v3.py` is the canonical reference. After ANY change to `PriceEstimator.kt` run:
 ```
-python tools/tune_v3.py
+python ../CarInfoARData/tools/tune_v3.py
 ```
 Expect the three tiers ("ALL / old / new") to all show MAD ≤ 14% and ±20% coverage ≥ 85%. If metrics regress, either revert or re-tune in Python first.
 
-**Calibration artifacts:**
-- `price_calibration_v3_final.xlsx` — all 55 LY cars with Kotlin-old vs v3 side-by-side, factor breakdown, delta.
-- `tools/tune_v3.py` · `tools/tune_v4.py` · `tools/tune_v5.py` · `tools/tune_v6.py` — iterative Python tunings that led to v3.
+**Calibration artifacts** (all in `C:\Users\ASUS\Desktop\CarInfoARData\` — kept outside the Android repo to keep it pure Android/docs):
+- `calibration/price_calibration_v3_final.xlsx` — all 55 LY cars with Kotlin-old vs v3 side-by-side, factor breakdown, delta.
+- `tools/tune_v3.py` · `tune_v4.py` · `tune_v5.py` · `tune_v6.py` · `tune_v3b.py` — iterative Python tunings that led to v3b.
 - `tools/calibration_data.json` — 48 original LY+Yad2 reference cars.
-- `scan_history_v2.json` — the 12 new Apr-22 cars.
-- `price_calibration_check_v2_with_levieitshak.xlsx` — user-filled LY prices for the 12 new cars.
+- `scan_history/` — 3 snapshots of the user's `scan_history.json` pulled from the phone.
+- `levi_yitzhak_screenshots/` — 25 screenshots of LY prices (Apr-22 hold-out batch) — source for `apply_levi_and_analyze.py` LY_PRICES dict.
+- `calibration/price_calibration_check_v2_with_levieitshak.xlsx` — user-filled LY prices for the 12 new cars.
 
 `ScanHistory.toVehicleInfo()` extension lets `HistoryScreen` recompute the estimate from a stored `ScanRecord` — the estimate re-ages every time you open the record, so old saves show current-year prices.
 

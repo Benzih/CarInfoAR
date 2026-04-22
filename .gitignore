@@ -37,3 +37,10 @@ local.properties
 # Python caches
 __pycache__/
 *.pyc
+
+# Moved out of repo (see CLAUDE.md): calibration tools, xlsx, Play Store
+# screenshots all live in ~/Desktop/CarInfoARData/. Listed here so accidental
+# re-creation gets ignored.
+/tools/
+/screenshots/
+/price_calibration_v3_final.xlsx
