@@ -10,3 +10,30 @@
 local.properties
 /app/build
 *.keystore
+
+# Local claude config
+.claude/
+
+# User's phone data (pulled via ADB) — not committed
+/scan_history.json
+/scan_history_v2.json
+/scan_history_v3_test.json
+
+# Debug/dev screenshots
+/app_screenshot.png
+/app_screen_main.png
+/app_history.png
+/levi_screenshots/
+
+# Intermediate calibration artifacts (only final xlsx + tools/ committed)
+/price_calibration.xlsx
+/price_calibration_v2.xlsx
+/price_calibration_check_v2.xlsx
+/price_calibration_check_v2_with_levieitshak.xlsx
+/price_calibration_v3_heldout.xlsx
+/v3_heldout_results.json
+~$*.xlsx
+
+# Python caches
+__pycache__/
+*.pyc

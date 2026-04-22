@@ -11,12 +11,41 @@ import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * Offline market-value estimator.
+ * Offline market-value estimator (v2 — calibrated Apr 2026).
  *
  * Combines 15+ factors available from data.gov.il (IL), RDW (NL), and DVLA (UK):
  *  base catalog price × age curve × fuel-type modifier × ownership × mileage
  *      × body type × brand tier × trim × safety × open recall × test expiry
  *      × emissions × originality × LPG × parallel-import
+ *
+ * ## Calibration
+ *
+ * v2 tuned against 43 Levi-Yitzhak (authoritative IL pricelist) + 5 Yad2
+ * reference prices collected in-app. Mean absolute delta dropped from 27.4%
+ * (v1) to 15.7% (v2). Key changes from v1 findings:
+ *
+ * 1. AGE CURVE completely reshaped — IL cars hold value better Y0-5 (less
+ *    drop than v1 assumed) but drop MUCH harder Y10+ than v1's 0.90/yr
+ *    (real Y14 retention ≈ 0.11, v1 predicted 0.23).
+ * 2. HYBRID DETECTION from MODEL NAME (HSD/HEV/HYBRID) — data.gov.il lists
+ *    Toyota HSD / Hyundai HEV with fuelType="בנזין" (gasoline), so v1 never
+ *    applied the hybrid boost and underestimated them by up to 58%.
+ * 3. HYBRID BOOST 1.02 → 1.15 (Toyota/Hyundai hybrids hold value unusually
+ *    well in IL).
+ * 4. EV Y0-1 PENALTY REMOVED — Chinese EVs in IL are priced competitively
+ *    and don't drop 25% in year 1.
+ * 5. COMMERCIAL VAN DETECTION (Berlingo/Vito/Caddy/…) — old work vans
+ *    retain value because they stay useful; v1 miscategorized them as
+ *    regular cars and under-predicted by 90%+ for old vans.
+ * 6. HAND PENALTIES HALVED — v1 assumed 14-18% drop for h4-5, reality is 9-13%.
+ * 7. USAGE PENALTIES SOFTENED — lease/rental 18% → 10%.
+ * 8. DIESEL STAGED by age + commercial-van exception.
+ * 9. CHINESE penalty Y0-1 SOFTENED (0.85 → 0.93) — brand-new Chinese EVs
+ *    weren't hit with Y1 over-depreciation.
+ * 10. PREMIUM-LUX Y5+ STEEPER (0.95 → 0.85) — luxury German + Volvo + Land
+ *     Rover lose value hard past Y5.
+ * 11. MILEAGE slope halved and caps softened.
+ * 12. SCRAP FLOOR — no IL car estimate below ₪8,000 (observed market floor).
  *
  * Returns null when there is no base price anchor (UK has no catalog price;
  * some IL models miss the importer/price resource).
@@ -40,11 +69,11 @@ object PriceEstimator {
         val country = info.country
         val fuel = info.fuelType
 
-        val fAgeFuel = ageFuelFactor(age, fuel, country)
+        val fAgeFuel = ageFuelFactor(age, fuel, country, info.model)
         val fOwners = ownersFactor(info)
         val fMileage = mileageFactor(info.lastTestKm, age, country)
         val fBody = bodyFactor(info.bodyType)
-        val fBrand = brandFactor(info.manufacturer, age, country)
+        val fBrand = brandFactor(info.manufacturer, info.model, age, country)
         val fTrim = trimFactor(info.trimLevel)
         val fSafety = safetyFactor(info.safetyScore ?: info.safetyRating)
         val fRecall = if (info.hasOpenRecall == true) 0.94 else 1.0
@@ -60,7 +89,16 @@ object PriceEstimator {
                 fSafety * fRecall * fTest * fEmission * fOrig * fLpg *
                 fParallel * fTaxi * fExport
 
-        val mid = base * factor
+        // IL scrap floor: a running car rarely trades below ~₪8,000 even at Y16+.
+        // Calibrated against Levi-Yitzhak 2009 FIAT 500 (₪8,700) and 2011 Cruze (₪8,000).
+        val floor = if (country == "IL") 8_000.0 else 0.0
+        // Y<1 ceiling: a car barely off the lot can't be worth more than ~95% of
+        // catalog. v3b: Kona Supreme Y0.9 hybrid was computed at ₪209k on ₪186k
+        // catalog (1.12×) because Korean × Hybrid-Y0 × SUV × 0-km compounded
+        // to >1.0. Clamp prevents absurd > catalog values.
+        val rawMid = base * factor
+        val ceiled = if (age <= 1.0) minOf(rawMid, base * 0.95) else rawMid
+        val mid = maxOf(ceiled, floor)
         val confidence = confidence(info)
         val spread = 0.12 + (1.0 - confidence) * 0.08
 
@@ -112,39 +150,110 @@ object PriceEstimator {
 
     /**
      * Core depreciation curve combined with fuel-type modifier.
-     * IL market retains value better than US/EU (inflated new-car prices
-     * + supply constraints). Non-IL curve is steeper.
-     * EVs depreciate ~25% extra Y1; diesels take a ULEZ hit after Y5.
+     *
+     * IL curve (v2 — calibrated against 43 Levi-Yitzhak prices):
+     *   Y0 → 0.92,  Y1 → 0.85,  Y5 → 0.62,  Y10 → 0.25,  Y14 → 0.12,  Y16 → 0.08
+     * Non-IL curve is steeper (matches EU/UK classical depreciation).
+     *
+     * Fuel modifier (IL):
+     *   Hybrid (HSD/HEV/HYBRID badge OR fuel=hybrid): ×1.15 (Toyota/Hyundai
+     *     hybrids hold value unusually well)
+     *   EV: no Y0-1 penalty (Chinese EVs priced competitively), mild Y1-3, ×0.96 Y3+
+     *   PHEV: mild penalty Y1-3, neutral Y3+
+     *   Diesel passenger cars: staged (0.95 → 0.88 → 0.80)
+     *   Diesel COMMERCIAL VAN (Berlingo/Vito/Caddy/Transit/…): retention
+     *     BONUS on old vans — they stay useful as work vehicles.
+     *
+     * Hybrid detection reads the MODEL NAME because data.gov.il lists
+     * Toyota HSD / Hyundai HEV with fuelType="בנזין" (gasoline).
      */
-    private fun ageFuelFactor(age: Double, fuelType: String?, country: String): Double {
+    private fun ageFuelFactor(
+        age: Double,
+        fuelType: String?,
+        country: String,
+        model: String? = null,
+    ): Double {
+        // v3b (Apr 2026): validated against 80 Levi-Yitzhak prices (55 train +
+        // 25 held-out). MAD 13.15% overall, 15.4% on held-out (27% on prior).
+        // v3b changes vs v3: Y5-10 slope softened 0.83 → 0.84 and Y10 anchor
+        // bumped 0.249 → 0.279 — LY prices Y7-10 cars ~10-15% higher than v3.
         val yearsRetained = when (country) {
             "IL" -> when {
-                age <= 1.0 -> 0.87 - (age * 0.04)                       // Y0-Y1: 87 → 83%
-                age <= 3.0 -> 0.83 * 0.93.pow(age - 1.0)                // -7%/yr
-                age <= 6.0 -> 0.83 * 0.93.pow(2.0) * 0.92.pow(age - 3.0) // -8%/yr
-                // After Y6 IL market drops ~10%/yr (validated against Levi Itzhak
-                // pricelist: 2016 Dacia Duster ₪31.5k on ₪100k catalog = 31.5% at
-                // Y10, which 0.93/yr overstated to 42%).
-                else       -> 0.83 * 0.93.pow(2.0) * 0.92.pow(3.0) * 0.90.pow(age - 6.0)
+                age <= 1.0  -> 0.92 - (age * 0.07)                      // 0.92 → 0.85
+                age <= 5.0  -> 0.85 * 0.925.pow(age - 1.0)              // 0.85 → 0.622
+                age <= 10.0 -> 0.622 * 0.84.pow(age - 5.0)              // 0.622 → 0.279
+                else        -> 0.279 * 0.85.pow(age - 10.0)              // 0.279 → 0.124 @ Y15
             }
             else -> when {
-                age <= 1.0 -> 0.82 - (age * 0.06)                       // Y0-Y1: 82 → 76%
-                age <= 3.0 -> 0.76 * 0.88.pow(age - 1.0)                // -12%/yr
-                else       -> 0.76 * 0.88.pow(2.0) * 0.92.pow(age - 3.0) // -8%/yr
+                age <= 1.0  -> 0.80 - (age * 0.06)                      // 0.80 → 0.74
+                age <= 5.0  -> 0.74 * 0.88.pow(age - 1.0)               // 0.74 → 0.44
+                age <= 10.0 -> 0.44 * 0.85.pow(age - 5.0)               // 0.44 → 0.195
+                else        -> 0.195 * 0.85.pow(age - 10.0)
             }
         }
         val f = (fuelType ?: "").lowercase()
-        val fuelMul = when {
-            "חשמל" in f || "electric" in f || "elektr" in f ->
-                when {
-                    age <= 1.0 -> 0.75
-                    age <= 3.0 -> 0.85
+        val mUp = (model ?: "").uppercase()
+        // data.gov.il often labels hybrids as "בנזין" — detect via badge
+        val hybridBadge = "HSD" in mUp || "HEV" in mUp ||
+            " HYBRID" in mUp || "HYBRID " in mUp || mUp == "HYBRID"
+        val isPhev = "חשמל/בנז" in f || "phev" in f || "plug" in f || "plugin" in f ||
+            ("hybrid" in f && "plug" in f) || "PHEV" in mUp
+        val isEv = (("חשמל" in f) && ("בנז" !in f) && !isPhev) ||
+            (("electric" in f) && ("hybrid" !in f) && !isPhev)
+        val isHybrid = !isEv && !isPhev && (hybridBadge ||
+            "hybrid" in f || "היבר" in f || "hybride" in f)
+        val isDiesel = "דיזל" in f || "diesel" in f
+        val isLpg = "lpg" in f || "גפ\"מ" in f || "גפמ" in f
+        // Commercial vans — model-name check
+        val isCommercialVan = listOf(
+            "BERLINGO","VITO","PARTNER","CADDY","KANGOO","TRANSIT",
+            "DOBLO","DUCATO","SPRINTER","MASTER","TRAFIC","EXPRESS",
+            "PROACE","JUMPY","EXPERT"
+        ).any { it in mUp }
+
+        val fuelMul: Double = if (country == "IL") {
+            when {
+                isEv -> when {
+                    age <= 1.0 -> 1.00
+                    age <= 3.0 -> 0.93
+                    else       -> 0.96
+                }
+                isPhev -> when {
+                    age <= 1.0 -> 1.02
+                    age <= 3.0 -> 0.98
+                    else       -> 1.00
+                }
+                // Toyota/Hyundai hybrids sustain value well in IL. Staged: Y0-3
+                // gets a modest boost; Y3+ gets a stronger one since the
+                // Premium-reliable / Korean-IL brand multiplier compounds and
+                // Y3+ data (Corolla HSD Y4, Elantra HEV Y4) under-predicted
+                // with the flat 1.15.
+                isHybrid -> if (age >= 3.0) 1.15 else 1.10
+                isDiesel -> when {
+                    isCommercialVan -> when {
+                        age <= 4.0 -> 0.97
+                        age <= 8.0 -> 0.98
+                        else       -> 1.20   // old work vans hold value as tools
+                    }
+                    age <= 4.0 -> 0.95
+                    age <= 7.0 -> 0.88
+                    else       -> 0.80
+                }
+                isLpg -> 0.88
+                else -> 1.0
+            }
+        } else {
+            when {
+                isEv -> when {
+                    age <= 1.0 -> 0.82
+                    age <= 3.0 -> 0.88
                     else       -> 0.95
                 }
-            "hybrid" in f || "היבר" in f || "hybride" in f -> 1.02
-            "דיזל" in f || "diesel" in f -> if (age >= 5) 0.92 else 0.98
-            "lpg" in f || "גפ\"מ" in f || "גפמ" in f -> 0.90
-            else -> 1.0
+                isHybrid || isPhev -> 1.02
+                isDiesel -> if (age >= 5) 0.92 else 0.98
+                isLpg -> 0.90
+                else -> 1.0
+            }
         }
         return yearsRetained * fuelMul
     }
@@ -159,9 +268,12 @@ object PriceEstimator {
         val o = (info.ownership ?: "").lowercase()
         val history = info.ownershipHistory.orEmpty()
 
-        // Usage-type penalty (biggest single factor).
-        // Hebrew variants: השכרה/השכר = rental, ליסינג = leasing,
-        // החכר/חכירה = leased-out, מונית = taxi, לימוד = driving-school.
+        // v3b calibration: Python reference used stronger penalties than the
+        // previous Kotlin. Drift noticed when user pointed out that Accent
+        // INSPIRE 2022 (ex-lease, hand 2, 68k km) estimated at ₪81,500 in
+        // the app while my Python said ₪77,000. The gap came entirely from
+        // 0.08 vs 0.12 history-lease penalty and 0.03 vs 0.05 hand-2 penalty.
+        // Aligning Kotlin to Python values (calibrated against 80 LY prices).
         val usagePenalty = when {
             "מונית" in o || "taxi" in o -> 0.30
             "לימוד" in o || "driving school" in o -> 0.25
@@ -171,15 +283,17 @@ object PriceEstimator {
             "ממשלתי" in o || "government" in o || "מוניציפלי" in o -> 0.25
             else -> 0.0
         }
-        // Also check entire ownership history for past fleet/rental origin
+        // Past fleet/rental origin — doubled vs old Kotlin (0.08 → 0.12)
         val historyPenalty = if (history.any { rec ->
                 val t = rec.type.lowercase()
                 "השכר" in t || "החכר" in t || "חכיר" in t || "ליסינג" in t ||
                     "rental" in t || "lease" in t || "מונית" in t || "taxi" in t
             } && usagePenalty == 0.0) 0.12 else 0.0
 
-        // Hands count
-        val handCount = max(history.size, 1)
+        // Hand count — exclude dealers ("סוחר"). Stronger penalties than
+        // old Kotlin (h2 0.03→0.05, h3 0.06→0.10, h4 0.09→0.14 ...).
+        val realOwnerCount = history.count { "סוחר" !in it.type }
+        val handCount = max(realOwnerCount, 1)
         val handPenalty = when (handCount) {
             1 -> 0.0
             2 -> 0.05
@@ -207,9 +321,13 @@ object PriceEstimator {
         val avgPerYear = if (country == "NL") 13_000 else 15_000
         val expected = avgPerYear * age
         val delta = km - expected
-        // ~2% per 10k km off average, capped
-        val adj = -0.02 * (delta / 10_000.0)
-        return 1.0 + adj.coerceIn(-0.20, 0.12)
+        // v3: negative cap tightened -0.12 → -0.05. Levi-Yitzhak barely
+        // penalizes high-km cars (e.g. Grand Coupe 227k km Y9 still valued
+        // at ₪47k; Kodiaq 242k km Y8 still ₪79k). Over-penalizing km made us
+        // miss those cars by ~30%. Mild penalty kept to preserve ordering:
+        // a low-km car is still worth more than a high-km peer.
+        val adj = -0.01 * (delta / 10_000.0)
+        return 1.0 + adj.coerceIn(-0.05, 0.08)
     }
 
     // --- Body type ---
@@ -229,54 +347,174 @@ object PriceEstimator {
     // --- Brand tier ---
 
     /**
-     * Chinese brands depreciate significantly faster in the Israeli market
-     * (Globes, 2025 — Jaecoo/BYD/Chery flooded the market).
-     * Toyota/Lexus hold value best; German premium loses more post-Y3.
+     * Brand tier (v3 — calibrated against 55 Levi-Yitzhak prices, MAD 13.1%).
+     *
+     * Naming format from data.gov.il: `{brand} {country-of-assembly}` —
+     *   "רנו טורקיה" (Renault Turkey), "קיה סלובקיה" (Kia Slovakia), etc.
+     * Brand keywords must match as PREFIX, not substring: the Hebrew word
+     * for Turkey ("טורקיה") ends in "קיה" (Hebrew for Kia), so substring
+     * matching would mis-classify Renault Turkey as Korean.
+     *
+     * Tiers (by order of checking — first match wins):
+     *   Performance-Lux  — BMW M/AMG/RS. 0.95/0.82/0.70 by age bracket.
+     *   Commercial        — vans by model (BERLINGO/VITO/CADDY/…) hold
+     *                        value past Y5 as work tools.
+     *   Chinese-IL        — Staged: 1.00 Y0-1, 0.95 Y1-3, 0.88 Y3-5, 0.78 Y5+.
+     *                        v2 was too aggressive on Y0-1 (penalty 0.85).
+     *   Premium-reliable  — Toyota/Lexus/Honda/Mazda/Subaru 1.10 past Y2
+     *                        (no boost for brand-new; depreciation still
+     *                        normal in first 2 years).
+     *   Suzuki-solid      — 1.05 past Y2. Separate tier: Suzuki Swift/Celerio
+     *                        hold value well in IL but not at Japanese
+     *                        premium level.
+     *   Korean-IL         — 1.10 (bumped from 1.06 — Picanto/Sportage/Ioniq
+     *                        consistently under-estimated at 1.06).
+     *   Premium-Lux       — BMW/Mercedes/Audi/Porsche/Volvo/Land Rover/Jaguar.
+     *                        1.00 <Y3, 0.92 Y3-5, 0.85 Y5+. Unchanged.
+     *   Weak-resale       — Fiat/Renault/Citroen/Peugeot/Dacia/Alfa/Lancia.
+     *                        0.92 Y≤10, 0.78 Y>10. French/Italian budget
+     *                        brands lose value sharply past Y10 in IL.
+     *   Old-generic       — Chevrolet/Opel/Daewoo: normal Y≤10, but 0.70
+     *                        past Y10. Aging Chevys/Opels drop hard in IL
+     *                        (Cruze, Sonic, Corsa at Y10+ sell for ₪13-16k
+     *                        off ₪100-125k catalog).
+     *   Mid-reliable      — VW/Skoda/Ford/Mitsubishi/Nissan: 1.02 flat.
+     *                        Volume brands that don't crash like Weak-resale
+     *                        but aren't Premium-reliable.
+     *   Standard          — 1.00 (fallback).
      */
-    private fun brandFactor(make: String?, age: Double, country: String): Double {
+    private fun brandFactor(
+        make: String?,
+        model: String?,
+        age: Double,
+        country: String,
+    ): Double {
         val m = (make ?: "").uppercase().trim()
-        val chineseBrands = setOf(
+        val mdl = (model ?: "").uppercase()
+        fun matches(tokens: Set<String>) = tokens.any { m.startsWith(it) }
+
+        // Performance-Lux first (narrower than Premium-Lux; needs German tier)
+        val performanceTags = listOf(
+            "M8", "M850", "M5 ", " M5", "M3 ", " M3", "M4 ", " M4",
+            "AMG", " RS ", " RS4", " RS6", " RS7", " S4 ", " S6 ", " S8 "
+        )
+        val germanLux = setOf("BMW", "MERCEDES", "MERCEDES-BENZ", "AUDI", "PORSCHE",
+            "ב.מ.וו", "ב.מ.ו", "ב מ וו", "בי אם דבליו",
+            "מרצדס", "אאודי", "אודי", "פורשה",
+            "VOLVO", "LAND ROVER", "RANGE ROVER", "JAGUAR",
+            "וולבו", "לנד רובר", "ריינג רובר", "רובר", "יגואר")
+        val isPerformance = performanceTags.any { it in mdl }
+        if (isPerformance && matches(germanLux)) {
+            return when {
+                age < 3 -> 0.95
+                age < 5 -> 0.82
+                else    -> 0.70
+            }
+        }
+
+        // Commercial vans — also matched inside ageFuelFactor for fuel modifier,
+        // here they get a BRAND boost past Y5 (regardless of fuel).
+        val commercialModels = setOf(
+            "BERLINGO","VITO","PARTNER","CADDY","KANGOO","TRANSIT",
+            "DOBLO","DUCATO","SPRINTER","MASTER","TRAFIC","VIVARO",
+            "EXPRESS","EXPERT","PROACE","JUMPY","COMBO","CONNECT",
+            "ברלינגו","פרטנר","קאנגו","קדי","טרנזיט","ויוואר",
+            "אקספרט","דוקאטו","ויטו","ספרינטר"
+        )
+        val isCommercial = commercialModels.any { it in mdl }
+        if (isCommercial) return if (age >= 5) 1.15 else 1.00
+
+        // Chinese — IL only, staged penalty
+        val chinese = setOf(
             "BYD", "CHERY", "GEELY", "MG", "JAECOO", "OMODA",
             "GREAT WALL", "HAVAL", "NIO", "XPENG", "LEAPMOTOR",
             "DONGFENG", "MAXUS", "ZEEKR", "SAIC", "ROEWE",
-            "צ'רי", "ביי די", "ג'יקו", "ליפמוטור", "אומודה"
+            "צ'רי", "ביי די", "ליפמוטור", "אומודה",
+            "ג'אקו", "ג'יקו", "זיקר", "מ.ג"
         )
-        if (country == "IL" && chineseBrands.any { m.contains(it) }) {
+        if (country == "IL" && matches(chinese)) {
             return when {
-                age <= 1.0 -> 0.85
-                age <= 3.0 -> 0.78
-                else -> 0.72
+                age <= 1.0 -> 1.00
+                age <= 3.0 -> 0.95
+                age <= 5.0 -> 0.88
+                else       -> 0.78
             }
         }
+
+        // SsangYong — Korean budget/older image, priced like Weak-resale (v3b)
+        val ssangYong = setOf("SSANGYONG", "SANGYONG", "סאנגיונג", "סאנגיוג")
+        if (matches(ssangYong)) return 0.92
+
+        // Premium-reliable — Japanese reliable. v3b: always 1.10 (removed Y<2
+        // delay — Hilux Y1.9 was underpriced). Y15+ drops to 1.00 because
+        // Accord Y17 was overestimated.
         val premiumReliable = setOf("TOYOTA", "LEXUS", "HONDA", "MAZDA", "SUBARU",
-            "טויוטה", "לקסוס", "הונדה", "מאזדה", "סובארו")
-        // Korean brands (Hyundai/Kia) hold value especially well in the
-        // Israeli market due to importer service network + high volume.
-        val koreanIL = setOf("HYUNDAI", "KIA", "GENESIS", "יונדאי", "קיה", "גנסיס")
-        val premiumGerman = setOf("BMW", "MERCEDES", "MERCEDES-BENZ", "AUDI", "PORSCHE",
-            "ב.מ.וו", "ב.מ.ו", "מרצדס", "אאודי", "פורשה")
-        // Dacia is a Renault budget subsidiary; Romanian builds drop faster than
-        // the French parents in IL — grouped with the French weak-resale set.
-        val weakResale = setOf("FIAT", "ALFA", "ALFA ROMEO", "RENAULT", "CITROEN", "PEUGEOT",
-            "DACIA", "פיאט", "אלפא", "רנו", "סיטרואן", "פיג'ו", "דאצ'יה", "דאציה")
-        return when {
-            premiumReliable.any { m.contains(it) } -> 1.06
-            country == "IL" && koreanIL.any { m.contains(it) } -> 1.04
-            premiumGerman.any { m.contains(it) } -> if (age >= 3) 0.95 else 1.00
-            weakResale.any { m.contains(it) } -> 0.93
-            else -> 1.00
+            "טויוטה", "לקסוס", "הונדה", "מאזדה", "מזדה", "סובארו")
+        if (matches(premiumReliable)) {
+            return if (age >= 15.0) 1.00 else 1.10
         }
+
+        // Suzuki — v3b: removed Y<2 delay and added Y15+ fade
+        if (m.startsWith("סוזוקי") || m.startsWith("SUZUKI")) {
+            return if (age >= 15.0) 1.00 else 1.05
+        }
+
+        // Korean — IL only. v3b: Y15+ fades to 1.00 (i30 2008 was overpriced).
+        val korean = setOf("HYUNDAI", "KIA", "GENESIS", "יונדאי", "קיה", "גנסיס")
+        if (country == "IL" && matches(korean)) {
+            return if (age >= 15.0) 1.00 else 1.10
+        }
+
+        // German/European luxury
+        if (matches(germanLux)) {
+            return when {
+                age < 3 -> 1.00
+                age < 5 -> 0.92
+                else    -> 0.85
+            }
+        }
+
+        // Weak-resale — steeper past Y10
+        val weakResale = setOf("FIAT", "ALFA", "ALFA ROMEO", "RENAULT", "CITROEN", "PEUGEOT",
+            "DACIA", "LANCIA",
+            "פיאט", "אלפא", "רנו", "סיטרואן", "פיג'ו", "דאצ'יה", "דאציה")
+        if (matches(weakResale)) {
+            return if (age > 10) 0.78 else 0.92
+        }
+
+        // Old-generic (Chevrolet/Opel/Daewoo) — only penalty past Y10
+        val oldGeneric = setOf("CHEVROLET", "OPEL", "DAEWOO", "HOLDEN",
+            "שברולט", "אופל", "דוו", "דיאו")
+        if (matches(oldGeneric)) {
+            return if (age > 10) 0.70 else 1.00
+        }
+
+        // Mid-reliable — v3b: Y5+ bumped 1.02 → 1.08 (Space Star Y6.9 was -61%,
+        // Nissan X-Trail Y4.9 was -13% — both Mid-reliable underpriced)
+        val midReliable = setOf("VW", "VOLKSWAGEN", "SKODA", "FORD", "MITSUBISHI", "NISSAN",
+            "פולקסווגן", "סקודה", "פורד", "מיצובישי", "ניסאן")
+        if (matches(midReliable)) {
+            return if (age >= 5.0) 1.08 else 1.02
+        }
+
+        return 1.00
     }
 
     // --- Minor factors ---
 
     private fun trimFactor(trim: String?): Double {
         val t = (trim ?: "").lowercase()
+        // v3b trim calibration: removed INSPIRE (Hyundai mid-trim, not top)
+        // and STYLE (Skoda Kodiaq mid-trim). Also removed BUSINESS (fleet trim,
+        // not premium). The Accent INSPIRE was overpriced by 3% because of this.
         return when {
             "luxury" in t || "premium" in t || "יוקרה" in t || "עליון" in t ||
-                "top" in t || "executive" in t || "inspire" in t ||
-                "prestige" in t || "limited" in t || "gls" in t -> 1.03
-            "base" in t || "basic" in t || "בסיס" in t || "standard" in t -> 0.98
+                "top" in t || "executive" in t ||
+                "prestige" in t || "limited" in t || "gls" in t ||
+                "supreme" in t || "signature" in t || "highline" in t ||
+                "titanium" in t -> 1.03
+            "base" in t || "basic" in t || "בסיס" in t || "standard" in t ||
+                "expression" in t || "pop" in t || "essential" in t -> 0.97
             else -> 1.00
         }
     }

@@ -760,37 +760,77 @@ Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported f
 19. **Insurance** (`label_section_insurance`) — insured status (NL).
 20. **Data source** — government data source URL.
 
-### Estimated Market Value (PriceEstimator)
+### Estimated Market Value (PriceEstimator v3)
 
 `util/PriceEstimator.kt` produces an **offline** multi-factor estimate of the car's current private-sale value. No network call, no scraping — uses only fields already fetched from data.gov.il / RDW / DVLA.
 
 **Output:** `Estimate(low, mid, high, currency, confidence)` rounded to clean numbers (₪100 / €500 / £1000). Rendered by `CompactEstimateCard` inline with the Test section (mid price + low–high + colored confidence dot: green ≥0.85, amber ≥0.65, orange else).
 
+**v3 calibration (Apr 2026)** — retuned against combined **55 Levi-Yitzhak** pricings (43 from earlier v2 round + 12 new cars scanned Apr 22 that exposed v2's weaknesses). MAD dropped from the previously-deployed **27.0% (stale Kotlin curve) → 13.1%** (v3) — a 52% improvement. ±20% coverage jumped from 47% → 89%.
+
+**Why v3 happened:** the reference Python `calibrate_v2.py` had been retuned against 43 LY cars but the matching edits **were never ported to Kotlin** — so the app was running an older pre-v2 curve. v3 is both the port and a fresh retune against 55 cars. Going forward, keep Python and Kotlin in sync by running `python tools/tune_v3.py` after any estimator change and expecting MAD ≤ 14%.
+
 **Factors** (multiplied together — chain, not sum):
 
-| # | Factor | Notes |
+| # | Factor | v3 logic |
 |---|--------|-------|
-| 1 | Age + fuel curve | Country-specific: **IL retains value much better** (Y1 ~85%, Y3 ~72%, Y6 ~56%) than US/EU baseline. EVs lose extra 15–25% Y1. Diesel post-5yr −8% (ULEZ/Umweltzone). |
-| 2 | Ownership + hand count | Chain rule: primary penalty full, second × 0.5, third × 0.25. Matches Hebrew variants `השכר`, **`החכר`**, `חכיר`, `ליסינג`, English `rental`, `lease`. Rental history penalty 12%, taxi 30%, driving-school 25%, government 25%. Hand 2 −5%, hand 3 −10%, hand 4 −14%. |
-| 3 | Mileage vs expected | Baseline 15,000 km/yr (IL/UK), 13,000 (NL). ±2% per 10k km off. Capped ±20%/+12%. |
-| 4 | Body type | SUV/crossover +5%, sedan 1.0, hatchback −2%, MPV/van −6%, coupe/cabrio −3%. |
-| 5 | Brand × country | Premium-reliable (Toyota/Lexus/Honda/Mazda/Subaru) +6%. **Korean-in-IL bonus** (Hyundai/Kia/Genesis) +4%. Chinese-in-IL (BYD/Chery/Jaecoo/…) −15% Y1, −22% Y3, −28% Y4+. Premium German −5% after Y3. FIAT/Alfa/Renault/Citroen/Peugeot −7%. |
-| 6 | Trim | Top (luxury/premium/**inspire**/prestige/limited/gls/יוקרה/עליון/top/executive) +3%. Base trim −2%. |
-| 7 | Safety score | 7–8 +2%, 1–3 −4%. |
-| 8 | Open recall | NL −6%. |
-| 9 | Test / MOT expired | −6%. |
-| 10 | Emissions | **Guarded** — IL `greenIndex` applies only if 1–15 (data sometimes returns 266 etc.); NL efficiency class A/B +1–2%, F/G −5%; UK CO2 <100 +2%, ≥200 −5%. |
-| 11 | Originality / color changed / tires changed | `מקוריות='לא מקורי'` −15%, `colorChanged` −8%, `tiresChanged` −2%. |
-| 12 | LPG | −12%. |
-| 13 | Parallel import | `importerName` contains `מקביל` → −3%. |
-| 14 | Taxi | −30%. |
-| 15 | Exported | −15%. |
+| 1 | Age curve (IL) | `Y0→0.92, Y1→0.85, Y5→0.622, Y10→0.249, Y15→0.110`. Piecewise: `0.925^yr` Y1-5, `0.83^yr` Y5-10, **`0.85^yr` Y10+** (softened from v2's 0.83 — LY values old cars a bit higher). |
+| 2 | Hybrid badge | Detect HSD/HEV/HYBRID/PHEV/SELF-CHARGING in **model name** (data.gov.il lists Toyota HSD / Hyundai HEV as `fuelType="בנזין"`). **IL boost staged**: ×1.10 Y0-3, **×1.15 Y3+** (Y3+ compounds with Premium-reliable / Korean). |
+| 3 | EV fuel modifier | IL: ×1.00 Y0-1 (no penalty — Chinese EVs priced competitively), ×0.93 Y1-3, ×0.96 Y3+. PHEV: ×1.02/0.98/1.00. |
+| 4 | Diesel | Staged: ×0.95 Y<4, ×0.88 Y4-7, ×0.80 Y7+. **Commercial diesel vans** (Berlingo/Vito/Caddy/Transit/…) get ×1.20 past Y8 — they stay useful as work tools. |
+| 5 | Ownership usage | Private = 1.00. Lease/rental ×0.90, company ×0.92, government/driving-school ×0.80, taxi ×0.72. Chain-stacked with next penalty ×0.5, third ×0.25. |
+| 6 | Hand count | **v3 excludes "סוחר" (dealer) entries** — dealers are middlemen, not owners. `[פרטי,סוחר,פרטי,סוחר,פרטי]` = hand 3, not hand 5. Penalties: h2 −3%, h3 −6%, h4 −9%, h5 −11%, h6+ −13%. |
+| 7 | Mileage vs expected | Baseline 15,000 km/yr (IL/UK), 13,000 (NL). Slope −1%/10k km. **v3 caps negative at −5%** (was −12%) — LY barely penalizes high-km cars (Grand Coupe 227k km Y9 still ₪47k; Kodiaq 242k km Y8 still ₪79k). Positive cap +8%. |
+| 8 | Body type | SUV/crossover +5%, sedan 1.0, hatchback −2%, MPV/van −6%, coupe/cabrio −3%. |
+| 9 | **Brand tier** (11 tiers, prefix match — see below) | First-match wins. |
+| 10 | Trim | Top (luxury/premium/inspire/supreme/…) +3%. Base (expression/pop/essential/…) −3%. |
+| 11 | Safety score | 7–8 +2%, 1–3 −4%. |
+| 12 | Open recall (NL) | −6%. |
+| 13 | Test / MOT expired | −6%. |
+| 14 | Emissions | **Guarded** — IL `greenIndex` only if 1–15; NL A/B +1–2%, F/G −5%; UK CO2 <100 +2%, ≥200 −5%. |
+| 15 | Originality / color / tires | `לא מקורי` −15%, `colorChanged` −8%, `tiresChanged` −2%. |
+| 16 | LPG / Parallel import / Taxi / Exported | −12% / −3% / −30% / −15%. |
+| 17 | IL scrap floor | `max(mid, ₪8,000)`. |
 
-**Confidence** starts at 0.5 and adds 0.1–0.2 per data field present (base price, km, ownership, history, onRoadDate, bodyType). Spread = 12% + (1 − confidence) × 8%, so low-confidence estimates show a wider range.
+**Brand tiers (v3)** — matched by **prefix** against `manufacturer` (after `.substringBefore(' ')`). Prefix match is critical: `"טורקיה"` (Turkey) ends with the chars of `"קיה"` (Kia), so substring match would mis-classify Renault Turkey as Korean.
 
-**Debug logging** (DEBUG builds only, tag `PriceEstimator`): logs every factor + combined factor + mid/low/high + confidence on each `estimate()` call. Useful for calibration — `adb logcat -s PriceEstimator:*`.
+| Tier | Brands | Factor |
+|------|--------|--------|
+| Performance-Lux | BMW M/M850, AMG, Audi RS — detected from **model name** | 0.95 <Y3 / 0.82 Y3-5 / **0.70 Y5+** |
+| Commercial | Berlingo/Vito/Caddy/Transit/Sprinter/… — by **model** | 1.00 <Y5 / **1.15 Y5+** |
+| Chinese-IL | BYD, Chery, Geely, MG, Jaecoo, Zeekr, ג'אקו, מ.ג, … | **1.00/0.95/0.88/0.78** by Y bracket (Y0-1/1-3/3-5/5+) |
+| Premium-reliable | Toyota, Lexus, Honda, Mazda (**both מזדה and מאזדה**), Subaru | **1.00 <Y2, 1.10 Y2+** |
+| Suzuki-solid | Suzuki | 1.00 <Y2, 1.05 Y2+ |
+| Korean-IL | Hyundai, Kia, Genesis | **1.10** (bumped from 1.06) |
+| Premium-Lux | BMW (**ב.מ.וו and ב מ וו and BMW**), Mercedes, Audi, Porsche, Volvo, Land/Range Rover, Jaguar | 1.00 <Y3 / 0.92 Y3-5 / 0.85 Y5+ |
+| Weak-resale | Fiat, Alfa, Renault, Citroen, Peugeot, Dacia, Lancia | **0.92 Y≤10, 0.78 Y>10** (v2 was flat 0.92) |
+| **Old-generic** (new in v3) | Chevrolet, Opel, Daewoo, Holden | 1.00 Y≤10, **0.70 Y>10**. Cruze/Sonic/Corsa Y11+ sell at ₪13-16k off ₪100-125k catalog. |
+| **Mid-reliable** (new in v3) | VW, Skoda, Ford, Mitsubishi, Nissan | 1.02 |
+| Standard | (fallback) | 1.00 |
 
-**Validation** — 2022 Hyundai Accent INSPIRE 1.6 (catalog ₪121,900, ex-rental, hand 2, 68k km): formula → ₪73,000; Levi Itzhak authoritative pricelist → ₪71,400. Delta **2.2%**.
+**Confidence** starts at 0.5 and adds 0.1–0.2 per data field present (base price, km, ownership, history, onRoadDate, bodyType). Spread = 12% + (1 − confidence) × 8%.
+
+**Debug logging** (DEBUG builds only, tag `PriceEstimator`): logs every factor + combined + mid/low/high + confidence. `adb logcat -s PriceEstimator:*`.
+
+**v3 metrics (n=55 LY-priced cars):** MAD 13.1% · median delta +4.4% · mean +5.0% · ±10% coverage 45% · ±20% coverage **89%**. Remaining outliers are small-sample edge cases (Subaru Forester Y16 +43%, Renault Grand Coupe 227k km +80%).
+
+**Known weaknesses:**
+1. Very old reliable Japanese SUVs (Forester Y16) hold value better than the curve predicts — the Y15+ floor catches too aggressively.
+2. Extremely high-km cars (>220k km) still under-estimated because LY essentially ignores km while we apply −5% cap.
+3. Niche luxury (BMW M850, Audi Q5 at specific configurations) sometimes misses by 15-25% because sample too small to tune per-model.
+
+**Drift prevention:** `tools/tune_v3.py` is the canonical reference. After ANY change to `PriceEstimator.kt` run:
+```
+python tools/tune_v3.py
+```
+Expect the three tiers ("ALL / old / new") to all show MAD ≤ 14% and ±20% coverage ≥ 85%. If metrics regress, either revert or re-tune in Python first.
+
+**Calibration artifacts:**
+- `price_calibration_v3_final.xlsx` — all 55 LY cars with Kotlin-old vs v3 side-by-side, factor breakdown, delta.
+- `tools/tune_v3.py` · `tools/tune_v4.py` · `tools/tune_v5.py` · `tools/tune_v6.py` — iterative Python tunings that led to v3.
+- `tools/calibration_data.json` — 48 original LY+Yad2 reference cars.
+- `scan_history_v2.json` — the 12 new Apr-22 cars.
+- `price_calibration_check_v2_with_levieitshak.xlsx` — user-filled LY prices for the 12 new cars.
 
 `ScanHistory.toVehicleInfo()` extension lets `HistoryScreen` recompute the estimate from a stored `ScanRecord` — the estimate re-ages every time you open the record, so old saves show current-year prices.
 
