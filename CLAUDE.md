@@ -738,7 +738,7 @@ The glass-morphism card displays:
 Every section uses the same `SectionHeader`/`SectionDivider` helpers (exported from `CarInfoOverlay.kt`), so the overlay and `HistoryScreen` expanded view are visually identical.
 
 1. **Test / Validity** (`label_section_test`) — rendered as a two-column `Row`:
-   - **Start column** (right in RTL): motStatus, testValidUntil, lastTestDate, `lastTestKm` *(moved up from Internal Details)*.
+   - **Start column** (right in RTL): motStatus, testValidUntil, lastTestDate, `lastTestKm` *(moved up from Internal Details; row is hidden when value is 0 or null — some records return 0 from data.gov.il which would otherwise render as "0 km" and look broken)*.
    - **End column** (left in RTL): `CompactEstimateCard` — ₪ mid price (18sp ExtraBold), low–high range, confidence dot.
 2. **Ownership history** (`label_ownership_history`) — table of ownership dates and types (IL).
 3. **Price** — highlighted card with ₪ price at registration (IL, `priceAtRegistration`).
