@@ -284,6 +284,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                     SoundManager.playInfoLoaded()
                     ScanHistory.save(context, plate, info)
                     AnalyticsManager.vehicleInfoLoaded(plate, info.manufacturer, info.model, (country ?: SupportedCountry.ISRAEL).code)
+                    AnalyticsManager.vehiclePriced(info, com.carinfo.ar.util.PriceEstimator.estimate(info))
                 } else {
                     AnalyticsManager.vehicleNotFound(plate, (country ?: SupportedCountry.ISRAEL).code)
                     Toast.makeText(context, context.getString(R.string.image_picker_no_plate), Toast.LENGTH_SHORT).show()
@@ -497,6 +498,7 @@ fun CameraScreen(onOpenSettings: () -> Unit = {}, onOpenHistory: () -> Unit = {}
                                                         if (info != null) {
                                                             SoundManager.playInfoLoaded()
                                                             AnalyticsManager.vehicleInfoLoaded(plate.plateNumber, info.manufacturer, info.model, countryRef.value.code)
+                                                            AnalyticsManager.vehiclePriced(info, com.carinfo.ar.util.PriceEstimator.estimate(info))
                                                             // Save only via manual Save button, not automatically
                                                             if (activity != null) AdManager.onNewPlateDetected(activity)
                                                         } else {

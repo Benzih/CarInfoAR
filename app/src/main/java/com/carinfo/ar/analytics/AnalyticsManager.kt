@@ -2,7 +2,10 @@ package com.carinfo.ar.analytics
 
 import android.content.Context
 import android.os.Bundle
+import com.carinfo.ar.data.model.VehicleInfo
+import com.carinfo.ar.util.PriceEstimator
 import com.google.firebase.analytics.FirebaseAnalytics
+import java.time.LocalDate
 
 /**
  * Centralized analytics tracking for all user actions.
@@ -87,6 +90,71 @@ object AnalyticsManager {
         "vehicle_not_found",
         bundle("country" to country)
     )
+
+    /**
+     * Logs the full set of price-formula inputs + outputs for one vehicle scan.
+     *
+     * Used to retrospectively tune PriceEstimator against real market values
+     * (e.g. Levi-Yitzhak pricelist). Fires only when an estimate could be
+     * computed (i.e. there is a base price anchor).
+     *
+     * GA4 setup: each parameter must be registered as a Custom Dimension
+     * (strings) or Custom Metric (numbers) in Admin → Custom definitions.
+     * See AnalyticsManager.VEHICLE_PRICED_DIMENSIONS / METRICS below for the
+     * exact names + scope.
+     *
+     * Privacy: NO plate number is sent. Plate-level data stays on-device in
+     * ScanHistory. This complies with the public privacy policy.
+     */
+    fun vehiclePriced(info: VehicleInfo, estimate: PriceEstimator.Estimate?) {
+        if (estimate == null) return
+
+        val now = LocalDate.now().year
+        val ageYears = info.year?.let { (now - it).coerceIn(0, 99) }
+
+        // Hand count = real owners (excludes "סוחר" dealer entries which are
+        // middlemen, not owners). Matches PriceEstimator v3 hand-count logic.
+        val realOwners = info.ownershipHistory?.filter { it.type != "סוחר" }
+        val handCount = realOwners?.size ?: 0
+        val ownershipPattern = realOwners
+            ?.joinToString("→") { it.type }
+            ?.take(95)  // GA4 param value max ≈ 100 chars
+
+        val isHybrid = info.model?.uppercase()?.let { m ->
+            listOf("HSD", "HEV", "PHEV", "HYBRID", "SELF-CHARGING").any { it in m }
+        } ?: false
+
+        logEvent(
+            "vehicle_priced",
+            bundle(
+                // ---- Custom Dimensions (strings) ----
+                "manufacturer" to (info.manufacturer ?: "unknown"),
+                "model" to (info.model ?: "unknown"),
+                "country" to info.country,
+                "body_type" to info.bodyType,
+                "fuel_type" to info.fuelType,
+                "ownership" to info.ownership,
+                "ownership_pattern" to ownershipPattern,
+                "transmission" to info.transmission,
+                "drive_type" to info.driveType,
+                "is_hybrid" to if (isHybrid) "yes" else "no",
+                "originality" to info.originality,
+                "importer_name" to info.importerName,
+                // ---- Custom Metrics (numbers) ----
+                "vehicle_year" to info.year,
+                "age_years" to ageYears,
+                "last_test_km" to info.lastTestKm,
+                "catalog_price" to info.priceAtRegistration,
+                "horsepower" to info.horsepower,
+                "hand_count" to handCount,
+                "safety_score" to (info.safetyScore ?: info.safetyRating),
+                "estimate_low" to estimate.low,
+                "estimate_mid" to estimate.mid,
+                "estimate_high" to estimate.high,
+                "estimate_confidence" to (estimate.confidence * 100).toInt()
+            )
+        )
+    }
 
     fun apiError(plate: String, country: String, error: String) = logEvent(
         "api_error",
